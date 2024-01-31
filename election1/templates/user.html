@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}
+Admin User Page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Admin Users....</h1>
+        <br>
+        <form method="post" style="color:white", autocomplete="off">
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                     {{ form.user_firstname.label() }}
+                </div>
+            </div>
+             <div class="row g-3 ">
+                 <div class="col-auto">
+                     {{ form.user_firstname()}}
+                </div>
+            </div>
+            <br>
+            <div class="row g-3 ">
+                 {{ form.user_lastname.label() }}
+            </div>
+
+             <div class="row g-3 ">
+                 <div class="col-auto">
+                     {{ form.user_lastname()}}
+                </div>
+            </div>
+           <br>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                    {{ form.user_so_name.label() }}
+                </div>
+            </div>
+            <div class="row g-3 ">
+                 <div class="col-auto">
+                     {{ form.user_so_name()}}
+                </div>
+
+            </div>
+
+           <br>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                    {{ form.user_pass.label() }}
+                </div>
+            </div>
+            <div class="row g-3 ">
+                 <div class="col-auto">
+                     {{ form.user_pass()}}
+                </div>
+
+            </div>
+            <br>
+
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                    {{ form.user_role.label() }}
+                </div>
+            </div>
+            <div class="row g-3 ">
+                 <div class="col-auto">
+                     {{ form.user_role() }}
+                </div>
+            </div>
+             <br>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                    {{ form.user_email.label() }}
+                </div>
+            </div>
+            <div class="row g-3 ">
+                 <div class="col-auto">
+                     {{ form.user_email() }}
+                </div>
+            </div>
+            <br>
+            <div class="d-grid gap-2 d-md-block">
+                {{ form.submit(type="submit",value='Add Candidate', class="btn   btn-primary") }}
+            </div>
+        </form>
+    </div>
+{% endblock %}

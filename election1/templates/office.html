@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}
+  Office Page
+{% endblock %}
+
+
+<body>
+{% block content %}
+    <div class="container">
+        <h1> Offices...</h1>
+        <br>
+        <form method="post" style="color:white">
+            {{ form.hidden_tag() }}
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                     {{ form.office_title.label() }}
+                </div>
+                 <div class="col-auto">
+                    {{ form.office_title() }}
+                </div>
+                 <div class="col-sm-2">
+                    <span id="passwordHelpInline" class="form-text">
+                       Enter the title of the office.
+                    </span>
+                </div>
+            </div>
+            <br>
+            <div class="row g-3">
+                <div class="col-2">
+                     {{ form.sortkey.label() }}
+                </div>
+                 <div class="col-auto">
+                    {{ form.sortkey() }}
+                </div>
+                 <div class="col-sm-2">
+                    <span id="passwordHelpInline" class="form-text">
+                       For sort order in dropdowns
+                    </span>
+                </div>
+            </div>
+
+            <br><br>
+            <div class="d-grid gap-2 d-md-block">
+                {{ form.submit(type="submit",value='Add Class', class="btn   btn-primary") }}
+            </div>
+
+        </form>
+        <br><br>
+        <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> Sort Key</th>
+                       <th class="col-2"> Office</th>
+                       <th class="col-2"> id </th>
+                       <th class="col-2"> Delete </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+               {% for office in offices %}
+                <tr>
+                    <td>{{ office.sortkey }}</td>
+                     <td>{{ office.office_title }}</td>
+                    <td> {{ office.id_office }}</td>
+                    <td><a href="{{ url_for('deleteoffice',id=office.id_office)}}">Delete</a> </td>
+                </tr>
+                {% endfor %}
+               </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+</body>

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}
+Candidate Page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Candidate Report....</h1>
+        <br>
+        <form method="post" style="color:white">
+
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                    {{ form.choices_classgrp.label() }}
+                </div>
+                <div class="col-2 ">
+                    {{ form.choices_office.label() }}
+                </div>
+            </div>
+
+            <div class="row g-3 ">
+                 <div class="col-2">
+                     {{ form.choices_classgrp()}}
+                </div>
+                 <div class="col-2">
+                     <select id="choices_office" name="choices_office"><option selected value=0>All Offices</option>
+                         {% for offices in list_of_offices  %}
+                         <option value={{ offices.id_office }}>{{ offices.office_title }} </option>
+                         {% endfor %}
+                     </select>
+
+                </div>
+                <div class="col-2">
+                     {{ form.submit(type="submit",value=' Report', class="btn   btn-primary") }}
+                </div>
+            </div>
+
+        </form>
+    <br>
+            <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> ID</th>
+                       <th class="col-2"> Firstname</th>
+                       <th class="col-2"> Lastname</th>
+                       <th class="col-2"> Class</th>
+                       <th class="col-2"> Office </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+               {% for candidate, classgrp, office in candidates %}<tr>
+                    <td>{{ candidate.id_candidate }}</td>
+                    <td>{{ candidate.firstname }}</td>
+                    <td>{{ candidate.lastname }}</td>
+                    <td> {{ classgrp.name }}</td>
+                    <td> {{ office.office_title }}</td>
+                </tr>
+                {% endfor %}
+               </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
