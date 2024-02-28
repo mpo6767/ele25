@@ -6,4 +6,4 @@ class Config:
 
     SQLALCHEMY_DATABASE_URI = ('mysql+pymysql://' + str(db_user) + ':' +
                                str(db_pass) + '@localhost/school_db')
-    SECRET_KEY = 'cvfredssw343434'
+    SECRET_KEY = 'cvfredsiiisw343434'
