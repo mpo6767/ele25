@@ -1,9 +1,9 @@
-import logging
 import logging.config
-import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from election1.config import Config
+from election1.ext.csrf import csrf
 
 logging.config.fileConfig('logging.conf')
 
@@ -11,27 +11,36 @@ logging.config.fileConfig('logging.conf')
 logger=logging.getLogger('simpleExample')
 logger.info('logging is initialized')
 
-app = Flask(__name__, instance_relative_config=True)
+db = SQLAlchemy()
 
-db_user = os.environ.get('DB_USER')
-db_pass = os.environ.get('DB_PASS')
-
-# connection_string = "mysql+mysqlconnector://root:myB34tl3B41lysql@localhost:3306/sample_db"
-# engine = create_engine(connection_string, echo=True)
-# with engine.connect() as connection:
-#     result = connection.execute(text("SELECT * FROM sample_db.candidate"))
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' + str(db_user) + ':' + str(db_pass) + '@localhost/school_db'
-
-app.config['SECRET_KEY'] = 'ec9439cfc6c796ae2029594d'
-
-db = SQLAlchemy(app)
-
-login_manager = LoginManager(app)
+login_manager = LoginManager()
 # login_manager.init_app(election1)
-login_manager.login_view = 'login'
+login_manager.login_view = 'admins.login'
 login_manager.login_message_category = "info"
 
+# from election1 import controller
 
 
-from election1 import controller
+def create_app(config_class=Config):
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_object(Config)
+    print('secret ' + str(app.secret_key))
+    csrf.init_app(app)
+
+    db.init_app(app)
+    login_manager.init_app(app)
+
+    from election1.admins.view import admins
+    from election1.ballot.view import ballot
+    from election1.mains.view import mains
+    app.register_blueprint(admins)
+    app.register_blueprint(ballot)
+    app.register_blueprint(mains)
+
+    from .models import User
+
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(int(id))
+
+    return app

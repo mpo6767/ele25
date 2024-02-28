@@ -21,27 +21,30 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="{{ url_for('homepage') }}">Home </a>
+                <a class="nav-link" href="{{ url_for('mains.homepage') }}">Home </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('user_admin') }}">User Admin</a>
+                <a class="nav-link" href="{{ url_for('admins.user_admin') }}">User Admin</a>
+            </li>
+             <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('admins.dates') }}">Election Dates</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('classgrp') }}">Class </a>
+                <a class="nav-link" href="{{ url_for('ballot.classgrp') }}">Class </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('office') }}">Office</a>
+                <a class="nav-link" href="{{ url_for('ballot.office') }}">Office</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('candidate') }}">Candidate Entry</a>
+                <a class="nav-link" href="{{ url_for('ballot.candidate') }}">Candidate Entry</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('candidate_report') }}">Candidate Report</a>
+                <a class="nav-link" href="{{ url_for('ballot.candidate_report') }}">Candidate Report</a>
             </li>
         </ul>
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                <a class="nav-link" href="{{ url_for('admins.login') }}">Login</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Office</a>

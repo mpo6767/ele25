@@ -7,7 +7,8 @@ Candidate Page
     <div class="container">
         <h1> Candidates....</h1>
         <br>
-        <form method="post" style="color:white">
+        <form method="POST" style="color:white">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3 ">
                 <div class="col-2 ">
                      {{ form.firstname.label() }}
@@ -79,7 +80,7 @@ Candidate Page
                     <td>{{ candidate.lastname }}</td>
                     <td> {{ classgrp.name }}</td>
                     <td> {{ office.office_title }}</td>
-                    <td><a href="{{ url_for('deletecandidate',id=candidate.id_candidate)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('ballot.deletecandidate',id=candidate.id_candidate)}}">Delete</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

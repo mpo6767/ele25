@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, EmailField
+from wtforms import StringField,  SubmitField, IntegerField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,InputRequired
-from wtforms_alchemy.fields import QuerySelectField
 from election1.models import Classgrp, Office
-# from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from wtforms_alchemy.fields import QuerySelectField
+
 
 
 def classgrp_query():
@@ -43,25 +43,3 @@ class ClassgrpForm(FlaskForm):
     name = StringField(label='Class or Group . . .', validators=[Length(min=2, max=30), DataRequired()])
     sortkey = IntegerField(label='Sort Key . . .', validators=[DataRequired()])
     submit = SubmitField(label='submit')
-
-class UserForm(FlaskForm):
-    user_firstname = StringField(label='firstname', validators=[Length(min=2, max=30), InputRequired()])
-    user_lastname = StringField(label='lastname', validators=[Length(min=2, max=30), InputRequired()])
-    user_so_name = StringField(label='user name', validators=[Length(min=2, max=30), InputRequired()])
-    user_pass = StringField(label='password', validators=[Length(min=2, max=30), InputRequired()])
-    user_role = StringField(label='role', validators=[Length(min=1, max=1), InputRequired()])
-    user_email = EmailField(label='email', validators=[Email()])
-    submit = SubmitField(label='submit')
-
-
-class LoginForm(FlaskForm):
-    login_so_name = StringField(label='username', validators=[Length(min=2, max=30), InputRequired()])
-    login_pass = PasswordField(label='password', validators=[Length(min=2, max=30), InputRequired(),
-                                                            EqualTo('user_pass2', message='passwords must match')])
-    submit = SubmitField(label='submit')
-
-
-# class ChangePW(FlaskForm):
-#     user_pass = PasswordField(label='password', validators=[Length(min=2, max=30), InputRequired(), EqualTo('user_pass2', message='passwords must match')])
-#     user_pass2 = PasswordField(label='pw check', validators=[Length(min=2, max=30), InputRequired()])Lo
-#     submit = SubmitField(label='submit')

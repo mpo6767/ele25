@@ -11,8 +11,8 @@
         <h1> Class or Groups...</h1>
         <br>
         <form method="post" style="color:white">
-            {{ form.hidden_tag() }}
-            <div class="row g-3 ">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <div class="row g-3 ">
                 <div class="col-2 ">
                      {{ form.name.label() }}
                 </div>
@@ -64,7 +64,7 @@
                     <td>{{ classgrp.sortkey }}</td>
                      <td>{{ classgrp.name }}</td>
                     <td> {{ classgrp.id_classgrp }}</td>
-                    <td><a href="{{ url_for('deleteclass',id=classgrp.id_classgrp)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('ballot.deleteclass',id=classgrp.id_classgrp)}}">Delete</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

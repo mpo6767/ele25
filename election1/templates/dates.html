@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}
+Candidate Page
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+<h3> Select a date range </h3>
+<form action="" method='POST' name="DatesForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <br><br>
+    <div class="row g-3 ">
+         <div class="col-2 ">
+             {{ form.start_date_time.label() }}
+         </div>
+    </div>
+    <div class="row g-3 ">
+         <div class="col-auto">
+             {{ form.start_date_time()}}
+         </div>
+    </div>
+    <br>
+    <div class="row g-3 ">
+           <div class="col-2 ">
+             {{ form.end_date_time.label() }}
+         </div>
+    </div>
+    <div class="row g-3 ">
+         <div class="col-auto">
+             {{ form.end_date_time()}}
+         </div>
+    </div>
+<br>
+    <div class="d-grid gap-2 d-md-block">
+         {{ form.submit(type="submit",value='Add Date', class="btn   btn-primary") }}
+    </div>
+</form>
+</div>
+{% endblock %}

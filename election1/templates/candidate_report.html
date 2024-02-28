@@ -8,7 +8,7 @@ Candidate Page
         <h1> Candidate Report....</h1>
         <br>
         <form method="post" style="color:white">
-
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3 ">
                 <div class="col-2 ">
                     {{ form.choices_classgrp.label() }}

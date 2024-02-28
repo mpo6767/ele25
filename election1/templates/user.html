@@ -7,7 +7,8 @@ Admin User Page
     <div class="container">
         <h1> Admin Users....</h1>
         <br>
-        <form method="post" style="color:white", autocomplete="off">
+        <form method="post" style="color:white" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3 ">
                 <div class="col-2 ">
                      {{ form.user_firstname.label() }}
@@ -57,12 +58,12 @@ Admin User Page
 
             <div class="row g-3 ">
                 <div class="col-2 ">
-                    {{ form.user_role.label() }}
+                    {{ form.id_admin_role.label() }}
                 </div>
             </div>
             <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.user_role() }}
+                     {{ form.id_admin_role() }}
                 </div>
             </div>
              <br>
@@ -81,5 +82,30 @@ Admin User Page
                 {{ form.submit(type="submit",value='Add Candidate', class="btn   btn-primary") }}
             </div>
         </form>
+         <br><br>
+        <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> ID</th>
+                       <th class="col-2"> Firstname</th>
+                       <th class="col-2"> Lastname</th>
+                       <th class="col-2"> Admin</th>
+                       <th class="col-2"> Delete </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+               {% for user, admin_roles in admins %}<tr>
+                    <td>{{ user.id_user }}</td>
+                    <td>{{ user.user_firstname }}</td>
+                    <td>{{ user.user_lastname }}</td>
+                    <td> {{ admin_roles.admin_role_name}}</td>
+                    <td><a href="{{ url_for('admins.deleteuser',id=user.id_user)}}">Delete</a> </td>
+                </tr>
+                {% endfor %}
+               </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

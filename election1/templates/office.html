@@ -9,8 +9,8 @@
     <div class="container">
         <h1> Offices...</h1>
         <br>
-        <form method="post" style="color:white">
-            {{ form.hidden_tag() }}
+        <form method="post" style="color:white" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3 ">
                 <div class="col-2 ">
                      {{ form.office_title.label() }}
@@ -63,7 +63,7 @@
                     <td>{{ office.sortkey }}</td>
                      <td>{{ office.office_title }}</td>
                     <td> {{ office.id_office }}</td>
-                    <td><a href="{{ url_for('deleteoffice',id=office.id_office)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('ballot.deleteoffice',id=office.id_office)}}">Delete</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>
