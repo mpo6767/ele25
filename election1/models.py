@@ -2,6 +2,9 @@ from election1 import db, login_manager
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from datetime import datetime
+from election1.utils import unique_security_token
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -35,8 +38,14 @@ class User(db.Model, UserMixin):
     user_lastname = db.Column(db.String(length=45), nullable=False)
     user_so_name = db.Column(db.String(length=12), nullable=False, unique=True)
     user_pass = db.Column(db.String(150))
-    user_role = db.Column(db.String(1), nullable=False)
+    # user_role = db.Column(db.String(1), nullable=False)
     user_email = db.Column(db.String(45), unique=True)
+    user_status = db.Column(db.Integer, default=False, nullable=False)
+    user_pw_change = db.Column(db.String(length=1), nullable=False)
+    user_security = db.Column(db.String(138), default=unique_security_token)
+    user_created = db.Column(db.DateTime, default=datetime.now)
+    user_sec_send = db.Column(db.DateTime, default=datetime.now)
+
     id_admin_role = db.Column(db.Integer, db.ForeignKey('admin_roles.id_admin_role'))
 
     def get_id(self):
