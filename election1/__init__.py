@@ -2,7 +2,7 @@ import os
 import logging.config
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
+
 from election1.config import Config
 from election1.ext.csrf import csrf
 
@@ -12,12 +12,11 @@ logging.config.fileConfig('logging.conf')
 logger=logging.getLogger('simpleExample')
 logger.info('logging is initialized')
 
-db = SQLAlchemy()
+# db = SQLAlchemy()
 
-login_manager = LoginManager()
+# login_manager = LoginManager()
 # login_manager.init_app(election1)
-login_manager.login_view = 'admins.login'
-login_manager.login_message_category = "info"
+
 
 # from election1 import controller
 
@@ -28,29 +27,33 @@ def create_app(config_class=Config):
 
     # application configuration.
     config_application(app)
-
     # configure application extension.
+    config_extention(app)
+    # configure application blueprints.
+    config_blueprint(app)
 
 
-    app.config.from_object(Config)
-    print('secret ' + str(app.secret_key))
+    # app.config.from_object(Config)
+    # print('secret ' + str(app.secret_key))
+
     csrf.init_app(app)
 
-    db.init_app(app)
-    login_manager.init_app(app)
+    # db.init_app(app)
 
-    from election1.admins.view import admins
-    from election1.ballot.view import ballot
-    from election1.mains.view import mains
-    app.register_blueprint(admins)
-    app.register_blueprint(ballot)
-    app.register_blueprint(mains)
+    # login_manager.init_app(app)
+
+    # from election1.admins.view import admins
+    # from election1.ballot.view import ballot
+    # from election1.mains.view import mains
+    # app.register_blueprint(admins)
+    # app.register_blueprint(ballot)
+    # app.register_blueprint(mains)
 
     from .models import User
 
-    @login_manager.user_loader
-    def load_user(id):
-        return User.query.get(int(id))
+    # @login_manager.user_loader
+    # def load_user(id):
+    #     return User.query.get(int(id))
 
     return app
 
@@ -82,3 +85,46 @@ def config_application(app):
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USERNAME"] = os.getenv('MAIL_USERNAME', 'michael@cpo2llc.com')
     app.config["MAIL_PASSWORD"] = os.getenv('MAIL_PASSWORD', 'T0mP3tty')
+
+
+def config_blueprint(app):
+    """
+    Configure and register blueprints with the Flask application.
+    """
+    from election1.admins.view import admins
+    from election1.ballot.view import ballot
+    from election1.mains.view import mains
+    app.register_blueprint(admins)
+    app.register_blueprint(ballot)
+    app.register_blueprint(mains)
+
+def config_extention(app):
+    """
+    Configure application extensions.
+    """
+    from .extensions import login_manager
+    from .extensions import db
+    from .extensions import bootstrap
+
+    db.init_app(app)
+    login_manager.init_app(app)
+
+    config_manager(login_manager)
+
+
+def config_manager(manager):
+    """
+    Configure with Flask-Login manager.
+    """
+    from .models import User
+
+    manager.login_message = "You are not logged in to your account."
+    manager.login_view = 'admins.login'
+    manager.login_message_category = "info"
+
+    @manager.user_loader
+    def user_loader(id):
+        return User.query.get_or_404(id)
+
+
+

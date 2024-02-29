@@ -1,4 +1,4 @@
-from election1 import db, login_manager
+from election1.extensions import (db, login_manager)
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -6,9 +6,9 @@ from datetime import datetime
 from election1.utils import unique_security_token
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.query.get(int(user_id))
 
 class Classgrp(db.Model):
     id_classgrp = db.Column(db.Integer, primary_key=True)

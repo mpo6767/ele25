@@ -2,7 +2,7 @@ from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
 from election1.ballot.form import CandidateForm, OfficeForm, ClassgrpForm, Candidate_reportForm
 from election1.models import Classgrp, Office, Candidate
-from election1 import db
+from election1.extensions import db
 import logging
 
 

@@ -1,7 +1,7 @@
 from flask import Blueprint,request, current_app, redirect, flash, render_template,url_for
 from election1.admins.form import UserForm,LoginForm,DatesForm
-from election1 import db
-from..models import User, Admin_roles, Dates
+from election1.extensions import db
+from ..models import (User, Admin_roles, Dates)
 from sqlalchemy.exc import IntegrityError
 # from flask_login import login_user, logout_user, login_required
 import logging
