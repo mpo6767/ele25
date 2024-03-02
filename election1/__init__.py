@@ -4,7 +4,6 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from election1.config import Config
-from election1.ext.csrf import csrf
 
 logging.config.fileConfig('logging.conf')
 
@@ -36,7 +35,7 @@ def create_app(config_class=Config):
     # app.config.from_object(Config)
     # print('secret ' + str(app.secret_key))
 
-    csrf.init_app(app)
+    # csrf.init_app(app)
 
     # db.init_app(app)
 
@@ -49,7 +48,7 @@ def create_app(config_class=Config):
     # app.register_blueprint(ballot)
     # app.register_blueprint(mains)
 
-    from .models import User
+    # from .models import User
 
     # @login_manager.user_loader
     # def load_user(id):
@@ -105,11 +104,12 @@ def config_extention(app):
     from .extensions import login_manager
     from .extensions import db
     from .extensions import bootstrap
+    from .extensions import csrf
 
     db.init_app(app)
     login_manager.init_app(app)
-
     config_manager(login_manager)
+    csrf.init_app(app)
 
 
 def config_manager(manager):
