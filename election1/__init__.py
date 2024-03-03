@@ -1,6 +1,7 @@
 import os
 import logging.config
 from flask import Flask
+from .models import User
 from flask_sqlalchemy import SQLAlchemy
 
 from election1.config import Config
@@ -32,11 +33,12 @@ def create_app(config_class=Config):
     config_blueprint(app)
 
 
+
+
     # app.config.from_object(Config)
     # print('secret ' + str(app.secret_key))
 
     # csrf.init_app(app)
-
     # db.init_app(app)
 
     # login_manager.init_app(app)
@@ -110,6 +112,10 @@ def config_extention(app):
     login_manager.init_app(app)
     config_manager(login_manager)
     csrf.init_app(app)
+
+    with app.app_context():
+        admin_check = User.query.first()
+        print(str(admin_check))
 
 
 def config_manager(manager):
