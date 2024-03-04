@@ -2,10 +2,10 @@ import os
 import logging.config
 from flask import Flask
 from .models import User
-from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash
 from sqlalchemy_utils import database_exists
 from election1.config import Config
-from sqlalchemy import func, exc
+from sqlalchemy import  exc
 
 logging.config.fileConfig('logging.conf')
 
@@ -110,9 +110,11 @@ def config_extention(app):
     from .extensions import bootstrap
     from .extensions import csrf
 
+    db.init_app(app)
+
     if not os.path.exists("instance/election.db"):
-        logger.info("database is  not here")
-        db.init_app(app)
+        logger.info("database is  not here will be created")
+
         db_name = "election.db"
         with app.app_context():
             # if database_exists('sqlite:///instance/' + db_name):
@@ -127,14 +129,35 @@ def config_extention(app):
                     new_admin_role = models.Admin_roles(id_admin_role=id_admin_role,
                                                         admin_role_name=admin_role_name)
                     db.session.add(new_admin_role)
+
                     id_admin_role = 2
                     admin_role_name = "Election Admin"
                     new_admin_role = models.Admin_roles(id_admin_role=id_admin_role,
                                                         admin_role_name=admin_role_name)
                     db.session.add(new_admin_role)
+
+                    user_firstname = "admin"
+                    user_lastname = "admin"
+                    user_so_name = "admin"
+                    user_pass = "adminpassword"
+                    id_admin_role = 1
+                    user_email = "no@email.com"
+                    user_status = 1
+                    user_pw_change = 'N'
+                    new_user = User(user_firstname=user_firstname,
+                                    user_lastname=user_lastname,
+                                    user_so_name=user_so_name,
+                                    user_pass=generate_password_hash(user_pass, method='scrypt', salt_length=16),
+                                    id_admin_role=id_admin_role,
+                                    user_email=user_email,
+                                    user_status=user_status,
+                                    user_pw_change=user_pw_change)
+
+                    db.session.add(new_user)
                     db.session.commit()
 
                 except exc.SQLAlchemyError as sqlalchemyerror:
+                    db.session.rollback()
                     logger.info("got the following SQLAlchemyError: " + str(sqlalchemyerror))
                 except Exception as exception:
                     logger.info("got the following Exception: " + str(exception))
