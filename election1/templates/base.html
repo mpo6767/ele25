@@ -41,15 +41,11 @@
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('ballot.candidate_report') }}">Candidate Report</a>
             </li>
-        </ul>
-        <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('admins.login') }}">Login</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Office</a>
-            </li>
         </ul>
+
       </div>
     </nav>
       {% with messages = get_flashed_messages(with_categories=true) %}
