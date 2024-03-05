@@ -14,22 +14,22 @@ class Classgrp(db.Model):
     id_classgrp = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=45), nullable=False,unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    candidates = db.relationship('Candidate', backref='classgrp')
+    candidates = db.relationship('Candidate',  cascade="all, delete", passive_deletes=True, backref='classgrp')
 
 
 class Office(db.Model):
     id_office = db.Column(db.Integer, primary_key=True)
     office_title = db.Column(db.String(length=45), nullable=False, unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    candidates = db.relationship('Candidate', backref='office')
+    candidates = db.relationship('Candidate', cascade="all, delete", passive_deletes=True, backref='office')
 
 
 class Candidate(db.Model):
     id_candidate = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(length=45), nullable=False)
     lastname = db.Column(db.String(length=45), nullable=False)
-    id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp'))
-    id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'))
+    id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp', ondelete='cascade'))
+    id_office = db.Column(db.Integer, db.ForeignKey('office.id_office',ondelete='cascade'))
 
 
 class User(db.Model, UserMixin):
@@ -38,7 +38,7 @@ class User(db.Model, UserMixin):
     user_lastname = db.Column(db.String(length=45), nullable=False)
     user_so_name = db.Column(db.String(length=30), nullable=False, unique=True)
     user_pass = db.Column(db.String(256))
-    # user_role = db.Column(db.String(1), nullable=False)
+
     user_email = db.Column(db.String(45), unique=True)
     user_status = db.Column(db.Integer, default=False, nullable=False)
     user_pw_change = db.Column(db.String(length=1))
@@ -51,16 +51,9 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return (self.id_user)
 
-    # @property
-    # def password(self):
-    #     raise AttributeError('password not')
-    #
-    # @password.setter
-    # def password(self, password):
-    #     self.user_pass = generate_password_hash(password)
-    #
-    # def verify_password(self, password):
-    #     return check_password_hash(self.user_pass, password)
+    def is_election_admin(self):
+        return self.id_admin_role == 2
+
 
 
 class Admin_roles(db.Model):
