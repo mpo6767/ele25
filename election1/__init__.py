@@ -6,6 +6,7 @@ from werkzeug.security import generate_password_hash
 from sqlalchemy_utils import database_exists
 from election1.config import Config
 from sqlalchemy import  exc
+from datetime import timedelta
 
 logging.config.fileConfig('logging.conf')
 
@@ -65,6 +66,7 @@ def config_application(app):
     app.config["TESTING"] = False
     app.config["SECRET_KEY"] = os.getenv('SECRET_KEY', '5thn4ruj88i9')
     app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = 'Pulse'
+    app.config["REMEMBER_COOKIE_DURATION"] = timedelta(seconds=20)
 
     # WTF Form and recaptcha configuration
     app.config["WTF_CSRF_SECRET_KEY"] = os.getenv('CSRF_SECRET_KEY', '7uhy65tgfr43edsw')
@@ -164,7 +166,6 @@ def config_extention(app):
                 finally:
                     logger.info("db.create_all() in __init__.py was successfull - no exceptions were raised")
 
-
     login_manager.init_app(app)
     config_manager(login_manager)
     csrf.init_app(app)
@@ -180,6 +181,7 @@ def config_manager(manager):
     manager.login_message = "You are not logged in to your account."
     manager.login_view = 'admins.login'
     manager.login_message_category = "info"
+
 
     @manager.user_loader
     def user_loader(id):

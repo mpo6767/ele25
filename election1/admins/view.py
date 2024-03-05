@@ -56,6 +56,10 @@ def user_admin():
 @admins.route('/login',methods=('GET', 'POST'))
 def login():
     form = LoginForm()
+    print("ppp" + str(current_user.is_authenticated))
+    if current_user.is_authenticated:
+        return redirect(url_for('mains.homepage'))
+
     # if request.method == 'POST':
     if form.validate_on_submit():
         print(' validate true')
@@ -71,7 +75,11 @@ def login():
             print(user.user_pass)
             if check_password_hash(user.user_pass, login_pass ):
                 flash("Logged in!", category='success')
-                login_user(user, remember=True)
+                print("remember")
+
+                login_user(user)
+
+                # print(user.r )
                 return redirect(url_for('mains.homepage'))
             else:
                 flash('Password is incorrect.', category='error')
