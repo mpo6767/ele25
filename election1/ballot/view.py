@@ -51,7 +51,7 @@ def deleteoffice(id):
         the_office = db.session.query(Office).where(Office.id_office == id)
         candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
             Office).order_by(Classgrp.sortkey, Office.sortkey).where(Candidate.id_office == id)
-        return render_template('offiice_candidate_delete.html', form=form, candidates=candidates,
+        return render_template('office_candidate_delete.html', form=form, candidates=candidates,
                                office_to_delete=office_to_delete)
 
 
