@@ -14,22 +14,22 @@ class Classgrp(db.Model):
     id_classgrp = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=45), nullable=False,unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    candidates = db.relationship('Candidate',  cascade="all, delete", passive_deletes=True, backref='classgrp')
+    candidates = db.relationship('Candidate',  cascade="all, delete-orphan",backref='classgrp')
 
 
 class Office(db.Model):
     id_office = db.Column(db.Integer, primary_key=True)
     office_title = db.Column(db.String(length=45), nullable=False, unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    candidates = db.relationship('Candidate', cascade="all, delete", passive_deletes=True, backref='office')
+    candidates = db.relationship('Candidate', cascade="all, delete-orphan",backref='office')
 
 
 class Candidate(db.Model):
     id_candidate = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(length=45), nullable=False)
     lastname = db.Column(db.String(length=45), nullable=False)
-    id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp', ondelete='cascade'))
-    id_office = db.Column(db.Integer, db.ForeignKey('office.id_office',ondelete='cascade'))
+    id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp'), nullable=False)
+    id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'), nullable=False)
 
 
 class User(db.Model, UserMixin):
