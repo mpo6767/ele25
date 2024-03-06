@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}
+Candidate Page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Candidates with office of ....</h1>
+        <br>
+        <form method="POST" style="color:white">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+
+                </div>
+            </div>
+             <div class="row g-3 ">
+                 <div class="col-auto">
+                    {{ office_to_delete.office_title }} will be deleted
+                </div>
+            </div>
+            <br><br>
+            <div class="d-grid gap-2 d-md-block">
+                {{ form.submit(type="submit",value='remove the office and associated candidate', class="btn   btn-primary") }}
+            </div>
+        </form>
+
+        <br><br>
+            <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> ID</th>
+                       <th class="col-2"> Firstname</th>
+                       <th class="col-2"> Lastname</th>
+                       <th class="col-2"> Class</th>
+                       <th class="col-2"> Office </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+               {% for candidate, classgrp, office in candidates %}<tr>
+                    <td>{{ candidate.id_candidate }}</td>
+                    <td>{{ candidate.firstname }}</td>
+                    <td>{{ candidate.lastname }}</td>
+                    <td> {{ classgrp.name }}</td>
+                    <td> {{ office.office_title }}</td>
+                </tr>
+                {% endfor %}
+               </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

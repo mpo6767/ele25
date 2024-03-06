@@ -32,19 +32,27 @@ def office():
     return render_template('office.html', form=office_form, offices=offices)
 
 
-@ballot.route('/deleteoffice/<int:id>')
+@ballot.route('/deleteoffice/<int:id>',methods=['POST', 'GET'])
 def deleteoffice(id):
     office_to_delete = Office.query.get_or_404(id)
+    form = CandidateForm()
+    if request.method == 'POST':
 
-    try:
-        db.session.delete(office_to_delete)
-        db.session.commit()
-        flash('successfully deleted record', category='success')
-        return redirect('/office')
-    except:
-        db.session.rollback()
-        flash('There was a problem deleting record')
-        return redirect('/office')
+        try:
+            db.session.delete(office_to_delete)
+            db.session.commit()
+            flash('successfully deleted record', category='success')
+            return redirect('/office')
+        except:
+            db.session.rollback()
+            flash('There was a problem deleting record')
+            return redirect('/office')
+    else:
+        the_office = db.session.query(Office).where(Office.id_office == id)
+        candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+            Office).order_by(Classgrp.sortkey, Office.sortkey).where(Candidate.id_office == id)
+        return render_template('offiice_candidate_delete.html', form=form, candidates=candidates,
+                               office_to_delete=office_to_delete)
 
 
 @ballot.route('/classgrp', methods=['POST', 'GET'])

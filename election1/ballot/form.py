@@ -7,10 +7,10 @@ from wtforms_alchemy.fields import QuerySelectField
 
 
 def classgrp_query():
-    return Classgrp.query
+    return Classgrp.query.order_by(Classgrp.sortkey)
 
 def office_query():
-    return Office.query
+    return Office.query.order_by(Office.sortkey)
 
 
 class CandidateForm(FlaskForm):
