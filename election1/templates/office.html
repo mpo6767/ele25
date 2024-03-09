@@ -54,6 +54,7 @@
                        <th class="col-2"> Office</th>
                        <th class="col-2"> id </th>
                        <th class="col-2"> Delete </th>
+                       <th class="col-2"> Edit </th>
                    </tr>
                </thead>
 
@@ -64,6 +65,7 @@
                      <td>{{ office.office_title }}</td>
                     <td> {{ office.id_office }}</td>
                     <td><a href="{{ url_for('ballot.deleteoffice',id=office.id_office)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('ballot.updateoffice',id=office.id_office)}}">Edit</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

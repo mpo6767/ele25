@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}
+ Class Group Update Page
+{% endblock %}
+
+
+
+<body>
+{% block content %}
+    <div class="container">
+        <h1>Update Class or Groups...</h1>
+        <br>
+        <form  method="POST" style="color:white">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <div class="row g-3 ">
+                <div class="col-2 ">
+                     {{ form.name.label() }}
+
+                </div>
+                 <div class="col-auto">
+                    {{ form.name(class="form-control", value=classgrp_to_update.name) }}
+                 </div>
+                 <div class="col-sm-2">
+                    <span id="HelpInline" class="form-text">
+                       Enter the class or group name.
+                    </span>
+                </div>
+            </div>
+            <br>
+            <div class="row g-3">
+                <div class="col-2">
+                     {{ form.sortkey.label() }}
+                </div>
+                 <div class="col-auto">
+                    {{ form.sortkey(class="form-control", value=classgrp_to_update.sortkey) }}
+                </div>
+                 <div class="col-sm-2">
+                    <span id="HelpInline" class="form-text">
+                       For sort order in dropdowns USE INTEGER
+                    </span>
+                </div>
+            </div>
+
+            <br><br>
+            <div class="d-grid gap-2 d-md-block">
+                {{ form.submit(type="submit",value='Update Class', class="btn   btn-primary") }}
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+</body>

@@ -54,6 +54,36 @@ def deleteoffice(id):
         return render_template('office_candidate_delete.html', form=form, candidates=candidates,
                                office_to_delete=office_to_delete)
 
+@ballot.route('/updateoffice/<int:id>', methods=['GET', 'POST'])
+def updateoffice(id):
+    office_form = OfficeForm()
+    office_to_update = Office.query.get_or_404(id)
+    print(office_to_update.office_title)
+    if request.method == "POST":
+        office_to_update.office_title = request.form['office_title']
+        office_to_update.sortkey = request.form['sortkey']
+        try:
+            db.session.commit()
+            flash('successfully updates record',category='success')
+            office_form.office_title.data = ''
+            office_form.sortkey.data = ''
+            offices = Office.query.order_by(Office.sortkey)
+            return render_template('office.html', form=office_form, offices=offices)
+
+        except:
+            db.session.rollback()
+            flash('There was a problem updating record record', category='danger')
+            office_form.office_title.data = ''
+            office_form.sortkey.data = ''
+            offices = Office.query.order_by(Office.sortkey)
+            return render_template('office.html', form=office_form, offices=offices)
+    else:
+        print("gere")
+        return render_template('update_office.html', form=office_form,
+                               office_to_update=office_to_update)
+
+
+
 
 @ballot.route('/classgrp', methods=['POST', 'GET'])
 def classgrp():
@@ -88,6 +118,35 @@ def deleteclass(id):
         db.session.rollback()
         flash('There was a problem deleting record', category='danger')
         return redirect('/classgrp')
+
+
+@ballot.route('/updateclass/<int:id>', methods=['GET', 'POST'])
+def updateclass(id):
+    classgrp_form = ClassgrpForm()
+    classgrp_to_update = Classgrp.query.get_or_404(id)
+    print(classgrp_to_update.name)
+    if request.method == "POST":
+        classgrp_to_update.name = request.form['name']
+        classgrp_to_update.sortkey = request.form['sortkey']
+        try:
+            db.session.commit()
+            flash('successfully updates record',category='success')
+            classgrp_form.name.data = ''
+            classgrp_form.sortkey.data = ''
+            classgrps = Classgrp.query.order_by(Classgrp.sortkey)
+            return render_template('classgrp.html', form=classgrp_form, classgrps=classgrps)
+
+        except:
+            db.session.rollback()
+            flash('There was a problem updating record record', category='danger')
+            classgrp_form.name.data = ''
+            classgrp_form.sortkey.data = ''
+            classgrps = Classgrp.query.order_by(Classgrp.sortkey)
+            return render_template('classgrp.html', form=classgrp_form, classgrps=classgrps)
+    else:
+        print("gere")
+        return render_template('update_classgrp.html', form=classgrp_form,
+                               classgrp_to_update=classgrp_to_update)
 
 
 @ballot.route("/candidate_report", methods=['GET', 'POST'])
