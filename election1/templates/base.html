@@ -23,27 +23,41 @@
             <li class="nav-item active">
                 <a class="nav-link" href="{{ url_for('mains.homepage') }}">Home </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('admins.user_admin') }}">User Admin</a>
-            </li>
-             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('admins.dates') }}">Election Dates</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('ballot.classgrp') }}">Class </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('ballot.office') }}">Office</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('ballot.candidate') }}">Candidate Entry</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('ballot.candidate_report') }}">Candidate Report</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('admins.login') }}">Login</a>
-            </li>
+            {% if current_user.is_authenticated %}
+                {% if current_user.id_admin_role == 1 %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admins.user_admin') }}">User Admin</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admins.dates') }}">Election Dates</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ballot.classgrp') }}">Class </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ballot.office') }}">Office</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ballot.candidate') }}">Candidate Entry</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ballot.candidate_report') }}">Candidate Report</a>
+                    </li>
+                {% endif %}
+            {% endif %}
+            {% if not current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admins.login') }}">Login</a>
+                </li>
+            {% endif %}
+            {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('admins.logout') }}">Logout</a>
+                </li>
+            {% endif %}
+
         </ul>
 
       </div>

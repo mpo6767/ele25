@@ -51,8 +51,7 @@ class User(db.Model, UserMixin):
     def get_id(self):
         return (self.id_user)
 
-    def is_election_admin(self):
-        return self.id_admin_role == 2
+
 
 
 

@@ -87,6 +87,12 @@ def login():
             flash('sign on name does not exist.', category='error')
     return render_template('login.html', form=form)
 
+@admins.route('/logout', strict_slashes=False)
+@login_required
+def logout():
+    logout_user()
+    flash("You're logout successfully.", 'success')
+    return redirect(url_for('mains.homepage'))
 
 @admins.route('/deleteuser/<int:id>')
 def deleteuser(id):
