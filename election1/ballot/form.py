@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,  SubmitField, IntegerField
+from wtforms import StringField, SubmitField, IntegerField, DateTimeLocalField
 from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,InputRequired
 from election1.models import Classgrp, Office
 from wtforms_alchemy.fields import QuerySelectField
+from datetime import datetime
 
 
 
@@ -43,3 +44,9 @@ class ClassgrpForm(FlaskForm):
     name = StringField(label='Class or Group . . .', validators=[Length(min=2, max=30), DataRequired()])
     sortkey = IntegerField(label='Sort Key . . .', validators=[DataRequired()])
     submit = SubmitField(label='submit')
+
+class DatesForm(FlaskForm):
+    start_date_time = DateTimeLocalField('Start Date',validators=[InputRequired()])
+    end_date_time = DateTimeLocalField('End Date',validators=[InputRequired()])
+
+    submit = SubmitField('Submit')

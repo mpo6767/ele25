@@ -26,7 +26,4 @@ class LoginForm(FlaskForm):
     submit = SubmitField(label='submit')
 
 
-class DatesForm(FlaskForm):
-    start_date_time = DateTimeLocalField('Start Date',  format='%Y-%m-%dT%H:%M', validators=(validators.DataRequired(),))
-    end_date_time = DateTimeLocalField('End Date', format='%Y-%m-%dT%H:%M', validators=(validators.DataRequired(),))
-    submit = SubmitField('Submit')
+

@@ -63,6 +63,10 @@ class Admin_roles(db.Model):
 
 class Dates(db.Model):
     iddates = db.Column(db.Integer, primary_key=True)
-    start_date_time = db.Column(db.DateTime, nullable=False)
-    end_date_time = db.Column(db.DateTime, nullable=False)
+    # had to change because of SQLite does not have a datetime column
+    # start_date_time = db.Column(db.DateTime, nullable=False)
+    # end_date_time = db.Column(db.DateTime, nullable=False)
 
+    # sQLite stored as epoch integer
+    start_date_time = db.Column(db.Integer, nullable=False)
+    end_date_time = db.Column(db.Integer, nullable=False)

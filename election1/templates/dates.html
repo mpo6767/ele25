@@ -1,41 +1,80 @@
 {% extends 'base.html' %}
 {% block title %}
-Candidate Page
+Date Page
 {% endblock %}
 
 
 {% block content %}
+{% if form.errors %}
+    <ul class="errors">
+    {% for error in form.errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+
 
 <div class="container">
 <h3> Select a date range </h3>
-<form action="" method='POST' name="DatesForm">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <br><br>
-    <div class="row g-3 ">
-         <div class="col-2 ">
-             {{ form.start_date_time.label() }}
-         </div>
-    </div>
-    <div class="row g-3 ">
-         <div class="col-auto">
-             {{ form.start_date_time()}}
-         </div>
-    </div>
+{% if not edate_dict %}
+    <form action="" method='POST' name="DatesForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <br><br>
+        <div class="row g-3 ">
+             <div class="col-2 ">
+                 {{ form.start_date_time.label() }}
+             </div>
+        </div>
+        <div class="row g-3 ">
+             <div class="col-auto">
+                 {{ form.start_date_time()}}
+             </div>
+        </div>
+        <br>
+        <div class="row g-3 ">
+               <div class="col-2 ">
+                 {{ form.end_date_time.label() }}
+             </div>
+        </div>
+        <div class="row g-3 ">
+             <div class="col-auto">
+                 {{ form.end_date_time()}}
+             </div>
+        </div>
     <br>
-    <div class="row g-3 ">
-           <div class="col-2 ">
-             {{ form.end_date_time.label() }}
-         </div>
-    </div>
-    <div class="row g-3 ">
-         <div class="col-auto">
-             {{ form.end_date_time()}}
-         </div>
-    </div>
-<br>
-    <div class="d-grid gap-2 d-md-block">
-         {{ form.submit(type="submit",value='Add Date', class="btn   btn-primary") }}
-    </div>
-</form>
+        <div class="d-grid gap-2 d-md-block">
+             {{ form.submit(type="submit",value='Add Date', class="btn   btn-primary") }}
+        </div>
+    </form>
+{% else %}
+    <br>
+    There is already a date selected, and you can only have one date block.
+    <br>
+    If this date is wrong please delete the date block and reenter
+    <br><br>
+    <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> id</th>
+                       <th class="col-2"> start</th>
+                       <th class="col-2"> end</th>
+                       <th class="col-2"> Delete </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+                <tr>
+                    <td>{{ edate_dict.id }}</td>
+                     <td>{{ edate_dict.start }}</td>
+                    <td>{{ edate_dict.end }}</td>
+                    <td><a href="{{ url_for("ballot.deletedates",id=edate_dict.id)}}">Delete</a> </td>
+
+                </tr>
+
+               </tbody>
+            </table>
+        </div>
+{% endif %}
 </div>
 {% endblock %}

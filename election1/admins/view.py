@@ -1,7 +1,7 @@
 from flask import Blueprint,request, current_app, redirect, flash, render_template,url_for
-from election1.admins.form import UserForm,LoginForm,DatesForm
+from election1.admins.form import UserForm,LoginForm
 from election1.extensions import db
-from ..models import (User, Admin_roles, Dates)
+from ..models import (User, Admin_roles)
 from sqlalchemy.exc import IntegrityError
 # from flask_login import login_user, logout_user, login_required
 import logging
@@ -74,12 +74,7 @@ def login():
             user = User.query.filter_by(user_so_name=login_so_name).first()
             print(user.user_pass)
             if check_password_hash(user.user_pass, login_pass ):
-                flash("Logged in!", category='success')
-                print("remember")
-
                 login_user(user)
-
-                # print(user.r )
                 return redirect(url_for('mains.homepage'))
             else:
                 flash('Password is incorrect.', category='error')
@@ -91,7 +86,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("You're logout successfully.", 'success')
+
     return redirect(url_for('mains.homepage'))
 
 @admins.route('/deleteuser/<int:id>')
@@ -108,18 +103,3 @@ def deleteuser(id):
         flash('There was a problem deleting record')
         return redirect(url_for('admins.user_admin'))
 
-
-@admins.route('/dates', methods=['GET','POST'])
-def dates():
-    form = DatesForm()
-    if form.validate_on_submit():
-        start_date_time = request.form.get('start_date_time')
-        end_date_time = request.form.get('end_date_time')
-        new_dates = Dates(start_date_time=start_date_time,end_date_time=end_date_time)
-
-        print("2")
-        db.session.add(new_dates)
-        db.session.commit()
-        return redirect(url_for('mains.homepage'))
-
-    return render_template('dates.html', form=form)

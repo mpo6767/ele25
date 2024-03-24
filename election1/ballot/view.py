@@ -1,8 +1,9 @@
 from flask import (render_template, url_for, flash,
                    redirect, request, abort, Blueprint)
-from election1.ballot.form import CandidateForm, OfficeForm, ClassgrpForm, Candidate_reportForm
-from election1.models import Classgrp, Office, Candidate
+from election1.ballot.form import CandidateForm, OfficeForm, ClassgrpForm, Candidate_reportForm, DatesForm
+from election1.models import Classgrp, Office, Candidate,Dates
 from election1.extensions import db
+from datetime import datetime
 import logging
 
 
@@ -11,17 +12,12 @@ ballot = Blueprint('ballot', __name__)
 @ballot.route('/office', methods=['POST', 'GET'])
 def office():
     office_form = OfficeForm()
-    print("1")
     if office_form.validate_on_submit():
-        print("2")
         office_title = request.form['office_title']
         sortkey = request.form['sortkey']
         new_office = Office(office_title=office_title, sortkey=sortkey)
-        print("A")
         db.session.add(new_office)
         db.session.commit()
-        # else:
-        #     pass
     else:
         for err_msg in office_form.errors.values():
             flash(f'there is an error creating office: {err_msg}', category='danger')
@@ -217,8 +213,64 @@ def deletecandidate(id):
         flash('There was a problem deleting record')
         return redirect('/candidate')
 
+@ballot.route('/dates', methods=['GET','POST'])
+def dates():
+    form = DatesForm()
+    print(DatesForm.errors)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+        # if request.method == 'POST':
+            # these worked with mySQL but not SQLite
+            # SQLite does not have a datetime column used Integer and epoch
+            #
+            # start_date_time = request.form.get('start_date_time')
+            # end_date_time = request.form.get('end_date_time')
+            # new_dates = Dates(start_date_time=start_date_time,end_date_time=end_date_time)
+            # db.session.add(new_dates)
+            # db.session.commit()
 
+            #
 
+            datetime_str = request.form.get('start_date_time').replace("T"," ")
+            datetime_etr = request.form.get('end_date_time').replace("T", " ")
+
+            datetime_object_start = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M')
+            datetime_object_end = datetime.strptime(datetime_etr, '%Y-%m-%d %H:%M')
+
+            epoch_start_time = int(datetime_object_start.timestamp())
+            epoch_end_time = int(datetime_object_end.timestamp())
+
+            new_dates = Dates(start_date_time=epoch_start_time,end_date_time=epoch_end_time)
+            db.session.add(new_dates)
+            db.session.commit()
+
+            return redirect(url_for('mains.homepage'))
+    print('edates')
+    edate_dict = {}
+    edates = Dates.query.all()
+    if edates != None:
+        for edate in edates:
+            new_edate_dict = {
+                "id": edate.iddates,
+                "start": datetime.fromtimestamp(edate.start_date_time),
+                "end": datetime.fromtimestamp(edate.end_date_time)
+            }
+            edate_dict.update(new_edate_dict)
+    print(edate_dict)
+    return render_template('dates.html', form=form, edate_dict=edate_dict)
+@ballot.route('/deletedates/<int:id>')
+def deletedates(id):
+    date_to_delete = Dates.query.get_or_404(id)
+
+    try:
+        db.session.delete(date_to_delete)
+        db.session.commit()
+        flash('successfully deleted record')
+        return redirect('/dates')
+    except:
+        db.session.rollback()
+        flash('There was a problem deleting record')
+        return redirect('/dates')
 
 
 
