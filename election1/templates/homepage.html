@@ -1,8 +1,16 @@
 {% extends 'base.html' %}
 {% block title %}
-    Test Title
+Candidate Page
 {% endblock %}
+
+
 {% block content %}
 
-
+<div class="container">
+ {% if current_user.is_authenticated %}
+        <h3> You are logged ie </h3>
+ {% else %}
+        <h3> you are NOT logged in</h3>
+{% endif %}
+</div>
 {% endblock %}
