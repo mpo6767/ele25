@@ -1,11 +1,10 @@
 from flask import (render_template, url_for, flash,
-                   redirect, request, abort, Blueprint)
-from election1.ballot.form import CandidateForm, OfficeForm, ClassgrpForm, Candidate_reportForm, DatesForm
+                   redirect, request, Blueprint)
+from election1.ballot.form import (CandidateForm, OfficeForm,
+                                ClassgrpForm, Candidate_reportForm, DatesForm)
 from election1.models import Classgrp, Office, Candidate,Dates
 from election1.extensions import db
 from datetime import datetime
-import logging
-
 
 ballot = Blueprint('ballot', __name__)
 
