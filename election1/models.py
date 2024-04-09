@@ -21,7 +21,7 @@ class Office(db.Model):
     id_office = db.Column(db.Integer, primary_key=True)
     office_title = db.Column(db.String(length=45), nullable=False, unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    candidates = db.relationship('Candidate', cascade="all, delete-orphan",backref='office')
+    candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='office')
 
 
 class Candidate(db.Model):
@@ -30,6 +30,7 @@ class Candidate(db.Model):
     lastname = db.Column(db.String(length=45), nullable=False)
     id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp'), nullable=False)
     id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'), nullable=False)
+    votes = db.relationship('Votes', backref='candidate')
 
 
 class User(db.Model, UserMixin):
@@ -70,3 +71,15 @@ class Dates(db.Model):
     # sQLite stored as epoch integer
     start_date_time = db.Column(db.Integer, nullable=False)
     end_date_time = db.Column(db.Integer, nullable=False)
+
+class Votes(db.Model):
+    id_votes = db.Column(db.Integer, primary_key=True)
+    votes_token = db.Column(db.String(138), nullable=False)
+    id_candidate = db.Column(db.Integer, db.ForeignKey('candidate.id_candidate'))
+
+
+
+class TokenList(db.Model):
+    id_tokenList = db.Column(db.Integer, primary_key=True)
+    token = db.Column(db.String(138), nullable=False)
+    vote_submitted_date_time = db.Column(db.DateTime, nullable=False)
