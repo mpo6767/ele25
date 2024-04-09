@@ -101,7 +101,12 @@ Admin User Page
                     <td>{{ user.user_firstname }}</td>
                     <td>{{ user.user_lastname }}</td>
                     <td> {{ admin_roles.admin_role_name}}</td>
-                    <td><a href="{{ url_for('admins.deleteuser',id=user.id_user)}}">Delete</a> </td>
+                    {% if current_user.id_user != user.id_user %}
+                        <td><a href="{{ url_for('admins.deleteuser',id=user.id_user)}}">Delete</a> </td>
+                    {% else %}
+                        <td>can't delete yourself </td>
+                    {% endif %}
+
                 </tr>
                 {% endfor %}
                </tbody>

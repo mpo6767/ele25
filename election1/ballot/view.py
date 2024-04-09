@@ -1,12 +1,13 @@
 from flask import (render_template, url_for, flash,
                    redirect, request, Blueprint)
 from election1.ballot.form import (CandidateForm, OfficeForm,
-                                ClassgrpForm, Candidate_reportForm, DatesForm)
-from election1.models import Classgrp, Office, Candidate,Dates
+                                   ClassgrpForm, Candidate_reportForm, DatesForm)
+from election1.models import Classgrp, Office, Candidate, Dates
 from election1.extensions import db
 from datetime import datetime
 
 ballot = Blueprint('ballot', __name__)
+
 
 @ballot.route('/office', methods=['POST', 'GET'])
 def office():
@@ -15,8 +16,22 @@ def office():
         office_title = request.form['office_title']
         sortkey = request.form['sortkey']
         new_office = Office(office_title=office_title, sortkey=sortkey)
-        db.session.add(new_office)
-        db.session.commit()
+
+        try:
+            db.session.add(new_office)
+            db.session.commit()
+            # flash('successfully updates record', category='success')
+            office_form.office_title.data = ''
+            office_form.sortkey.data = ''
+            offices = Office.query.order_by(Office.sortkey)
+            return render_template('office.html', form=office_form, offices=offices)
+        except Exception as e:
+            db.session.rollback()
+            flash('There was a problem inserting record ' + str(e), category='danger')
+            office_form.office_title.data = ''
+            office_form.sortkey.data = ''
+            offices = Office.query.order_by(Office.sortkey)
+            return render_template('office.html', form=office_form, offices=offices)
     else:
         for err_msg in office_form.errors.values():
             flash(f'there is an error creating office: {err_msg}', category='danger')
@@ -27,7 +42,7 @@ def office():
     return render_template('office.html', form=office_form, offices=offices)
 
 
-@ballot.route('/deleteoffice/<int:id>',methods=['POST', 'GET'])
+@ballot.route('/deleteoffice/<int:id>', methods=['POST', 'GET'])
 def deleteoffice(id):
     office_to_delete = Office.query.get_or_404(id)
     form = CandidateForm()
@@ -49,6 +64,7 @@ def deleteoffice(id):
         return render_template('office_candidate_delete.html', form=form, candidates=candidates,
                                office_to_delete=office_to_delete)
 
+
 @ballot.route('/updateoffice/<int:id>', methods=['GET', 'POST'])
 def updateoffice(id):
     office_form = OfficeForm()
@@ -59,7 +75,7 @@ def updateoffice(id):
         office_to_update.sortkey = request.form['sortkey']
         try:
             db.session.commit()
-            flash('successfully updates record',category='success')
+            flash('successfully updates record', category='success')
             office_form.office_title.data = ''
             office_form.sortkey.data = ''
             offices = Office.query.order_by(Office.sortkey)
@@ -76,8 +92,6 @@ def updateoffice(id):
         print("gere")
         return render_template('update_office.html', form=office_form,
                                office_to_update=office_to_update)
-
-
 
 
 @ballot.route('/classgrp', methods=['POST', 'GET'])
@@ -125,7 +139,7 @@ def updateclass(id):
         classgrp_to_update.sortkey = request.form['sortkey']
         try:
             db.session.commit()
-            flash('successfully updates record',category='success')
+            flash('successfully updates record', category='success')
             classgrp_form.name.data = ''
             classgrp_form.sortkey.data = ''
             classgrps = Classgrp.query.order_by(Classgrp.sortkey)
@@ -212,13 +226,14 @@ def deletecandidate(id):
         flash('There was a problem deleting record')
         return redirect('/candidate')
 
-@ballot.route('/dates', methods=['GET','POST'])
+
+@ballot.route('/dates', methods=['GET', 'POST'])
 def dates():
     form = DatesForm()
     print(DatesForm.errors)
     if request.method == 'POST':
         if form.validate_on_submit():
-        # if request.method == 'POST':
+            # if request.method == 'POST':
             # these worked with mySQL but not SQLite
             # SQLite does not have a datetime column used Integer and epoch
             #
@@ -230,7 +245,7 @@ def dates():
 
             #
 
-            datetime_str = request.form.get('start_date_time').replace("T"," ")
+            datetime_str = request.form.get('start_date_time').replace("T", " ")
             datetime_etr = request.form.get('end_date_time').replace("T", " ")
 
             datetime_object_start = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M')
@@ -239,7 +254,7 @@ def dates():
             epoch_start_time = int(datetime_object_start.timestamp())
             epoch_end_time = int(datetime_object_end.timestamp())
 
-            new_dates = Dates(start_date_time=epoch_start_time,end_date_time=epoch_end_time)
+            new_dates = Dates(start_date_time=epoch_start_time, end_date_time=epoch_end_time)
             db.session.add(new_dates)
             db.session.commit()
 
@@ -257,6 +272,8 @@ def dates():
             edate_dict.update(new_edate_dict)
     print(edate_dict)
     return render_template('dates.html', form=form, edate_dict=edate_dict)
+
+
 @ballot.route('/deletedates/<int:id>')
 def deletedates(id):
     date_to_delete = Dates.query.get_or_404(id)
@@ -270,6 +287,3 @@ def deletedates(id):
         db.session.rollback()
         flash('There was a problem deleting record')
         return redirect('/dates')
-
-
-

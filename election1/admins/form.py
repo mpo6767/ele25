@@ -1,11 +1,13 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, IntegerField, EmailField, BooleanField, DateTimeLocalField, validators
-from wtforms.validators import Length, EqualTo, Email, DataRequired, ValidationError,InputRequired
+from wtforms import StringField, PasswordField, SubmitField, EmailField, BooleanField
+from wtforms.validators import Length, Email, InputRequired
 from election1.models import Admin_roles
 from wtforms_alchemy.fields import QuerySelectField
 
-def Admin_roles_query():
+
+def admin_roles_query():
     return Admin_roles.query
+
 
 class UserForm(FlaskForm):
     user_firstname = StringField(label='firstname', validators=[Length(min=2, max=30), InputRequired()])
@@ -13,7 +15,7 @@ class UserForm(FlaskForm):
     user_so_name = StringField(label='user name', validators=[Length(min=2, max=30), InputRequired()])
     user_pass = StringField(label='password', validators=[Length(min=2, max=30), InputRequired()])
     # user_role = StringField(label='role',  validators=[Length(min=1, max=1), InputRequired()])
-    id_admin_role = QuerySelectField(query_factory=Admin_roles_query, label='admin role', get_label='admin_role_name')
+    id_admin_role = QuerySelectField(query_factory=admin_roles_query, label='admin role', get_label='admin_role_name')
 
     user_email = EmailField(label='email', validators=[Email()])
     submit = SubmitField(label='submit')
@@ -24,6 +26,3 @@ class LoginForm(FlaskForm):
     login_pass = PasswordField(label='password', validators=[Length(min=2, max=30), InputRequired()])
     remember = BooleanField(label='remember me')
     submit = SubmitField(label='submit')
-
-
-
