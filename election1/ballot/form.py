@@ -17,7 +17,7 @@ def office_query():
 class CandidateForm(FlaskForm):
     firstname = StringField(label='firstname', validators=[Length(min=2, max=30), InputRequired()])
     lastname = StringField(label='lastname', validators=[Length(min=2, max=30), DataRequired()])
-    choices_classgrp = QuerySelectField(label='class or group',query_factory=classgrp_query,  get_label='name')
+    choices_classgrp = QuerySelectField(label='class or group', query_factory=classgrp_query,  get_label='name')
     choices_office = QuerySelectField(query_factory=office_query, label='office title', get_label='office_title')
     submit = SubmitField(label='submit')
 
@@ -31,8 +31,13 @@ class OfficeForm(FlaskForm):
         title = Office.query.filter_by(office_title=office_title_to_check.data).first()
         if title:
             raise ValidationError('Office must be unique')
+    def validate_sortkey(self, office_sortkey_to_check):
+        sortkey = Office.query.filter_by(sortkey=office_sortkey_to_check.data).first()
+        if sortkey:
+            raise ValidationError('Sort key must be unique')
 
-    office_title = StringField(label='Office Title . . .',validators=[Length(min=2, max=30), DataRequired()])
+    office_title = StringField(label='Office Title . . .', validators=[Length(min=2, max=30), DataRequired()])
+    office_vote_for = IntegerField(label='Vote For . . .', default=1)
     sortkey = IntegerField(label='Sort Key . . .', validators=[DataRequired()])
     submit = SubmitField(label='submit')
 
@@ -41,6 +46,10 @@ class ClassgrpForm(FlaskForm):
         name = Classgrp.query.filter_by(name=name_to_check.data).first()
         if name:
             raise ValidationError('Class or Group must be unique')
+    def validate_sortkey(self, sortkey_to_check):
+        sortkey = Classgrp.query.filter_by(sortkey=sortkey_to_check.data).first()
+        if sortkey:
+            raise ValidationError('Sort key must be unique')
     name = StringField(label='Class or Group . . .', validators=[Length(min=2, max=30), DataRequired()])
     sortkey = IntegerField(label='Sort Key . . .', validators=[DataRequired()])
     submit = SubmitField(label='submit')

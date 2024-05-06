@@ -50,7 +50,8 @@ Candidate Page
                </thead>
 
                <tbody>
-               {% for candidate, classgrp, office in candidates %}<tr>
+               {% for candidate, classgrp, office in candidates %}
+                <tr>
                     <td>{{ candidate.id_candidate }}</td>
                     <td>{{ candidate.firstname }}</td>
                     <td>{{ candidate.lastname }}</td>

@@ -1,0 +1,101 @@
+{% extends 'base1.html' %}
+{% block title %}
+Ballot
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Ballot ....</h1>
+        <br>
+        <form method="post" style="color:white" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+             <div class="row g-3 ">
+                <div class="col-2 ">
+                    <p class="text-warning">{{ form.p_candidate.label() }}</p>
+                </div>
+            </div>
+            <div class="form-check">
+            {% for p in form.p_candidate.choices %}
+                  <input class="form-check-input" required type="radio" name="p_candidate" id="{{ p[0] }}" value="{{ p[0] }}">
+                  <label class="form-check-label" for="{{ p[0] }}">
+                      {{ p[1] }}
+                  </label>
+             <br>
+            {% endfor %}
+
+                  <input class="form-check-input" required type="radio" name="p_candidate" id="{{ "99" }}" value="{{ "99" }}">
+                  <label class="form-check-label" for="{{ "99" }}">
+                     No Vote President
+                  </label>
+              </div>
+            <br>
+             <div class="row g-3 ">
+                <div class="col-2 ">
+                     <p class="text-warning">{{ form.vp_candidate.label() }}</p>
+                </div>
+            </div>
+            <div class="form-check">
+            {% for vp in form.vp_candidate.choices %}
+                  <input class="form-check-input" required type="radio" name="vp_candidate" id="{{ vp[0] }}" value="{{ vp[0] }}">
+                  <label class="form-check-label" for="{{ vp[0] }}">
+                      {{ vp[1] }}
+                  </label>
+             <br>
+            {% endfor %}
+
+                  <input class="form-check-input" required type="radio" name="vp_candidate" id="{{ "99" }}" value="{{ "99" }}">
+                  <label class="form-check-label" for="{{ "99" }}">
+                     No Vote Vice President
+                  </label>
+              </div>
+            <br>
+             <div class="row g-3 ">
+                <div class="col-2 ">
+                     <p class="text-warning">{{ form.s_candidate.label() }}</p>
+                </div>
+            </div>
+            <div class="form-check">
+            {% for s in form.s_candidate.choices %}
+                  <input class="form-check-input" required type="radio" name="s_candidate" id="{{ s[0] }}" value="{{ s[0] }}">
+                  <label class="form-check-label" for="{{ s[0] }}">
+                      {{ s[1] }}
+                  </label>
+             <br>
+            {% endfor %}
+                  <input class="form-check-input" required type="radio" name="s_candidate" id="{{ "99" }}" value="{{ "99" }}">
+                  <label class="form-check-label" for="{{ "99" }}">
+                     No Vote Secretary
+                  </label>
+              </div>
+            <br>
+             <div class="row g-3 ">
+                <div class="col-2 ">
+                     <p class="text-warning">{{ form.t_candidate.label() }}</p>
+                </div>
+            </div>
+            <div class="form-check">
+            {% for t in form.t_candidate.choices %}
+                  <input class="form-check-input" required type="radio" name="t_candidate" id="{{ t[0] }}" value="{{ t[0] }}">
+                  <label class="form-check-label" for="{{ t[0] }}">
+                      {{ t[1] }}
+                  </label>
+             <br>
+            {% endfor %}
+                  <input class="form-check-input" required type="radio" name="t_candidate" id="{{ "99" }}" value="{{ "99" }}">
+                  <label class="form-check-label" for="{{ "99" }}">
+                     No Vote Treasurer
+                  </label>
+              </div>
+
+
+
+
+            <br><br>
+            <div class="d-grid gap-2 d-md-block">
+                {{ form.submit(type="submit",value='Submit Ballot', class="btn   btn-primary") }}
+            </div>
+
+        </form>
+    </div>
+{% endblock %}

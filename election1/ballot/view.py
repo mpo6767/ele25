@@ -5,6 +5,7 @@ from election1.ballot.form import (CandidateForm, OfficeForm,
 from election1.models import Classgrp, Office, Candidate, Dates
 from election1.extensions import db
 from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
 
 ballot = Blueprint('ballot', __name__)
 
@@ -15,36 +16,40 @@ def office():
     if office_form.validate_on_submit():
         office_title = request.form['office_title']
         sortkey = request.form['sortkey']
-        new_office = Office(office_title=office_title, sortkey=sortkey)
+        office_vote_for = request.form['office_vote_for']
+        new_office = Office(office_title=office_title, sortkey=sortkey, office_vote_for=office_vote_for)
 
         try:
             db.session.add(new_office)
             db.session.commit()
             # flash('successfully updates record', category='success')
             office_form.office_title.data = ''
-            office_form.sortkey.data = ''
+            office_form.sortkey.data = None
             offices = Office.query.order_by(Office.sortkey)
             return render_template('office.html', form=office_form, offices=offices)
         except Exception as e:
             db.session.rollback()
             flash('There was a problem inserting record ' + str(e), category='danger')
             office_form.office_title.data = ''
-            office_form.sortkey.data = ''
+            office_form.sortkey.data = None
             offices = Office.query.order_by(Office.sortkey)
             return render_template('office.html', form=office_form, offices=offices)
     else:
         for err_msg in office_form.errors.values():
             flash(f'there is an error creating office: {err_msg}', category='danger')
+            offices = Office.query.order_by(Office.sortkey)
+            return render_template('office.html', form=office_form, offices=offices)
 
     office_form.office_title.data = ''
-    office_form.sortkey.data = ''
+    office_form.sortkey.data = None
+    # office_form.office_vote_for = 1
     offices = Office.query.order_by(Office.sortkey)
     return render_template('office.html', form=office_form, offices=offices)
 
 
 @ballot.route('/deleteoffice/<int:id>', methods=['POST', 'GET'])
-def deleteoffice(id):
-    office_to_delete = Office.query.get_or_404(id)
+def deleteoffice(xid):
+    office_to_delete = Office.query.get_or_404(xid)
     form = CandidateForm()
     if request.method == 'POST':
 
@@ -53,9 +58,9 @@ def deleteoffice(id):
             db.session.commit()
             flash('successfully deleted record', category='success')
             return redirect('/office')
-        except:
+        except SQLAlchemyError as e:
             db.session.rollback()
-            flash('There was a problem deleting record')
+            flash('There was a problem deleting record' + str(e))
             return redirect('/office')
     else:
 
@@ -65,10 +70,10 @@ def deleteoffice(id):
                                office_to_delete=office_to_delete)
 
 
-@ballot.route('/updateoffice/<int:id>', methods=['GET', 'POST'])
-def updateoffice(id):
+@ballot.route('/updateoffice/<int:xid>', methods=['GET', 'POST'])
+def updateoffice(xid):
     office_form = OfficeForm()
-    office_to_update = Office.query.get_or_404(id)
+    office_to_update = Office.query.get_or_404(xid)
     print(office_to_update.office_title)
     if request.method == "POST":
         office_to_update.office_title = request.form['office_title']
@@ -80,10 +85,9 @@ def updateoffice(id):
             office_form.sortkey.data = ''
             offices = Office.query.order_by(Office.sortkey)
             return render_template('office.html', form=office_form, offices=offices)
-
-        except:
+        except SQLAlchemyError as e:
             db.session.rollback()
-            flash('There was a problem updating record record', category='danger')
+            flash('There was a problem updating record record' + str(e), category='danger')
             office_form.office_title.data = ''
             office_form.sortkey.data = ''
             offices = Office.query.order_by(Office.sortkey)
@@ -107,32 +111,34 @@ def classgrp():
     else:
         for err_msg in classgrp_form.errors.values():
             flash(f'there is an error creating a class or group: {err_msg}', category='danger')
+            classgrps = Classgrp.query.order_by(Classgrp.sortkey)
+            return render_template('classgrp.html', form=classgrp_form, classgrps=classgrps)
 
     classgrp_form.name.data = ''
-    classgrp_form.sortkey.data = ''
+    classgrp_form.sortkey.data = None
     classgrps = Classgrp.query.order_by(Classgrp.sortkey)
     return render_template('classgrp.html', form=classgrp_form, classgrps=classgrps)
 
 
-@ballot.route('/deleteclass/<int:id>')
-def deleteclass(id):
-    classgrp_to_delete = Classgrp.query.get_or_404(id)
+@ballot.route('/deleteclass/<int:xid>')
+def deleteclass(xid):
+    classgrp_to_delete = Classgrp.query.get_or_404(xid)
 
     try:
         db.session.delete(classgrp_to_delete)
         db.session.commit()
         # flash('successfully deleted record',category='success')
         return redirect('/classgrp')
-    except:
+    except SQLAlchemyError as e:
         db.session.rollback()
-        flash('There was a problem deleting record', category='danger')
+        flash('There was a problem deleting record' + str(e), category='danger')
         return redirect('/classgrp')
 
 
-@ballot.route('/updateclass/<int:id>', methods=['GET', 'POST'])
-def updateclass(id):
+@ballot.route('/updateclass/<int:xid>', methods=['GET', 'POST'])
+def updateclass(xid):
     classgrp_form = ClassgrpForm()
-    classgrp_to_update = Classgrp.query.get_or_404(id)
+    classgrp_to_update = Classgrp.query.get_or_404(xid)
     print(classgrp_to_update.name)
     if request.method == "POST":
         classgrp_to_update.name = request.form['name']
@@ -144,10 +150,9 @@ def updateclass(id):
             classgrp_form.sortkey.data = ''
             classgrps = Classgrp.query.order_by(Classgrp.sortkey)
             return render_template('classgrp.html', form=classgrp_form, classgrps=classgrps)
-
-        except:
+        except SQLAlchemyError as e:
             db.session.rollback()
-            flash('There was a problem updating record record', category='danger')
+            flash('There was a problem updating record record ' + str(e), category='danger')
             classgrp_form.name.data = ''
             classgrp_form.sortkey.data = ''
             classgrps = Classgrp.query.order_by(Classgrp.sortkey)
@@ -202,9 +207,9 @@ def candidate():
             db.session.commit()
             # flash('candidate added successfully',category='success')
             return redirect(url_for('ballot.candidate'))
-        except:
+        except SQLAlchemyError as e:
             db.session.rollback()
-            flash('problem adding candidate', category='danger')
+            flash('problem adding candidate ' + str(e), category='danger')
             return redirect('/candidate')
     else:
         candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
@@ -212,18 +217,18 @@ def candidate():
         return render_template('candidate.html', form=form, candidates=candidates)
 
 
-@ballot.route('/deletecandidate/<int:id>')
-def deletecandidate(id):
-    candidate_to_delete = Candidate.query.get_or_404(id)
+@ballot.route('/deletecandidate/<int:xid>')
+def deletecandidate(xid):
+    candidate_to_delete = Candidate.query.get_or_404(xid)
 
     try:
         db.session.delete(candidate_to_delete)
         db.session.commit()
         flash('successfully deleted record')
         return redirect('/candidate')
-    except:
+    except SQLAlchemyError as e:
         db.session.rollback()
-        flash('There was a problem deleting record')
+        flash('There was a problem deleting record ' + str(e))
         return redirect('/candidate')
 
 
@@ -262,7 +267,7 @@ def dates():
     print('edates')
     edate_dict = {}
     edates = Dates.query.all()
-    if edates != None:
+    if edates is not None:
         for edate in edates:
             new_edate_dict = {
                 "id": edate.iddates,
@@ -274,16 +279,16 @@ def dates():
     return render_template('dates.html', form=form, edate_dict=edate_dict)
 
 
-@ballot.route('/deletedates/<int:id>')
-def deletedates(id):
-    date_to_delete = Dates.query.get_or_404(id)
+@ballot.route('/deletedates/<int:xid>')
+def deletedates(xid):
+    date_to_delete = Dates.query.get_or_404(xid)
 
     try:
         db.session.delete(date_to_delete)
         db.session.commit()
         flash('successfully deleted record')
         return redirect('/dates')
-    except:
+    except SQLAlchemyError as e:
         db.session.rollback()
-        flash('There was a problem deleting record')
+        flash('There was a problem deleting record ' + str(e))
         return redirect('/dates')

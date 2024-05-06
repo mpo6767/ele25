@@ -5,7 +5,7 @@ from .models import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy_utils import database_exists
 from election1.config import Config
-from sqlalchemy import  exc
+from sqlalchemy import exc
 from datetime import timedelta
 
 logging.config.fileConfig('logging.conf')
@@ -99,9 +99,11 @@ def config_blueprint(app):
     from election1.admins.view import admins
     from election1.ballot.view import ballot
     from election1.mains.view import mains
+    from election1.vote.view import vote
     app.register_blueprint(admins)
     app.register_blueprint(ballot)
     app.register_blueprint(mains)
+    app.register_blueprint(vote)
 
 def config_extention(app):
     """

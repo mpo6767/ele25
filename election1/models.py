@@ -5,7 +5,6 @@ from sqlalchemy.sql import func
 from datetime import datetime
 from election1.utils import unique_security_token
 
-
 # @login_manager.user_loader
 # def load_user(user_id):
 #     return User.query.get(int(user_id))
@@ -20,6 +19,7 @@ class Classgrp(db.Model):
 class Office(db.Model):
     id_office = db.Column(db.Integer, primary_key=True)
     office_title = db.Column(db.String(length=45), nullable=False, unique=True)
+    office_vote_for = db.Column(db.Integer, default=1)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
     candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='office')
 
@@ -79,7 +79,9 @@ class Votes(db.Model):
 
 
 
-class TokenList(db.Model):
-    id_tokenList = db.Column(db.Integer, primary_key=True)
+class Tokenlist(db.Model):
+    id_tokenlist = db.Column(db.Integer, primary_key=True)
     token = db.Column(db.String(138), nullable=False)
-    vote_submitted_date_time = db.Column(db.DateTime, nullable=False)
+    vote_submitted_date_time = db.Column(db.DateTime, nullable=True)
+
+
