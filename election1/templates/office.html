@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div class="d-grid gap-2 d-md-block">
-                {{ form.submit(type="submit",value='Add Class', class="btn   btn-primary") }}
+                {{ form.submit(type="submit",value='Add Office', class="btn   btn-primary") }}
             </div>
 
         </form>
@@ -76,8 +76,8 @@
                     <td>{{ office.sortkey }}</td>
                      <td>{{ office.office_title }}</td>
                     <td> {{ office.id_office }}</td>
-                    <td><a href="{{ url_for('ballot.deleteoffice',id=office.id_office)}}">Delete</a> </td>
-                    <td><a href="{{ url_for('ballot.updateoffice',id=office.id_office)}}">Edit</a> </td>
+                    <td><a href="{{ url_for('ballot.deleteoffice',xid=office.id_office)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('ballot.updateoffice',xid=office.id_office)}}">Edit</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

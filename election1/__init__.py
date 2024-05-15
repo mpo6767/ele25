@@ -11,7 +11,7 @@ from datetime import timedelta
 logging.config.fileConfig('logging.conf')
 
 # create logger
-logger=logging.getLogger('simpleExample')
+logger = logging.getLogger(__name__)
 logger.info('logging is initialized')
 
 # db = SQLAlchemy()
@@ -27,38 +27,31 @@ def create_app(config_class=Config):
 
     app = Flask(__name__, instance_relative_config=True)
 
+    # logging configuration
+    # config_logging(app)
+
     # application configuration.
     config_application(app)
+
     # configure application extension.
     config_extention(app)
+
     # configure application blueprints.
     config_blueprint(app)
 
-
-
-
-    # app.config.from_object(Config)
-    # print('secret ' + str(app.secret_key))
-
-    # csrf.init_app(app)
-    # db.init_app(app)
-
-    # login_manager.init_app(app)
-
-    # from election1.admins.view import admins
-    # from election1.ballot.view import ballot
-    # from election1.mains.view import mains
-    # app.register_blueprint(admins)
-    # app.register_blueprint(ballot)
-    # app.register_blueprint(mains)
-
-    # from .models import User
-
-    # @login_manager.user_loader
-    # def load_user(id):
-    #     return User.query.get(int(id))
+    logger.info('logging is initialized 2')
 
     return app
+
+
+# def config_logging(app):
+    #     # Configure logging
+    #     # logging.basicConfig(filename='election.log', level=logging.INFO)
+    #     logging.config.fileConfig('logging.conf')
+    #
+    #     # Create a logger
+    # logger = logging.getLogger('election')
+    # print(logger)
 
 def config_application(app):
     # Application configuration
@@ -89,7 +82,7 @@ def config_application(app):
     app.config["MAIL_PORT"] = 587
     app.config["MAIL_USE_TLS"] = True
     app.config["MAIL_USERNAME"] = os.getenv('MAIL_USERNAME', 'michael@cpo2llc.com')
-    app.config["MAIL_PASSWORD"] = os.getenv('MAIL_PASSWORD', 'T0mP3tty')
+    app.config["MAIL_PASSWORD"] = os.getenv('MAIL_PASSWORD', 'nonono')
 
 
 def config_blueprint(app):

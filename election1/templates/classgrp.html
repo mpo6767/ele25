@@ -65,8 +65,8 @@
                     <td>{{ classgrp.sortkey }}</td>
                      <td>{{ classgrp.name }}</td>
                     <td> {{ classgrp.id_classgrp }}</td>
-                    <td><a href="{{ url_for('ballot.deleteclass',id=classgrp.id_classgrp)}}">Delete</a> </td>
-                    <td><a href="{{ url_for('ballot.updateclass',id=classgrp.id_classgrp)}}">Edit</a> </td>
+                    <td><a href="{{ url_for('ballot.deleteclass',xid=classgrp.id_classgrp)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('ballot.updateclass',xid=classgrp.id_classgrp)}}">Edit</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

@@ -3,12 +3,12 @@ from election1.admins.form import UserForm, LoginForm
 from election1.extensions import db
 from election1.models import (User, Admin_roles)
 from sqlalchemy.exc import IntegrityError
-# from flask_login import login_user, logout_user, login_required
 import logging
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 
 admins = Blueprint('admins', __name__)
+logger = logging.getLogger(__name__)
 
 
 @admins.route('/user_admin', methods=['GET', 'POST'])
@@ -42,11 +42,12 @@ def user_admin():
                 try:
                     db.session.add(new_user)
                     db.session.commit()
-                    flash('candidate added successfully', category='success')
+                    flash('admin added successfully', category='success')
+                    logger.info('user ' + str(current_user.user_so_name) + ' has created ' + user_firstname + ' ' + user_lastname)
                     return redirect(url_for('admins.user_admin'))
                 except IntegrityError as e:
                     db.session.rollback()
-                    logging.error("Duplicate entry user name: %s", e)
+                    logger.error("Duplicate entry user name: %s", e)
                     flash('problem adding candidate duplicate username', category='danger')
                     return redirect(url_for('admins.user_admin'))
     the_admins = db.session.query(User, Admin_roles).select_from(User).join(Admin_roles).order_by()
@@ -55,6 +56,8 @@ def user_admin():
 
 @admins.route('/login', methods=('GET', 'POST'))
 def login():
+
+    logger.info("Entered Login ")
     form = LoginForm()
     if current_user.is_authenticated:
         return redirect(url_for('mains.homepage'))
@@ -68,7 +71,8 @@ def login():
             user = User.query.filter_by(user_so_name=login_so_name).first()
             if check_password_hash(user.user_pass, login_pass):
                 login_user(user)
-                logging.info('user ' + str(current_user.user_so_name) + ' has logged on')
+                logger.info('user ' + str(current_user.user_so_name) + ' has logged on')
+
                 return redirect(url_for('mains.homepage'))
             else:
                 flash('Password is incorrect.', category='error')
@@ -80,23 +84,23 @@ def login():
 @admins.route('/logout', strict_slashes=False)
 @login_required
 def logout():
+    logger.info('user ' + str(current_user.user_so_name) + ' has logged out')
     logout_user()
-
     return redirect(url_for('mains.homepage'))
 
 
-@admins.route('/deleteuser/<int:id>')
-def deleteuser(id):
+@admins.route('/deleteuser/<int:xid>')
+def deleteuser(xid):
     user_to_delete = User()
     try:
-        user_to_delete = User.query.get(id)
-        logging.info('deleting user ' + str(user_to_delete))
+        user_to_delete = User.query.get(xid)
+        logger.info(str(current_user.user_so_name) + ' is deleting user ' + user_to_delete.user_firstname + ' ' + user_to_delete.user_lastname)
         db.session.delete(user_to_delete)
         db.session.commit()
         flash('successfully deleted record')
         return redirect(url_for('admins.user_admin'))
-    except Exception as e:
-        logging.info('deleting user ' + str(user_to_delete))
+    except IntegrityError as e:
+        logger.info('error deleting user ' + str(user_to_delete))
         db.session.rollback()
         flash('There was a problem deleting record')
         return redirect(url_for('admins.user_admin'))

@@ -47,7 +47,7 @@ def office():
     return render_template('office.html', form=office_form, offices=offices)
 
 
-@ballot.route('/deleteoffice/<int:id>', methods=['POST', 'GET'])
+@ballot.route('/deleteoffice/<int:xid>', methods=['POST', 'GET'])
 def deleteoffice(xid):
     office_to_delete = Office.query.get_or_404(xid)
     form = CandidateForm()
