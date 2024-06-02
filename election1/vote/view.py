@@ -3,11 +3,11 @@ from datetime import datetime
 import xlsxwriter
 from flask import Blueprint, request, render_template, redirect
 from election1.extensions import db
-from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes
+from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
 from election1.vote.form import VotesForm
 from election1.utils import get_token
 from sqlalchemy.exc import SQLAlchemyError
-
+from flask import current_app as app
 
 vote = Blueprint('vote', __name__)
 
@@ -24,19 +24,12 @@ def office_grp_query(grp, office):
 @vote.route('/cast/<grp>/<token>', methods=['POST', 'GET'])
 def cast(grp, token):
     print(grp + token)
-    votes_form = VotesForm()
+    # votes_form = VotesForm()
     hold_token = token
-    hold_grp = grp
+    home = app.config.get('HOME')
 
-    if hold_grp == "Freshman":
-        grp_key = 1
-    elif hold_grp == "Sophomore":
-        grp_key = 2
-    elif hold_grp == "Junior":
-        grp_key = 3
-    elif hold_grp == "Senior":
-        grp_key = 4
-    else:
+
+    if grp != "Freshman" and grp != "Sophomore" and grp!= "Junior" and grp != "Senior":
         print("bad group")
     # result = db.session.query(Tokenlist).filter(Tokenlist.vote_submitted_date_time == 'abc')
     # result = db.session.query(Tokenlist).filter(Tokenlist.token == '55b03a72c80b4a5ac26a6e5c584a774141eb414e20abe450e5a171890e6cad202b48e7f9a5e45efca6d3a4808cf23a959e33b3cdf8fc2d61')
@@ -50,10 +43,10 @@ def cast(grp, token):
                 token_list.vote_submitted_date_time=datetime.now()
             else:
                 print('you already voted')
-                return render_template('previous_vote.html')
+                return render_template('previous_vote.html', home=home)
         else:
             print('you have a bad token')
-            return render_template('bad_token.html')
+            return render_template('bad_token.html', home=home)
     else:
         print(request.method)
         # request.method == 'POST ':
@@ -159,3 +152,19 @@ def setup_tokens():
 
     print("did it")
     return render_template('mains.homepage')
+
+def date_between():
+    date = Dates.query.first()
+    # Convert the epoch time to a datetime object
+    start_date_time = datetime.fromtimestamp(date.start_date_time)
+    end_date_time = datetime.fromtimestamp(date.end_date_time)
+
+    # Get the current date time
+    current_date_time = datetime.now()
+
+    # Check if current date time is between start date time and end date time
+    if start_date_time < current_date_time < end_date_time:
+        return True
+    else:
+        return False
+

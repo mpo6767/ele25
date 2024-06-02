@@ -6,48 +6,68 @@ Candidate Page
 
 {% block content %}
 
-<div class="container">
- {% if current_user.is_authenticated %}
-        <h3> You are logged ie </h3>
- {% else %}
-        <h3> you are NOT logged in</h3>
-{% endif %}
-</div>
+<h1 class="mt-5">Election Software Demo</h1>
 
-<div class="accordion" id="accordionExample">
+<div class="accordion" id="accordionElection">
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-        Overview
+          <Strong>Election Overview</Strong>
       </button>
     </h2>
-    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+    <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
       <div class="accordion-body">
-        <strong>This is election software.  Like election software that’s used in general and primary elections, but with a significant difference.  Votes are casted electronically primarily with smart phones..</strong>
+        This is a demo for a simple election software package written in Python/Flask.
+The demo is a complete application minus a few features so the demo application can run out of the box.  The demo application uses SQLite which I would never use in a production environment.  SQLite is included in the Python Standard Library.  sqlite3 — DB-API 2.0 interface for SQLite databases — Python 3.12.3 documentation
+This application consists of 4 Flask Blueprints in order to break the application up in manageable pieces.  There is currently only 1 static directory.
+The application uses Python Logging and the demo application currently logs to the console only.
       </div>
     </div>
   </div>
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-        What are Election Dates
+          <Strong>Administration Users</Strong>
       </button>
     </h2>
-    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
       <div class="accordion-body">
-        <strong>Election Dates</strong> is a block of time that ballots may be cast.
-      </div>
+        There are 2 types of users.<br><br>
+        Administration users and voters.<br>
+         <br> <p>The demo and the production system does not allow the voters to authenticate.
+          After all voting is private.  A randomly generated token is used by a voter to vote.
+          That same token is stored in the voting system.
+          The voter has to have a stored token and the token can only be used once.
+          The demo system creates 100 tokens in a spreadsheet that can be used to vote. During voting the token is
+          hashed keeping the voter’s votes private and eliminating the chance of one token used to vote more than once.</p>
+
+          <br><p>Administrators must authenticate.   The security isn’t as good as it could be in the demo in order to keep things simple.
+          There are 2 types of Administrators, <Strong>Super Administrators and Election Administrators.</Strong></p>
+
+          <p><Strong>Super administrators</Strong> can create  and delete other super administrators plus create and delete Election administrators.
+          The creation and deletion  of administrators is the only purpose of the Super Administrator.
+          There can only be 2 Super Administrators and a Super Administrator can’t delete themselves.</p>
+
+Election Administrators set up the election.  The first item is to set up the date and times of the election.
+          Once the date of the election is set up the Election Administrators Offices, Classes (Groups), and Candidates.  Once the election starts Administrators cannot change any election set up data items. </div>
     </div>
   </div>
   <div class="accordion-item">
     <h2 class="accordion-header">
       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-        What is the Class
+          <strong>Election Date and Time</strong>
       </button>
     </h2>
-    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
       <div class="accordion-body">
-        <strong>The Class</strong> for school elections are Freshman ,Sophomore, Junior and Senior
+      <img src="{{ url_for('static', filename='html/edates.jpg') }}" alt="Start Date"><br>
+
+            <br>Select the date by using the calendar ICON on the far right.
+            <br>Use 24-hour clock or 12-hour clock plus AM/PM indicator.
+            <br>There must be a date set or entry of election data will not occur.
+            <br>Election data cannot be changed after the start datetime is reached.
+            <br>Voting can only take place after Start Date and before End Date.
+            <br>Election results only run after End Date.
       </div>
     </div>
   </div>

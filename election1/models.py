@@ -72,6 +72,9 @@ class Dates(db.Model):
     start_date_time = db.Column(db.Integer, nullable=False)
     end_date_time = db.Column(db.Integer, nullable=False)
 
+
+
+
 class Votes(db.Model):
     id_votes = db.Column(db.Integer, primary_key=True)
     votes_token = db.Column(db.String(138), nullable=False)

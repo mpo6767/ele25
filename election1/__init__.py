@@ -78,12 +78,13 @@ def config_application(app):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Flask-Mail configuration
-    app.config["MAIL_SERVER"] = os.getenv('MAIL_SERVER', 'smtp.office365.com')
-    app.config["MAIL_PORT"] = 587
-    app.config["MAIL_USE_TLS"] = True
-    app.config["MAIL_USERNAME"] = os.getenv('MAIL_USERNAME', 'michael@cpo2llc.com')
-    app.config["MAIL_PASSWORD"] = os.getenv('MAIL_PASSWORD', 'nonono')
+    # app.config["MAIL_SERVER"] = os.getenv('MAIL_SERVER', 'smtp.office365.com')
+    # app.config["MAIL_PORT"] = 587
+    # app.config["MAIL_USE_TLS"] = True
+    # app.config["MAIL_USERNAME"] = os.getenv('MAIL_USERNAME', 'username here is unsafe')
+    # app.config["MAIL_PASSWORD"] = os.environ.get('MAIL_PASS')
 
+    app.config["HOME"] = os.getenv('HOME', 'http://google.com')
 
 def config_blueprint(app):
     """

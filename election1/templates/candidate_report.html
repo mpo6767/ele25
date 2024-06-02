@@ -9,20 +9,19 @@ Candidate Page
         <br>
         <form method="post" style="color:white">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="row g-3 ">
-                <div class="col-2 ">
-                    {{ form.choices_classgrp.label() }}
-                </div>
-                <div class="col-2 ">
-                    {{ form.choices_office.label() }}
-                </div>
-            </div>
 
             <div class="row g-3 ">
-                 <div class="col-2">
-                     {{ form.choices_classgrp()}}
+                <div class="col-2 ">
+                    one title or all titles
                 </div>
-                 <div class="col-2">
+                <div class="col-2 ">
+                    specific class only
+                </div>
+            </div>
+       <br>
+            <div class="row g-3 ">
+
+                <div class="col-2">
                      <select id="choices_office" name="choices_office"><option selected value=0>All Offices</option>
                          {% for offices in list_of_offices  %}
                          <option value={{ offices.id_office }}>{{ offices.office_title }} </option>
@@ -30,6 +29,11 @@ Candidate Page
                      </select>
 
                 </div>
+
+                 <div class="col-2">
+                     {{ form.choices_classgrp()}}
+                </div>
+
                 <div class="col-2">
                      {{ form.submit(type="submit",value=' Report', class="btn   btn-primary") }}
                 </div>

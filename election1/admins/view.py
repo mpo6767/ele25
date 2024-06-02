@@ -17,7 +17,7 @@ def user_admin():
     if form.validate():
         if request.method == 'POST':
             user_firstname = request.form['user_firstname']
-            user_lastname = request.form['user_lastname']
+            user_lastname: str = request.form['user_lastname']
             user_so_name = request.form['user_so_name']
             user_pass = request.form['user_pass']
             id_admin_role = request.form['id_admin_role']
@@ -43,7 +43,8 @@ def user_admin():
                     db.session.add(new_user)
                     db.session.commit()
                     flash('admin added successfully', category='success')
-                    logger.info('user ' + str(current_user.user_so_name) + ' has created ' + user_firstname + ' ' + user_lastname)
+                    logger.info('user ' + str(current_user.user_so_name) + ' has created ' + user_firstname + ' ' +
+                                user_lastname)
                     return redirect(url_for('admins.user_admin'))
                 except IntegrityError as e:
                     db.session.rollback()
@@ -91,10 +92,11 @@ def logout():
 
 @admins.route('/deleteuser/<int:xid>')
 def deleteuser(xid):
-    user_to_delete = User()
+    user_to_delete: User = User()
     try:
         user_to_delete = User.query.get(xid)
-        logger.info(str(current_user.user_so_name) + ' is deleting user ' + user_to_delete.user_firstname + ' ' + user_to_delete.user_lastname)
+        logger.info(str(current_user.user_so_name) + ' is deleting user ' + user_to_delete.user_firstname + ' ' +
+                    user_to_delete.user_lastname)
         db.session.delete(user_to_delete)
         db.session.commit()
         flash('successfully deleted record')
@@ -102,5 +104,5 @@ def deleteuser(xid):
     except IntegrityError as e:
         logger.info('error deleting user ' + str(user_to_delete))
         db.session.rollback()
-        flash('There was a problem deleting record')
+        flash("There was a problem deleting record" + str(e))
         return redirect(url_for('admins.user_admin'))
