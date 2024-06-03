@@ -1,5 +1,6 @@
 import os
-import secrets
+
+
 class Config:
     db_user = os.environ.get('DB_USER')
     db_pass = os.environ.get('DB_PASS')

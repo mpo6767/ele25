@@ -4,7 +4,6 @@ from flask import Flask
 from .models import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy_utils import database_exists
-from election1.config import Config
 from sqlalchemy import exc
 from datetime import timedelta
 
@@ -13,6 +12,7 @@ logging.config.fileConfig('logging.conf')
 # create logger
 logger = logging.getLogger(__name__)
 logger.info('logging is initialized')
+
 
 # db = SQLAlchemy()
 
@@ -23,8 +23,7 @@ logger.info('logging is initialized')
 # from election1 import controller
 
 
-def create_app(config_class=Config):
-
+def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
     # logging configuration
@@ -45,46 +44,28 @@ def create_app(config_class=Config):
 
 
 # def config_logging(app):
-    #     # Configure logging
-    #     # logging.basicConfig(filename='election.log', level=logging.INFO)
-    #     logging.config.fileConfig('logging.conf')
-    #
-    #     # Create a logger
-    # logger = logging.getLogger('election')
-    # print(logger)
+#     # Configure logging
+#     # logging.basicConfig(filename='election.log', level=logging.INFO)
+#     logging.config.fileConfig('logging.conf')
+#
+#     # Create a logger
+# logger = logging.getLogger('election')
+# print(logger)
 
 def config_application(app):
     # Application configuration
     app.config["DEBUG"] = False
     app.config["TESTING"] = False
     app.config["SECRET_KEY"] = os.getenv('SECRET_KEY', '5thn4ruj88i9')
-    app.config["BOOTSTRAP_BOOTSWATCH_THEME"] = 'Pulse'
     app.config["REMEMBER_COOKIE_DURATION"] = timedelta(seconds=20)
-
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=2)
     # WTF Form and recaptcha configuration
     app.config["WTF_CSRF_SECRET_KEY"] = os.getenv('CSRF_SECRET_KEY', '7uhy65tgfr43edsw')
     app.config["WTF_CSRF_ENABLED"] = True
-    app.config["RECAPTCHA_PUBLIC_KEY"] = os.getenv('PUBLIC_KEY', None)
-    app.config["RECAPTCHA_PRIVATE_KEY"] = os.getenv('RECAPTCHA_KEY', None)
-
-    # SQLAlchemy configuration
-    # db_user = os.environ.get('DB_USER')
-    # db_pass = os.environ.get('DB_PASS')
-    # app.config["SQLALCHEMY_DATABASE_URI"] =('mysql+pymysql://' + str(db_user) + ':' +
-    #                            str(db_pass) + '@localhost/school_db')
-
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///election.db'
-
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["HOME"] = os.getenv('HOME', 'https://google.com')
 
-    # Flask-Mail configuration
-    # app.config["MAIL_SERVER"] = os.getenv('MAIL_SERVER', 'smtp.office365.com')
-    # app.config["MAIL_PORT"] = 587
-    # app.config["MAIL_USE_TLS"] = True
-    # app.config["MAIL_USERNAME"] = os.getenv('MAIL_USERNAME', 'username here is unsafe')
-    # app.config["MAIL_PASSWORD"] = os.environ.get('MAIL_PASS')
-
-    app.config["HOME"] = os.getenv('HOME', 'http://google.com')
 
 def config_blueprint(app):
     """
@@ -99,6 +80,7 @@ def config_blueprint(app):
     app.register_blueprint(mains)
     app.register_blueprint(vote)
 
+
 def config_extention(app):
     """
     Configure application extensions.
@@ -109,6 +91,11 @@ def config_extention(app):
     from .extensions import csrf
 
     db.init_app(app)
+    csrf.init_app(app)
+
+    login_manager.init_app(app)
+    config_manager(login_manager)
+
 
     if not os.path.exists("instance/election.db"):
         logger.info("database is  not here will be created")
@@ -162,11 +149,6 @@ def config_extention(app):
                 finally:
                     logger.info("db.create_all() in __init__.py was successfull - no exceptions were raised")
 
-    login_manager.init_app(app)
-    config_manager(login_manager)
-    csrf.init_app(app)
-
-
 
 def config_manager(manager):
     """
@@ -178,7 +160,9 @@ def config_manager(manager):
     manager.login_view = 'admins.login'
     manager.login_message_category = "info"
 
-
     @manager.user_loader
-    def user_loader(id):
-        return User.query.get_or_404(id)
+    def user_loader(xid):
+        user = User.query.get(int(xid))
+        if user is None:
+            return None
+        return user
