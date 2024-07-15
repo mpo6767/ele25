@@ -17,14 +17,14 @@ Ballot
             </div>
             <div class="form-check">
             {% for p in form.p_candidate.choices %}
-                  <input class="form-check-input" required type="radio" name="p_candidate" id="{{ p[0] }}" value="{{ p[0] }}">
+                  <input class="form-check-input" required type="radio" name="candidate" id="{{ p[0] }}" value="{{ p[0] }}">
                   <label class="form-check-label" for="{{ p[0] }}">
                       {{ p[1] }}
                   </label>
              <br>
             {% endfor %}
 
-                  <input class="form-check-input" required type="radio" name="p_candidate" id="{{ "99" }}" value="{{ "99" }}">
+                  <input class="form-check-input" required type="radio" name="candidate" id="{{ "99" }}" value="{{ "99" }}">
                   <label class="form-check-label" for="{{ "99" }}">
                      No Vote President
                   </label>

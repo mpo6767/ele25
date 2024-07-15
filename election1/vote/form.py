@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from election1.models import Classgrp, Office, Candidate
-from wtforms import RadioField, SubmitField
+from wtforms import RadioField, SubmitField, BooleanField
 from election1.extensions import db
 from wtforms.validators import InputRequired
 from election1.models import Tokenlist
@@ -36,8 +36,26 @@ class VotesForm(FlaskForm):
     #     tokenList = Tokenlist.query.filter_by(token=token_to_check).first()
     #     if tokenList.
 
-    p_candidate = RadioField(label='president', choices=[], validators=[InputRequired()])
+    p_candidate: RadioField = RadioField(label='president', choices=[], validators=[InputRequired()])
     vp_candidate = RadioField(label='vice_president', choices=[], validators=[InputRequired()])
     s_candidate = RadioField(label='secretary', choices=[], validators=[InputRequired()])
     t_candidate = RadioField(label='treasurer', choices=[], validators=[InputRequired()])
     submit = SubmitField(label='submit')
+
+
+class VoteForOne(FlaskForm):
+    candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
+    submit = SubmitField(label='submit')
+
+class VoteForMany(FlaskForm):
+    def __init__(self, candidates=None, *args, **kwargs):
+        super(VoteForMany, self).__init__(*args, **kwargs)
+        if candidates:
+            for candidate_id, candidate_name in candidates:
+                setattr(self, f'candidate_{candidate_id}', BooleanField(label=candidate_name))
+        self.submit = SubmitField('Submit')
+
+class VoteRankChoice(FlaskForm):
+    candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
+    submit = SubmitField(label='submit')
+

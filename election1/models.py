@@ -87,4 +87,14 @@ class Tokenlist(db.Model):
     token = db.Column(db.String(138), nullable=False)
     vote_submitted_date_time = db.Column(db.DateTime, nullable=True)
 
+    def to_dict(self):
+        """
+        Convert the Tokenlist object into a dictionary format.
+        """
+        return {
+            'id_tokenlist': self.id_tokenlist,
+            'token': self.token,
+            'vote_submitted_date_time': self.vote_submitted_date_time.isoformat() if self.vote_submitted_date_time else None
+        }
+
 

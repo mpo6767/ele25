@@ -1,0 +1,35 @@
+{% extends 'base1.html' %}
+{% block title %}
+Ballot
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Ballot ....</h1>
+        <br>
+        <form method="post" style="color:white" autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+             <div class="row g-3 ">
+                <div class="col-2 ">
+                    <p class="text-warning">{{ office }}</p>
+                </div>
+            </div>
+            <div class="form-check">
+            {% for candidate_id, candidate_name in candidates %}
+                  <input class="form-check-input" required type="radio" name="candidate" id="{{ candidate_id }}" value="{{ candidate_id }}">
+                  <label class="form-check-label" for="{{ candidate_id }}">
+                      {{ candidate_name }}
+                  </label>
+             <br>
+            {% endfor %}
+
+                  <input class="form-check-input" required type="radio" name="candidate" id="{{ "99" }}" value="{{ "99" }}">
+                  <label class="form-check-label" for="{{ "99" }}">
+                     No Vote President
+                  </label>
+              </div>
+            <br>
+        </form>
+    </div>
+{% endblock %}

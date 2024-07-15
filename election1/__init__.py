@@ -58,7 +58,7 @@ def config_application(app):
     app.config["TESTING"] = False
     app.config["SECRET_KEY"] = os.getenv('SECRET_KEY', '5thn4ruj88i9')
     app.config["REMEMBER_COOKIE_DURATION"] = timedelta(seconds=20)
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=2)
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
     # WTF Form and recaptcha configuration
     app.config["WTF_CSRF_SECRET_KEY"] = os.getenv('CSRF_SECRET_KEY', '7uhy65tgfr43edsw')
     app.config["WTF_CSRF_ENABLED"] = True

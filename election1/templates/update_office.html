@@ -27,6 +27,21 @@
                 </div>
             </div>
             <br>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                     {{ form.office_vote_for.label() }}
+                </div>
+                 <div class="col-auto" >
+                    {{ form.office_vote_for(class="form-control", value=office_to_update.office_vote_for) }}
+                </div>
+                 <div class="col-sm-2" autofocus>
+                    <span id="passwordHelpInline" class="form-text" >
+                        <b> Max Candidates to Vote For. </b>
+                    </span>
+                </div>
+            </div>
+
+            <br>
             <div class="row g-3">
                 <div class="col-2">
                      {{ form.sortkey.label() }}

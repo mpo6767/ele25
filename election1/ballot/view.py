@@ -113,16 +113,18 @@ def updateoffice(xid):
     if request.method == "POST":
         office_to_update.office_title = request.form['office_title']
         office_to_update.sortkey = request.form['sortkey']
+        office_to_update.office_vote_for = request.form['office_vote_for']
         try:
             db.session.commit()
             logger.info(
                 'user ' + str(
                     current_user.user_so_name) + ' has edited the office titled ' + office_to_update.office_title)
             flash('successfully updates record', category='success')
-            office_form.office_title.data = ''
-            office_form.sortkey.data = ''
+            # office_form.office_title.data = ''
+            # office_form.sortkey.data = 0
+            # office_form.office_vote_for.data = 1
             offices = Office.query.order_by(Office.sortkey)
-            return render_template('office.html', form=office_form, offices=offices)
+            return redirect('/office')
         except SQLAlchemyError as e:
             db.session.rollback()
             flash('There was a problem updating record record' + str(e), category='danger')

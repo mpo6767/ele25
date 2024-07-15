@@ -1,13 +1,17 @@
 from pathlib import Path
 from datetime import datetime
 import xlsxwriter
-from flask import Blueprint, request, render_template, redirect
+from flask import Blueprint, request, render_template, redirect, session, jsonify, current_app
 from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
-from election1.vote.form import VotesForm
+from election1.vote.form import VotesForm, VoteForOne, VoteForMany
 from election1.utils import get_token
 from sqlalchemy.exc import SQLAlchemyError
-from flask import current_app as app
+from sqlalchemy import and_
+
+from sqlalchemy import asc
+from election1.dclasses import CandidateDataClass
+from typing import Dict, Any
 
 vote = Blueprint('vote', __name__)
 
@@ -15,98 +19,113 @@ vote = Blueprint('vote', __name__)
 def office_grp_query(grp, office):
     return_list = []
     candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).where(Office.office_title == office and Classgrp == grp)
+        Office).filter(and_(Office.office_title == office, Classgrp.name == grp))
     for c in candidates:
         return_list.append(tuple((c.Candidate.id_candidate, c.Candidate.firstname + " " + c.Candidate.lastname)))
+        print(return_list)
     return return_list
 
 
 @vote.route('/cast/<grp>/<token>', methods=['POST', 'GET'])
 def cast(grp, token):
-    print(grp + token)
-    # votes_form = VotesForm()
-    hold_token = token
-    home = app.config.get('HOME')
+    # Check if there is a session then check the token
+
+    if not session:
+        print("Session is empty")
+        token_list_record = get_tokenlist_record(token)
+        if 'error' in token_list_record:
+            home = current_app.config['HOME']
+            return render_template('bad_token.html', error=token_list_record['error'], home=home)
+
+        # token is OK
+
+        print('no error')
+        print(next(iter(token_list_record.items())))
+        session['token_list_record'] = token_list_record
+        print(token_list_record)
+
+        print(grp)
+        groups = grp.split('$')
+        office_dict = get_office_dict(groups)
+        session['office_dict_key'] = office_dict
+        print(office_dict)
+
+    # Get the office_dict from the session
+    office_dict = session.get('office_dict_key', None)
+    # find the next office to
+    next_office = get_next_office(office_dict)
+    print('y' + str(next_office))
+
+    # if all the offices have been voted for then redirect to final check
+
+    if next_office[2] == 1:  # vote for one
+        print('vote for one')
+        votes_form = VoteForOne()
+        candidate_choices = office_grp_query(grp, next_office[0])
+        VoteForOne.candidate.choices = candidate_choices
+        return render_template('cast1.html', form=votes_form, office=next_office[0],
+                               candidates=candidate_choices, grp=grp)
+
+    if next_office[2] > 1:  # vote for one or more
+
+        print('vote for one or more')
+        votes_form = VoteForOne()
+        candidate_choices = office_grp_query(grp, next_office[0])
+        VoteForOne.candidate.choices = candidate_choices
+        return render_template('cast2.html', form=votes_form, office=next_office[0],
+                               candidates=candidate_choices, grp=grp, max_votes=next_office[2])
+
+    return 'finished'
 
 
-    if grp != "Freshman" and grp != "Sophomore" and grp!= "Junior" and grp != "Senior":
-        print("bad group")
-    # result = db.session.query(Tokenlist).filter(Tokenlist.vote_submitted_date_time == 'abc')
-    # result = db.session.query(Tokenlist).filter(Tokenlist.token == '55b03a72c80b4a5ac26a6e5c584a774141eb414e20abe450e5a171890e6cad202b48e7f9a5e45efca6d3a4808cf23a959e33b3cdf8fc2d61')
-    # if result:
-    # print(Tokenlist.query.filter_by(token=token, vote_submitted_date_time='').count())
-    if request.method == 'GET':
-        token_list = Tokenlist.query.filter_by(token=token).first()
-        if token_list:
-            if Tokenlist.query.filter_by(token=token, vote_submitted_date_time=None).count() == 1:
-                print('you can vote')
-                token_list.vote_submitted_date_time=datetime.now()
-            else:
-                print('you already voted')
-                return render_template('previous_vote.html', home=home)
-        else:
-            print('you have a bad token')
-            return render_template('bad_token.html', home=home)
-    else:
-        print(request.method)
-        # request.method == 'POST ':
-        print('count the vote')
-        votesForm = VotesForm()
-        president = request.form['p_candidate']
-        print(president)
-        vpresident = request.form['vp_candidate']
-        print(vpresident)
-        secretary = request.form['s_candidate']
-        print(secretary)
-        treasurer = request.form['t_candidate']
-        print(treasurer)
-        try:
-            if president != "99":
-                print(hold_token + " " + president)
-                president_vote = Votes(votes_token=hold_token, id_candidate=president)
-                db.session.add(president_vote)
-                print('president_vote')
-            if vpresident != "99":
-                vpresident_vote = Votes(votes_token=hold_token, id_candidate=int(vpresident))
-                db.session.add(vpresident_vote)
-                print('vpresident_vote')
-            if secretary != "99":
-                secretary_vote = Votes(votes_token=hold_token, id_candidate=int(secretary))
-                db.session.add(secretary_vote)
-                print('secretary_vote')
-            if treasurer != "99":
-                treasurer_vote = Votes(votes_token=hold_token, id_candidate=int(treasurer))
-                db.session.add(treasurer_vote)
-                print('treasurer_vote')
-            token_list = Tokenlist.query.filter_by(token=token).first()
-            token_list.vote_submitted_date_time = datetime.now()
-            db.session.commit()
-
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print("we have an exception " + e)
-            return render_template('unexpected_error.html')
+def vote_for_many(office, grp, max_votes):
+    print('vote for one or more')
+    candidate_choices = office_grp_query(grp, office)
+    votes_form = VoteForMany()
+    candidate_choices = office_grp_query(grp, office[0])
+    VoteForOne.candidate.choices = candidate_choices
+    return render_template('cast2.html', form=votes_form, office=office,
+                           candidates=candidate_choices, grp=grp, max_votes=max_votes)
 
 
-    votes_form = VotesForm()
-    print("1")
-    votes_form.p_candidate.choices = office_grp_query(grp, 'President')
-    print("1")
-    votes_form.vp_candidate.choices = office_grp_query(grp, 'Vice President')
-    print("1")
-    votes_form.s_candidate.choices = office_grp_query(grp, 'Secretary')
-    print("1")
-    votes_form.t_candidate.choices = office_grp_query(grp, 'Treasurer')
-    print("1")
+def get_office_dict(groups):
+    office_dict = {}
+    # office_dict2: Dict[str, Any] = {}
+    # Query the database for all distinct groups
+    # groups = db.session.query(Classgrp.name).distinct().all()
 
-    print("fall through")
+    # Initialize an empty dictionary
 
-    return render_template('successful_vote.html')
-    # return render_template('homepage.html')
+    # Loop through each group
+    for group in groups:
+        print(group)
+        offices = query_offices_for_classgroup_with_details_as_list(group)
+        print(offices)
+        # Add the group and its associated offices to the dictionary
+        # office_dict[group] = [[office[0], office[1], []] for office in offices]
+        office_dict[group] = [[office[0], office[1], office[2], []] for office in offices]
+        # for office in offices:
+        #     office_dict[group] = [office, None, None]
+
+    return office_dict
+
+
+def query_offices_for_classgroup_with_details_as_list(classgroup_name):
+    offices_query = db.session.query(
+        Office.office_title,
+        Office.sortkey,
+        Office.office_vote_for
+    ).join(Candidate).join(Classgrp).filter(
+        Classgrp.name == classgroup_name
+    ).distinct().order_by(Office.sortkey)
+
+    offices = offices_query.all()
+
+    return [[office.office_title, office.sortkey, office.office_vote_for] for office in offices]
+
 
 @vote.route('/setup_tokens', methods=['POST', 'GET'])
 def setup_tokens():
-
     Tokenlist.query.delete()
 
     p = Path(r"instance/voterTokens.xlsx")
@@ -119,9 +138,7 @@ def setup_tokens():
     col = 0
 
     while row < 101:
-
         token = get_token()
-
         try:
             new_tokenlist = Tokenlist(token=token,
                                       vote_submitted_date_time=None)
@@ -133,12 +150,11 @@ def setup_tokens():
             print("except " + str(e))
             return redirect("/homepage")
 
-
         print(row)
 
         eclass = row % 4
         if eclass == 1:
-            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Freshman/' + token)
+            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Freshmen/' + token)
         elif eclass == 2:
             worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Sophomore/' + token)
         elif eclass == 3:
@@ -152,6 +168,7 @@ def setup_tokens():
 
     print("did it")
     return render_template('mains.homepage')
+
 
 def date_between():
     date = Dates.query.first()
@@ -168,3 +185,38 @@ def date_between():
     else:
         return False
 
+
+def get_tokenlist_record(token):
+    """
+    Retrieve a Tokenlist record if the given token exists in the Tokenlist.
+    If the token does not exist, render a 'bad_token.html' template.
+
+    :param token: The token to search for in the Tokenlist.
+    :return: The Tokenlist record if the token exists, otherwise renders a template.
+    """
+    token_record = Tokenlist.query.filter_by(token=token).first()
+    if token_record is None:
+        # Token does not exist
+        return {'error': 'Invalid token'}
+    if token_record.vote_submitted_date_time is not None:
+        # Token exists but vote has been submitted
+        return {'error': 'Token has already been used'}
+
+    # Token is valid and has not been used
+    return token_record.to_dict()
+
+
+def get_next_office(office_dict):
+    """
+    Get the next office from the office_dict.
+
+    :param office_dict: A dictionary containing the group and its associated offices.
+    :return: The next office from the office_dict.
+    """
+    for key, offices in office_dict.items():
+        print(f"Key: {key}, Value: {offices}")
+        for office in offices:
+            print(f"Office: {office}")
+            if not office[3]:
+                return office
+    return None

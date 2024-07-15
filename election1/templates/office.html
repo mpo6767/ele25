@@ -62,9 +62,10 @@
             <table class="table-dark">
                <thead>
                    <tr>
-                       <th class="col-2"> Sort Key</th>
-                       <th class="col-2"> Office</th>
                        <th class="col-2"> id </th>
+                       <th class="col-2"> Sort Key</th>
+                       <th class="col-2"> Vote For</th>
+                       <th class="col-2"> Office</th>
                        <th class="col-2"> Delete </th>
                        <th class="col-2"> Edit </th>
                    </tr>
@@ -73,9 +74,10 @@
                <tbody>
                {% for office in offices %}
                 <tr>
-                    <td>{{ office.sortkey }}</td>
-                     <td>{{ office.office_title }}</td>
                     <td> {{ office.id_office }}</td>
+                    <td>{{ office.sortkey }}</td>
+                    <td>{{ office.office_vote_for }}</td>
+                    <td>{{ office.office_title }}</td>
                     <td><a href="{{ url_for('ballot.deleteoffice',xid=office.id_office)}}">Delete</a> </td>
                     <td><a href="{{ url_for('ballot.updateoffice',xid=office.id_office)}}">Edit</a> </td>
                 </tr>

@@ -29,41 +29,39 @@ class Candidate_reportForm(FlaskForm):
 
 class OfficeForm(FlaskForm):
     @staticmethod
-    def validate_office_title(office_title_to_check):
-        title = Office.query.filter_by(office_title=office_title_to_check.data).first()
+    def validate_office_title(form, field):
+        title = Office.query.filter_by(office_title=field.data).first()
         if title:
             raise ValidationError('Office must be unique')
 
     @staticmethod
-    def validate_sortkey(office_sortkey_to_check):
-        sortkey = Office.query.filter_by(sortkey=office_sortkey_to_check.data).first()
-        if sortkey:
-            raise ValidationError('Sort key must be unique')
+    def validate_sortkey(form, field):
+        classgrp = Office.query.filter_by(sortkey=field.data).first()
+        if classgrp:
+            raise ValidationError('This sort key already exists in the database.')
 
     office_title = StringField(label='Office Title . . .', validators=[Length(min=2, max=30), DataRequired()])
     office_vote_for = IntegerField(label='Vote For . . .', default=1)
-    sortkey = IntegerField(label='Sort Key . . .', validators=[DataRequired()])
+    sortkey = IntegerField(label='Sort Key . . .', default=None, validators=[DataRequired()])
     submit = SubmitField(label='submit')
 
 
 class ClassgrpForm(FlaskForm):
-    @staticmethod
-    def validate_name(name_to_check):
-        name = Classgrp.query.filter_by(name=name_to_check.data).first()
-        if name:
-            raise ValidationError('Class or Group must be unique')
-
-    @staticmethod
-    def validate_sortkey(sortkey_to_check):
-        sortkey = Classgrp.query.filter_by(sortkey=sortkey_to_check.data).first()
-        if sortkey:
-            raise ValidationError('Sort key must be unique')
 
     name = StringField(label='Class or Group . . .', validators=[Length(min=2, max=30), DataRequired()])
     sortkey = IntegerField(label='Sort Key . . .', validators=[DataRequired()])
     submit = SubmitField(label='submit')
 
-
+    @staticmethod
+    def validate_name(form, field):
+        classgrp = Classgrp.query.filter_by(name=field.data).first()
+        if classgrp:
+            raise ValidationError('This class or group name already exists in the database.')
+    @staticmethod
+    def validate_sortkey(form, field):
+        classgrp = Classgrp.query.filter_by(sortkey=field.data).first()
+        if classgrp:
+            raise ValidationError('This sort key already exists in the database.')
 class DatesForm(FlaskForm):
     start_date_time = DateTimeLocalField('Start Date', validators=[InputRequired()])
     end_date_time = DateTimeLocalField('End Date', validators=[InputRequired()])
