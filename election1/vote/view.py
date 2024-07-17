@@ -22,90 +22,151 @@ def office_grp_query(grp, office):
         Office).filter(and_(Office.office_title == office, Classgrp.name == grp))
     for c in candidates:
         return_list.append(tuple((c.Candidate.id_candidate, c.Candidate.firstname + " " + c.Candidate.lastname)))
-        print(return_list)
+    print(return_list)
     return return_list
 
 
 @vote.route('/cast/<grp>/<token>', methods=['POST', 'GET'])
 def cast(grp, token):
-    # Check if there is a session then check the token
-
+    # Check if there is no session then check the validity of the token
     if not session:
-        print("Session is empty")
+        print("Session is empty log the token")
         token_list_record = get_tokenlist_record(token)
         if 'error' in token_list_record:
+            print("log the token is bad")
             home = current_app.config['HOME']
             return render_template('bad_token.html', error=token_list_record['error'], home=home)
 
-        # token is OK
-
-        print('no error')
+        print('log the token is good no error')
         print(next(iter(token_list_record.items())))
         session['token_list_record'] = token_list_record
         print(token_list_record)
-
         print(grp)
         groups = grp.split('$')
         office_dict = get_office_dict(groups)
         session['office_dict_key'] = office_dict
         print(office_dict)
 
-    # Get the office_dict from the session
-    office_dict = session.get('office_dict_key', None)
-    # find the next office to
-    next_office = get_next_office(office_dict)
-    print('y' + str(next_office))
+        # Get the office_dict from the session
+        office_dict = session.get('office_dict_key', None)
+        # find the next office to
+        next_office = get_next_office(office_dict)
+        print('y' + str(next_office))
+        session['group'] = grp
+        session['office'] = next_office[0]
+        if next_office[2] == 1:  # vote for one
+            print('vote for one')
+            print(grp)
+            votes_form = VoteForOne()
+            candidate_choices = office_grp_query(grp, next_office[0])
+            VoteForOne.candidate.choices = candidate_choices
+            return render_template('cast1.html', form=votes_form, office=next_office[0],
+                                   candidates=candidate_choices, grp=grp)
 
-    # if all the offices have been voted for then redirect to final check
+        if next_office[2] > 1:  # vote for one or more
 
-    if next_office[2] == 1:  # vote for one
-        print('vote for one')
-        votes_form = VoteForOne()
-        candidate_choices = office_grp_query(grp, next_office[0])
-        VoteForOne.candidate.choices = candidate_choices
-        return render_template('cast1.html', form=votes_form, office=next_office[0],
-                               candidates=candidate_choices, grp=grp)
-
-    if next_office[2] > 1:  # vote for one or more
-
-        print('vote for one or more')
-        votes_form = VoteForOne()
-        candidate_choices = office_grp_query(grp, next_office[0])
-        VoteForOne.candidate.choices = candidate_choices
-        return render_template('cast2.html', form=votes_form, office=next_office[0],
-                               candidates=candidate_choices, grp=grp, max_votes=next_office[2])
-
-    return 'finished'
+            print('vote for one or more')
+            votes_form = VoteForMany()
+            candidate_choices = office_grp_query(grp, next_office[0])
+            VoteForMany.candidate.choices = candidate_choices
+            return render_template('cast2.html', form=votes_form, office=next_office[0],
+                                   candidates=candidate_choices, grp=grp, max_votes=next_office[2])
 
 
-def vote_for_many(office, grp, max_votes):
-    print('vote for one or more')
-    candidate_choices = office_grp_query(grp, office)
-    votes_form = VoteForMany()
-    candidate_choices = office_grp_query(grp, office[0])
-    VoteForOne.candidate.choices = candidate_choices
-    return render_template('cast2.html', form=votes_form, office=office,
-                           candidates=candidate_choices, grp=grp, max_votes=max_votes)
+    # if form_voteForeOne.validate_on_submit() and form_voteForeOne.submit.data:
+    if request.method == 'POST':
+        print(request.form.get('csrf_token'))
+        print("POST")
+        form_name = request.form.get('form_name')
+        # if form_name == 'VoteForOne':
+        #     print('VoteForOne')
+        #     selected_candidate_id = request.form.get('candidate')
+        # elif form_name == 'VoteForMany':
+        #     checked_options = request.form.getlist('options')
+
+        office_dict = session.get('office_dict_key', {})
+
+        group = session.get('group')
+        office = session.get('office')
+
+        if group in office_dict:
+            for office_entry in office_dict[group]:
+                # Find the matching office
+                if office_entry[0] == office:
+                    if form_name == 'VoteForOne':
+                        selected_candidate_id = request.form.get('candidate')
+                        # Add the selected_candidate_id to the list of candidates voted for
+                        print('log this ' + str(selected_candidate_id))
+                        office_entry[3].append(selected_candidate_id)
+                    elif form_name == 'VoteForMany':
+                        checked_options = request.form.getlist('options')
+                        print('log this ' + str(checked_options))
+                        # Add the checked_options to the list of candidates voted for
+                        office_entry[3].extend(checked_options)
+                    break
+            # Update the session with the modified office_dict
+            session['office_dict_key'] = office_dict
+            print(office_dict)
+
+            next_office = get_next_office(office_dict)
+
+            print('next_office ' + str(next_office))
+
+            if next_office is None:
+                print('no more offices')
+                return 'no more offices'
+
+            session['office'] = next_office[0]
+            if next_office[2] == 1:  # vote for one
+                print('vote for one')
+                print(next_office[0])
+                votes_form = VoteForOne()
+                candidate_choices = office_grp_query(grp, next_office[0])
+                VoteForOne.candidate.choices = candidate_choices
+                return render_template('cast1.html', form=votes_form, office=next_office[0],
+                                       candidates=candidate_choices, grp=grp)
+
+            if next_office[2] > 1:  # vote for one or more
+
+                print('vote for one or more')
+                votes_form = VoteForMany()
+                candidate_choices = office_grp_query(grp, next_office[0])
+                VoteForOne.candidate.choices = candidate_choices
+                return render_template('cast2.html', form=votes_form, office=next_office[0],
+                                       candidates=candidate_choices, grp=grp, max_votes=next_office[2])
+
+    return 'no more offices'
+def render_voting_form(form, office, candidates, grp, max_votes):
+    """
+    Renders the appropriate voting form template based on the type of vote.
+
+    :param form: The form object to be used in the template.
+    :param office: The office for which the vote is being cast.
+    :param candidates: The list of candidates for the office.
+    :param grp: The group/class of the voter.
+    :param max_votes: The maximum number of votes allowed (for multiple votes). Default is 1 for single vote.
+    :return: The rendered template response.
+    """
+    template_name = 'cast1.html' if max_votes == 1 else 'cast2.html'
+    return render_template(template_name, form=form, office=office, candidates=candidates, grp=grp, max_votes=max_votes)
 
 
 def get_office_dict(groups):
     office_dict = {}
-    # office_dict2: Dict[str, Any] = {}
-    # Query the database for all distinct groups
-    # groups = db.session.query(Classgrp.name).distinct().all()
-
     # Initialize an empty dictionary
 
-    # Loop through each group
+    # Loop through each group and process the offices associated with the group
     for group in groups:
         print(group)
         offices = query_offices_for_classgroup_with_details_as_list(group)
         print(offices)
         # Add the group and its associated offices to the dictionary
-        # office_dict[group] = [[office[0], office[1], []] for office in offices]
+        # office_dict[group] =
+        # office{0] is the name of the office
+        # office[1] is the sortkey
+        # office[2] is the number of votes allowed
+        # [] is the list of candidates voted for
         office_dict[group] = [[office[0], office[1], office[2], []] for office in offices]
-        # for office in offices:
-        #     office_dict[group] = [office, None, None]
 
     return office_dict
 
