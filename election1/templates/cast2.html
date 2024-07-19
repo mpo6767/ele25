@@ -18,14 +18,14 @@ Ballot
             </div>
             <div class="form-check">
             {% for candidate_id, candidate_name in candidates %}
-                  <input class="form-check-input" type="checkbox" name="candidate" id="{{ candidate_id }}"
+                  <input class="form-check-input" type="checkbox" name="candidates" id="{{ candidate_id }}"
                          value="{{ candidate_id }}" >
                   <label class="form-check-label" for="{{ candidate_id }}">
                       {{ candidate_name }}
                   </label>
              <br>
             {% endfor %}
-                  <input class="form-check-input" type="checkbox" name="candidate" id="99" value="99" >
+                  <input class="form-check-input" type="checkbox" name="candidates" id="99" value="99" >
                   <label class="form-check-label" for="99" >
                      No Vote
                   </label>
