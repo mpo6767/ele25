@@ -109,7 +109,9 @@ def cast(grp_list, token):
                         selected_candidate_id = request.form.get('candidate')
                         # Add the selected_candidate_id to the list of candidates voted for
                         print('log this ' + str(selected_candidate_id))
-                        office_entry[3].append(selected_candidate_id)
+                        candidate_values = str(selected_candidate_id).split('$')
+                        office_entry[3].append(candidate_values[0])
+                        office_entry[4].append(candidate_values[1])
                     elif form_name == 'VoteForMany':
                         selected_candidate_ids = request.form.getlist('candidates')
                         print(selected_candidate_ids)
@@ -187,7 +189,7 @@ def get_office_dict(groups):
         # office[1] is the sortkey
         # office[2] is the number of votes allowed
         # [] is the list of candidates voted for
-        office_dict[group] = [[office[0], office[1], office[2], []] for office in offices]
+        office_dict[group] = [[office[0], office[1], office[2], [], []] for office in offices]
 
     return office_dict
 
