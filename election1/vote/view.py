@@ -4,7 +4,7 @@ import xlsxwriter
 from flask import Blueprint, request, render_template, redirect, session, jsonify, current_app
 from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
-from election1.vote.form import VotesForm, VoteForOne, VoteForMany
+from election1.vote.form import VotesForm, VoteForOne, VoteForMany,ReviewVotes
 from election1.utils import get_token
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_
@@ -24,6 +24,23 @@ def office_grp_query(grp, office):
         return_list.append(tuple((c.Candidate.id_candidate, c.Candidate.firstname + " " + c.Candidate.lastname)))
     print(return_list)
     return return_list
+
+
+@vote.route('/cast/review', methods=['POST', 'GET'])
+def review():
+    if request.method == 'POST':
+        print("POST")
+        print(request.form.get('csrf_token'))
+        print(request.form.get('form_name'))
+        form_name = request.form.get('form_name')
+        if form_name == 'VoteForOne':
+            print('VoteForOne')
+            selected_candidate_id = request.form.get('candidate')
+        elif form_name == 'VoteForMany':
+            checked_options = request.form.getlist('options')
+        return 'review post'
+    print('GET')
+    return 'review Get'
 
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
@@ -74,13 +91,12 @@ def cast(grp_list, token):
 
         if next_office[2] > 1:  # vote for one or more
 
-            print('vote for one or more')
+            print('vote for one or more ' + str('grp') )
             votes_form = VoteForMany()
+            print('vote for one or more ' + str('grp'))
             candidate_choices = office_grp_query(grp, next_office[0])
-            VoteForMany.candidate.choices = candidate_choices
             return render_template('cast2.html', form=votes_form, office=next_office[0],
                                    candidates=candidate_choices, grp=[session.get('group')], max_votes=next_office[2])
-
 
     # if form_voteForeOne.validate_on_submit() and form_voteForeOne.submit.data:
     if request.method == 'POST':
@@ -110,10 +126,12 @@ def cast(grp_list, token):
                         # Add the selected_candidate_id to the list of candidates voted for
                         print('log this ' + str(selected_candidate_id))
                         candidate_values = str(selected_candidate_id).split('$')
-                        office_entry[3].append(candidate_values[0])
+                        # office_entry[3].append(candidate_values[0])
+                        office_entry[3].append([candidate_values[0], candidate_values[1]])
                         office_entry[4].append(candidate_values[1])
                     elif form_name == 'VoteForMany':
                         selected_candidate_ids = request.form.getlist('candidates')
+
                         print(selected_candidate_ids)
                         # Add the checked_options to the list of candidates voted for
                         office_entry[3].extend(selected_candidate_ids)
@@ -134,8 +152,11 @@ def cast(grp_list, token):
                     session['group'] = grp_list.split('$')[session.get('cnt')]
                     next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
                 else:
-                    print('no more offices')
-                    return 'no more offices'
+                    print('no more offices 1')
+                    vote_form = ReviewVotes()
+                    print(session.get('office_dict'))
+                    return render_template('cast3.html', form=vote_form, group=session.get('group'),
+                                           office_dict=session.get('office_dict'))
             
             session['office'] = next_office[0]
             if next_office[2] == 1:  # vote for one
@@ -144,7 +165,6 @@ def cast(grp_list, token):
                 votes_form = VoteForOne()
                 grp = session.get('group', None)
                 candidate_choices = office_grp_query(grp, next_office[0])
-                VoteForOne.candidate.choices = candidate_choices
                 return render_template('cast1.html', form=votes_form, office=next_office[0],
                                        candidates=candidate_choices, grp=grp)
 
@@ -157,8 +177,10 @@ def cast(grp_list, token):
                 VoteForOne.candidate.choices = candidate_choices
                 return render_template('cast2.html', form=votes_form, office=next_office[0],
                                        candidates=candidate_choices, grp=grp, max_votes=next_office[2])
-
-    return 'no more offices'
+    vote_form = ReviewVotes()
+    return render_template('cast3.html', form=vote_form, office=next_office[0],
+                           office_dict=session.get('office_dict'))
+    # return 'no more offices'
 def render_voting_form(form, office, candidates, grp, max_votes):
     """
     Renders the appropriate voting form template based on the type of vote.

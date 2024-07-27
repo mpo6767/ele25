@@ -12,7 +12,9 @@ Ballot
 
              <div class="row g-3 ">
                 <div class="col-2 ">
-                    <p class="text-warning">{{ office }}</p>
+                    <p class="text-warning">{{ office }}
+                    <br>
+                        Vote for 1</p>
                 </div>
             </div>
             <div class="form-check">
@@ -24,9 +26,9 @@ Ballot
              <br>
             {% endfor %}
 
-                  <input class="form-check-input" required type="radio" name="candidate" id="{{ "99" }}" value="{{ "99$NoVote" }}">
+                  <input class="form-check-input" required type="radio" name="candidate" id="{{ "99" }}" value="{{ "99, NoVote" }}">
                   <label class="form-check-label" for="{{ "99" }}">
-                     No Vote President
+                     No Vote {{  office }}
                   </label>
               </div>
             <br>

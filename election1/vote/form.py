@@ -55,6 +55,10 @@ class VoteForMany(FlaskForm):
                 setattr(self, f'candidate_{candidate_id}', BooleanField(label=candidate_name))
         self.submit = SubmitField('Submit')
 
+
+class ReviewVotes(FlaskForm):
+    submit = SubmitField(label='submit')
+
 class VoteRankChoice(FlaskForm):
     candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
     submit = SubmitField(label='submit')
