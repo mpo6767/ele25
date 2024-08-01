@@ -1,76 +1,55 @@
 from pathlib import Path
 from datetime import datetime
 import xlsxwriter
-from flask import Blueprint, request, render_template, redirect, session, jsonify, current_app
+import logging
+from flask import Blueprint, request, render_template, redirect, session, current_app, url_for
 from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
-from election1.vote.form import VotesForm, VoteForOne, VoteForMany,ReviewVotes
+from election1.vote.form import VoteForOne, VoteForMany,ReviewVotes
 from election1.utils import get_token
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import and_
-
-from sqlalchemy import asc
-from election1.dclasses import CandidateDataClass
-from typing import Dict, Any
+from sqlalchemy import and_, func
 
 vote = Blueprint('vote', __name__)
 
-
-def office_grp_query(grp, office):
-    return_list = []
-    candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).filter(and_(Office.office_title == office, Classgrp.name == grp))
-    for c in candidates:
-        return_list.append(tuple((c.Candidate.id_candidate, c.Candidate.firstname + " " + c.Candidate.lastname)))
-    print(return_list)
-    return return_list
-
-
-@vote.route('/cast/review', methods=['POST', 'GET'])
-def review():
-    if request.method == 'POST':
-        print("POST")
-        print(request.form.get('csrf_token'))
-        print(request.form.get('form_name'))
-        form_name = request.form.get('form_name')
-        if form_name == 'VoteForOne':
-            print('VoteForOne')
-            selected_candidate_id = request.form.get('candidate')
-        elif form_name == 'VoteForMany':
-            checked_options = request.form.getlist('options')
-        return 'review post'
-    print('GET')
-    return 'review Get'
-
+def log_vote_event(message):
+    log_file = 'vote_view_log.txt'
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open(log_file, 'a') as file:
+        file.write(f"{timestamp} - {message}\n")
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
 def cast(grp_list, token):
+    # if not date_between():
+    #     home = current_app.config['HOME']
+    #     return render_template('bad_date.html', home=home)
 
     # Check if there is no session then check the validity of the token
     if not session:
-        print("Session is empty log the token")
         token_list_record = get_tokenlist_record(token)
         if 'error' in token_list_record:
-            print("log the token is bad")
+            log_vote_event(f"Token is bad: {token_list_record['error']} - Token: {token}")
             home = current_app.config['HOME']
             return render_template('bad_token.html', error=token_list_record['error'], home=home)
-
-        print('log the token is good no error')
-        print(next(iter(token_list_record.items())))
+        log_vote_event(f"Token is good: {token}")
+        '''
+        I'm using session to store 
+        the token_list_record, 
+        the current group, 
+        the office_dict, 
+        the current office, 
+        the current office_dict_length, 
+        the current cnt, 
+        and the current length
+        '''
         session['token_list_record'] = token_list_record
-        print(token_list_record)
         session['cnt'] = 0
         session['length'] = len(grp_list.split('$'))
         session['group'] = grp_list.split('$')[session.get('cnt')]
         grp = grp_list.split('$')[session.get('cnt')]
-        print(grp)
-        # groups = grp.split('$')
         office_dict = get_office_dict(grp_list.split('$'))
 
         session['office_dict'] = office_dict
-        print(session.get('office_dict'))
-        print('here office_dict')
-        print(session.get('office_dict'))
         session['office_dict_length'] = len(session.get('office_dict'))
         session['current_office'] = 0
 
@@ -78,8 +57,6 @@ def cast(grp_list, token):
         # office_dict = session.get('office_dict', None)
 
         next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
-        print('y' + str(next_office))
-
         session['office'] = next_office[0]
         if next_office[2] == 1:  # vote for one
             print('vote for one')
@@ -89,34 +66,23 @@ def cast(grp_list, token):
             return render_template('cast1.html', form=votes_form, office=next_office[0],
                                    candidates=candidate_choices, grp=[session.get('group')])
 
-        if next_office[2] > 1:  # vote for one or more
-
-            print('vote for one or more ' + str('grp') )
+        if next_office[2] > 1:  # vote for one or
             votes_form = VoteForMany()
-            print('vote for one or more ' + str('grp'))
             candidate_choices = office_grp_query(grp, next_office[0])
             return render_template('cast2.html', form=votes_form, office=next_office[0],
                                    candidates=candidate_choices, grp=[session.get('group')], max_votes=next_office[2])
 
     # if form_voteForeOne.validate_on_submit() and form_voteForeOne.submit.data:
-    if request.method == 'POST':
-        print(request.form.get('csrf_token'))
-        print("POST")
+    if request.method == 'POST' or session.get('review', False):
+        session['review'] = False
         form_name = request.form.get('form_name')
-        # if form_name == 'VoteForOne':
-        #     print('VoteForOne')
-        #     selected_candidate_id = request.form.get('candidate')
-        # elif form_name == 'VoteForMany':
-        #     checked_options = request.form.getlist('options')
-
-        # office_dict = session.get('office_dict', {})
+        if form_name == 'ReviewVotes':
+            print('ReviewVotes')
+            return 'ReviewVotes'
 
         group = session.get('group')
         office = session.get('office')
 
-        print('group ' + str(group))
-        print('office ' + str(office))
-        print((session.get('office_dict')))
         if group in (session.get('office_dict')):
             for office_entry in session.get('office_dict')[group]:
                 # Find the matching office
@@ -131,37 +97,31 @@ def cast(grp_list, token):
                         office_entry[4].append(candidate_values[1])
                     elif form_name == 'VoteForMany':
                         selected_candidate_ids = request.form.getlist('candidates')
-
                         print(selected_candidate_ids)
+                        for candidate_id in selected_candidate_ids:
+                            candidate_values = str(candidate_id).split('$')
+                            office_entry[3].append([candidate_values[0], candidate_values[1]])
+                            office_entry[4].append(candidate_values[1])
                         # Add the checked_options to the list of candidates voted for
-                        office_entry[3].extend(selected_candidate_ids)
-                    break
+                        # office_entry[3].extend(selected_candidate_ids)
+                        break
             # Update the session with the modified office_dict
             # session['office_dict'] = office_dict
-            print(session.get('office_dict'))
-
             next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
 
-            print('next_office ' + str(next_office))
-
             if next_office is None:
-                print(session['cnt'])
-                print(session['length'])
                 if session['cnt'] + 1 < session['length']:
                     session['cnt'] += 1
                     session['group'] = grp_list.split('$')[session.get('cnt')]
                     next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
                 else:
-                    print('no more offices 1')
-                    vote_form = ReviewVotes()
                     print(session.get('office_dict'))
+                    vote_form = ReviewVotes()
                     return render_template('cast3.html', form=vote_form, group=session.get('group'),
                                            office_dict=session.get('office_dict'))
             
             session['office'] = next_office[0]
             if next_office[2] == 1:  # vote for one
-                print('vote for one')
-                print(next_office[0])
                 votes_form = VoteForOne()
                 grp = session.get('group', None)
                 candidate_choices = office_grp_query(grp, next_office[0])
@@ -169,8 +129,6 @@ def cast(grp_list, token):
                                        candidates=candidate_choices, grp=grp)
 
             if next_office[2] > 1:  # vote for one or more
-
-                print('vote for one or more')
                 votes_form = VoteForMany()
                 grp = session.get('group', None)
                 candidate_choices = office_grp_query(grp, next_office[0])
@@ -181,19 +139,15 @@ def cast(grp_list, token):
     return render_template('cast3.html', form=vote_form, office=next_office[0],
                            office_dict=session.get('office_dict'))
     # return 'no more offices'
-def render_voting_form(form, office, candidates, grp, max_votes):
-    """
-    Renders the appropriate voting form template based on the type of vote.
 
-    :param form: The form object to be used in the template.
-    :param office: The office for which the vote is being cast.
-    :param candidates: The list of candidates for the office.
-    :param grp: The group/class of the voter.
-    :param max_votes: The maximum number of votes allowed (for multiple votes). Default is 1 for single vote.
-    :return: The rendered template response.
-    """
-    template_name = 'cast1.html' if max_votes == 1 else 'cast2.html'
-    return render_template(template_name, form=form, office=office, candidates=candidates, grp=grp, max_votes=max_votes)
+
+def office_grp_query(grp, office):
+    return_list = []
+    candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+        Office).filter(and_(Office.office_title == office, Classgrp.name == grp))
+    for c in candidates:
+        return_list.append(tuple((c.Candidate.id_candidate, c.Candidate.firstname + " " + c.Candidate.lastname)))
+    return return_list
 
 
 def get_office_dict(groups):
@@ -202,9 +156,7 @@ def get_office_dict(groups):
 
     # Loop through each group and process the offices associated with the group
     for group in groups:
-        print(group)
         offices = query_offices_for_classgroup_with_details_as_list(group)
-        print(offices)
         # Add the group and its associated offices to the dictionary
         # office_dict[group] =
         # office{0] is the name of the office
@@ -230,6 +182,68 @@ def query_offices_for_classgroup_with_details_as_list(classgroup_name):
     return [[office.office_title, office.sortkey, office.office_vote_for] for office in offices]
 
 
+@vote.route('/edit_choice/<office_id>/<group>', methods=['POST', 'GET'])
+def edit_choice(office_id, group):
+    office_dict = session.get('office_dict', {})
+
+    if group in office_dict:
+        for office in office_dict[group]:
+            if office[1] == int(office_id):
+                office[3] = []  # Clear the list of candidates voted for
+                office[4] = []  # Clear the list of candidate names voted for
+                break
+
+    # Update the session with the modified office_dict
+    session['office_dict'] = office_dict
+    session['review'] = True
+    # Redirect to the cast route with the current group and token
+    token = session.get('token_list_record', {}).get('token', '')
+    return redirect(url_for('vote.cast', grp_list=group, token=token))
+
+
+@vote.route('/post_ballot', methods=['POST'])
+def post_ballot():
+    if request.method == 'POST':
+        office_dict = session.get('office_dict', {})
+        token = session.get('token_list_record', {}).get('token', '')
+        # Process the submitted ballot data
+        # (Add your logic here to handle the ballot submission)
+        print("start")
+        print(office_dict)
+        for group in office_dict:
+            print(office_dict[group])
+            for office in office_dict[group]:
+                print(office[3])
+                for item in office[3]:
+                    if item[0] != 99:
+                        new_vote = Votes(id_candidate=item[0], votes_token=token)
+                        db.session.add(new_vote)
+                        log_vote_event(f"Vote submitted for candidate {item[0]} - {item[1]}")
+                        pass
+        try:
+            token_record = Tokenlist.query.filter_by(token=token).first()
+            if token_record:
+                token_record.vote_submitted_date_time = datetime.now()
+                db.session.commit()
+            else:
+                db.session.rollback()
+                print("log the token does not exist")
+                return "Error: Token record does not exist", 400
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            print(f"Database error: {e}")
+
+        # Clear the session data related to the ballot
+        session.clear()
+        home = current_app.config['HOME']
+        return render_template('thank_you.html', home=home)
+
+'''
+this is code to make the token list in an excel file
+I suppose it could be in a different module but I placed it here just to save some time
+
+the excel file is created in the instance folder and is a url to the cast route with the token as a parameter
+'''
 @vote.route('/setup_tokens', methods=['POST', 'GET'])
 def setup_tokens():
     Tokenlist.query.delete()
@@ -273,7 +287,26 @@ def setup_tokens():
     workbook.close()
 
     print("did it")
-    return render_template('mains.homepage')
+
+
+@vote.route('/vote_results', methods=['GET'])
+def vote_results():
+    results = db.session.query(
+        Classgrp.name.label('group_name'),
+        Office.office_title.label('office_title'),
+        Candidate.firstname.label('candidate_firstname'),
+        Candidate.lastname.label('candidate_lastname'),
+        func.count(Votes.id_candidate).label('vote_total')
+    ).join(Candidate, Votes.id_candidate == Candidate.id_candidate)\
+     .join(Office, Candidate.id_office == Office.id_office)\
+     .join(Classgrp, Candidate.id_classgrp == Classgrp.id_classgrp)\
+     .group_by(Classgrp.name, Office.office_title, Candidate.firstname, Candidate.lastname)\
+     .order_by(Classgrp.sortkey, Office.sortkey, func.count(Votes.id_candidate).desc())\
+     .all()
+
+    print(results)
+
+    return render_template('vote_results.html', results=results)
 
 
 def date_between():
@@ -331,3 +364,5 @@ def get_next_office_for_group(office_dict, group_name):
             return office
     # If all offices have been voted for, return None
     return None
+
+

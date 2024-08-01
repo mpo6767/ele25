@@ -7,7 +7,7 @@ Review Ballot
      <div class="table-responsive">
         <h1> Ballot Review ....</h1>
         <br>
-        <form method="post" style="color:white" autocomplete="off" data-max-selections="{{ max_votes }}">
+        <form method="post" action="{{ url_for('vote.post_ballot') }}" style="color:white" autocomplete="off" data-max-selections="{{ max_votes }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3">
 
@@ -32,7 +32,9 @@ Review Ballot
                     </tr>
                     {% for office in offices %}
                         <tr class="col-sm-2">
-                            <td class="col-sm-2">{{ office[0] }}</td>
+                            <td class="col-sm-2">
+                               {{ office[0] }}  <a href="{{ url_for('vote.edit_choice', office_id=office[1], group=group) }}"> change</a>
+                            </td>
                             <td class="col-sm-2">
                                 {% for candidate in office[3] %}
                                     <div>{{ candidate | replace('[', '') | replace(']', '') | replace("'", '') }}</div>

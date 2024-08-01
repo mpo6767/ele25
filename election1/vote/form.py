@@ -63,3 +63,6 @@ class VoteRankChoice(FlaskForm):
     candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
     submit = SubmitField(label='submit')
 
+class  VoteResults(FlaskForm):
+    submit = SubmitField(label='submit')
+
