@@ -1,9 +1,15 @@
 from flask_wtf import FlaskForm
+from wtforms_alchemy import QuerySelectField
+
 from election1.models import Classgrp, Office, Candidate
 from wtforms import RadioField, SubmitField, BooleanField
 from election1.extensions import db
 from wtforms.validators import InputRequired
 from election1.models import Tokenlist
+
+
+def classgrp_query():
+    return Classgrp.query.order_by(Classgrp.sortkey)
 
 
 def president_query():
@@ -64,5 +70,6 @@ class VoteRankChoice(FlaskForm):
     submit = SubmitField(label='submit')
 
 class  VoteResults(FlaskForm):
+    choices_classgrp = QuerySelectField(label='class or group', query_factory=classgrp_query, get_label='name')
     submit = SubmitField(label='submit')
 

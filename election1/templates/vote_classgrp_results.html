@@ -1,0 +1,20 @@
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Group</th>
+            <th>Office</th>
+            <th>Candidate</th>
+            <th class="text-end">Vote Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for candidate in results %}
+        <tr class="{% if candidate.winner %}table-success{% endif %}">
+            <td>{{ candidate.classgrp_name }}</td>
+            <td>{{ candidate.office_title }}{% if candidate.winner %} (Winner){% endif %}</td>
+            <td>{{ candidate.firstname }} {{ candidate.lastname }}</td>
+            <td class="text-end">{{ candidate.nbr_of_votes }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

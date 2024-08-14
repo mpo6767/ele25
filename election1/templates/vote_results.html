@@ -1,37 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Vote Results</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
+{% extends 'base.html' %}
+{% block title %}
+Candidate Page
+{% endblock %}
+
+{% block content %}
+     <div class="container mt-5" style="background-color: white; color: black;">
         <h1 class="mb-4">Vote Results</h1>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Group</th>
-                    <th>Office</th>
-                    <th>Candidate</th>
-                    <th>Vote Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for result in results %}
-                <tr>
-                    <td>{{ result.group_name }}</td>
-                    <td>{{ result.office_title }}</td>
-                    <td>{{ result.candidate_firstname }} {{ result.candidate_lastname }}</td>
-                    <td>{{ result.vote_total }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+         <form method="POST" style="color:white"  autocomplete="off">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+             <div class="row g-3 ">
+                <div class="col-2 ">
+                    <select class="form-select form-select-sm mb-3" aria-label="Large select example" name="choices_classgrp"
+                            hx-get="/vote_results/search"
+                            hx-target="#vote_results_x"
+                            hx-trigger="change">
+                    <option selected>Please select</option>
+                    {% for p in form.choices_classgrp.choices %}
+                        <option value="{{ p[1] }}">{{ p[1] }}</option>
+                    {% endfor %}
+                    </select>
+                </div>
+             </div>
+         </form>
+             <div class="container" id="vote_results_x">
+
+            </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+
+{% endblock %}
