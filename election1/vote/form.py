@@ -5,7 +5,6 @@ from election1.models import Classgrp, Office, Candidate
 from wtforms import RadioField, SubmitField, BooleanField
 from election1.extensions import db
 from wtforms.validators import InputRequired
-from election1.models import Tokenlist
 
 
 def classgrp_query():
@@ -53,6 +52,7 @@ class VoteForOne(FlaskForm):
     candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
     submit = SubmitField(label='submit')
 
+
 class VoteForMany(FlaskForm):
     def __init__(self, candidates=None, *args, **kwargs):
         super(VoteForMany, self).__init__(*args, **kwargs)
@@ -65,9 +65,11 @@ class VoteForMany(FlaskForm):
 class ReviewVotes(FlaskForm):
     submit = SubmitField(label='submit')
 
+
 class VoteRankChoice(FlaskForm):
     candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
     submit = SubmitField(label='submit')
+
 
 class  VoteResults(FlaskForm):
     choices_classgrp = QuerySelectField(label='class or group', query_factory=classgrp_query, get_label='name')

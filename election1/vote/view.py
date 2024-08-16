@@ -1,7 +1,8 @@
 from pathlib import Path
 from datetime import datetime
+from typing import Any
+
 import xlsxwriter
-import logging
 from flask import Blueprint, request, render_template, redirect, session, current_app, url_for
 from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
@@ -13,6 +14,7 @@ from election1.dclasses import CandidateDataClass
 from collections import defaultdict
 
 vote = Blueprint('vote', __name__)
+
 
 class CandidateDataClassSingleton:
     _instance = None
@@ -29,11 +31,13 @@ class CandidateDataClassSingleton:
     def get_candidates(self) -> list[CandidateDataClass]:
         return self._candidates
 
+
 def log_vote_event(message):
     log_file = 'vote_view_log.txt'
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     with open(log_file, 'a') as file:
         file.write(f"{timestamp} - {message}\n")
+
 
 def classgrp_query():
     return_list = []
@@ -42,12 +46,14 @@ def classgrp_query():
         return_list.append(tuple((c.id_classgrp, c.name)))
     return return_list
 
+
 @vote.route('/group/search')
 def group_search():
     group = request.args.get('choices_classgrp', type=int)
     candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
         Office).order_by(Classgrp.sortkey, Office.sortkey).where(Classgrp.id_classgrp == group)
     return render_template('vote_results.html',  candidates=candidates)
+
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
 def cast(grp_list, token):
@@ -56,6 +62,7 @@ def cast(grp_list, token):
     #     return render_template('bad_date.html', home=home)
 
     # Check if there is no session then check the validity of the token
+    global next_office
     if not session:
         print('no session')
         token_list_record = get_tokenlist_record(token)
@@ -342,13 +349,13 @@ def vote_results():
 
 def create_candidate_dataclass(record):
     return CandidateDataClass(
-        id_candidate=record[4],
-        firstname=record[2],
-        lastname=record[3],
+        id_candidate=record[5],
+        firstname=record[3],
+        lastname=record[4],
         classgrp_name=record[0],
         office_title=record[1],
-        vote_for=0,
-        nbr_of_votes=record[5],
+        vote_for=record[2],
+        nbr_of_votes=record[6],
         winner=False  # Default value, can be updated later
     )
 
@@ -363,21 +370,33 @@ def mark_winner(candidates: list[CandidateDataClass]) -> list[CandidateDataClass
     # Find the winner(s) for each group
     for (classgrp, office), candidates in grouped_candidates.items():
         if candidates:
-            max_votes = max(candidates, key=lambda c: c.nbr_of_votes).nbr_of_votes
-            for candidate in candidates:
-                if candidate.nbr_of_votes == max_votes:
-                    candidate.winner = True
+            print("1 " + str(candidates[0].vote_for))
+            if candidates[0].vote_for == 1:
+                max_votes = max(candidates, key=lambda c: c.nbr_of_votes).nbr_of_votes
+                for candidate in candidates:
+                    if candidate.nbr_of_votes == max_votes:
+                        candidate.winner = True
+            else:
+                print("2 " + str(candidates[0].vote_for))
+                # Sort candidates by number of votes in descending order
+                candidates.sort(key=lambda c: c.nbr_of_votes, reverse=True)
+                # Mark the top candidates as winners
+
+                for i in range(min(candidates[0].vote_for, len(candidates))):
+                    candidates[i].winner = True
+
 
     return candidates
 
 def get_summary_results():
     results = db.session.query(
-        Classgrp.name.label('group_name'),
-        Office.office_title.label('office_title'),
-        Candidate.firstname.label('candidate_firstname'),
-        Candidate.lastname.label('candidate_lastname'),
-        Candidate.id_candidate.label('candidate_id'),
-        func.count(Votes.id_candidate).label('vote_total')
+        Classgrp.name.label('group_name'),  # record[0]
+        Office.office_title.label('office_title'),  # record[1]
+        Office.office_vote_for.label('vote_for'),  # record[2]
+        Candidate.firstname.label('candidate_firstname'),  # record[3]
+        Candidate.lastname.label('candidate_lastname'),  # record[4]
+        Candidate.id_candidate.label('candidate_id'),  # record[5]
+        func.count(Votes.id_candidate).label('vote_total')  #
     ).join(Candidate, Votes.id_candidate == Candidate.id_candidate)\
      .join(Office, Candidate.id_office == Office.id_office)\
      .join(Classgrp, Candidate.id_classgrp == Classgrp.id_classgrp)\

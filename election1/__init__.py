@@ -43,15 +43,6 @@ def create_app():
     return app
 
 
-# def config_logging(app):
-#     # Configure logging
-#     # logging.basicConfig(filename='election.log', level=logging.INFO)
-#     logging.config.fileConfig('logging.conf')
-#
-#     # Create a logger
-# logger = logging.getLogger('election')
-# print(logger)
-
 def config_application(app):
     # Application configuration
     app.config["DEBUG"] = False
@@ -95,7 +86,6 @@ def config_extention(app):
 
     login_manager.init_app(app)
     config_manager(login_manager)
-
 
     if not os.path.exists("instance/election.db"):
         logger.info("database is  not here will be created")
