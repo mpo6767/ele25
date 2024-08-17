@@ -57,9 +57,9 @@ def group_search():
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
 def cast(grp_list, token):
-    # if not date_between():
-    #     home = current_app.config['HOME']
-    #     return render_template('bad_date.html', home=home)
+    if not date_between():
+        home = current_app.config['HOME']
+        return render_template('bad_date.html', home=home)
 
     # Check if there is no session then check the validity of the token
     global next_office
