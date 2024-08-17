@@ -1,0 +1,151 @@
+2024-07-30 17:06:51 - Token is bad: Token has already been used
+2024-07-30 17:10:15 - Token is bad: Token has already been used - Token: 4cea46490b28dafb55dd300b24be0e014b2fce105d58f3bd6ef6c323e197e9ff
+2024-07-30 17:12:45 - Token is good: edf5baff8b13a6b6a5d73b45e431c222d14a65facc636c4fffac54212ea82c97
+2024-07-30 17:51:51 - Token is good: cf5aed0cb0710a3330e32d82d1a06e696718f2a8f5150a37bdfacb32fa3ac6bb
+2024-07-30 17:52:05 - Vote submitted for candidate 9 - Gale Gale
+2024-07-30 17:52:05 - Vote submitted for candidate 11 - Ed Ed
+2024-07-30 17:52:05 - Vote submitted for candidate 13 - Frank Frank
+2024-07-30 17:52:05 - Vote submitted for candidate 15 - Hal Hal
+2024-07-31 09:22:16 - Token is good: 44cb4c19c9dbc60f02d5a61a2773444b78848330af390353d48ce4f988111324
+2024-07-31 13:43:26 - Token is good: f89defddd414b014a4991c9715e1a4b17ae4542b3bc5ecaa95721cbca0febecd
+2024-07-31 13:43:42 - Vote submitted for candidate 23 - Zorro Zorro
+2024-07-31 13:43:42 - Vote submitted for candidate 26 - Diaisy Duke
+2024-07-31 13:43:42 - Vote submitted for candidate 27 - Elton John
+2024-07-31 13:43:42 - Vote submitted for candidate 99 - NoVote
+2024-07-31 13:43:53 - Token is good: 9c1824a91476a5293d1420c945a34f136784bf88c0243e8c9b86396e593662bb
+2024-07-31 13:44:10 - Vote submitted for candidate 23 - Zorro Zorro
+2024-07-31 13:44:10 - Vote submitted for candidate 26 - Diaisy Duke
+2024-07-31 13:44:10 - Vote submitted for candidate 27 - Elton John
+2024-07-31 13:44:10 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 13:44:20 - Token is good: c20bf2804666be77138e99cd05341e6ffb2a08277b9c941e6494710e2ef4e0b1
+2024-07-31 13:44:37 - Vote submitted for candidate 24 - Skipper Skipper
+2024-07-31 13:44:37 - Vote submitted for candidate 26 - Diaisy Duke
+2024-07-31 13:44:37 - Vote submitted for candidate 27 - Elton John
+2024-07-31 13:44:37 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 13:44:48 - Token is good: 7cfb0c18be388ad0e9dfa1cd06e3356ebca9bf7a1fdf9effadf49371415fc36f
+2024-07-31 13:45:01 - Vote submitted for candidate 23 - Zorro Zorro
+2024-07-31 13:45:01 - Vote submitted for candidate 26 - Diaisy Duke
+2024-07-31 13:45:01 - Vote submitted for candidate 27 - Elton John
+2024-07-31 13:45:01 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 21:38:08 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 21:38:33 - Vote submitted for candidate 2 - 1
+2024-07-31 21:38:33 - Vote submitted for candidate 2 - 9
+2024-07-31 21:38:33 - Vote submitted for candidate 3 - 0
+2024-07-31 21:38:33 - Vote submitted for candidate 22 - Batman Batman
+2024-07-31 21:38:33 - Vote submitted for candidate 26 - Diaisy Duke
+2024-07-31 21:38:33 - Vote submitted for candidate 99 - NoVote
+2024-07-31 21:38:33 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 21:50:14 - Token is bad: Token has already been used - Token: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 21:51:42 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 21:51:59 - Vote submitted for candidate 2 - 1
+2024-07-31 21:51:59 - Vote submitted for candidate 2 - 9
+2024-07-31 21:51:59 - Vote submitted for candidate 3 - 0
+2024-07-31 21:51:59 - Vote submitted for candidate 22 - Batman Batman
+2024-07-31 21:51:59 - Vote submitted for candidate 25 - Betty Betty3
+2024-07-31 21:51:59 - Vote submitted for candidate 27 - Elton John
+2024-07-31 21:51:59 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 22:33:39 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 22:34:03 - Vote submitted for candidate 2 - 1
+2024-07-31 22:34:03 - Vote submitted for candidate 22 - Batman Batman
+2024-07-31 22:34:03 - Vote submitted for candidate 25 - Betty Betty3
+2024-07-31 22:34:03 - Vote submitted for candidate 27 - Elton John
+2024-07-31 22:34:03 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 22:39:22 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 22:45:14 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 22:47:33 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 22:48:57 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 22:58:20 - Vote submitted for candidate 2 - 1
+2024-07-31 22:58:20 - Vote submitted for candidate 22 - Batman Batman
+2024-07-31 22:58:20 - Vote submitted for candidate 25 - Betty Betty3
+2024-07-31 22:58:20 - Vote submitted for candidate 27 - Elton John
+2024-07-31 22:58:20 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 23:00:24 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 23:00:51 - Vote submitted for candidate 2 - 1
+2024-07-31 23:00:51 - Vote submitted for candidate 22 - Batman Batman
+2024-07-31 23:00:51 - Vote submitted for candidate 25 - Betty Betty3
+2024-07-31 23:00:51 - Vote submitted for candidate 27 - Elton John
+2024-07-31 23:00:51 - Vote submitted for candidate 28 - Betty Boop
+2024-07-31 23:11:34 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 23:15:02 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 23:22:59 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 23:24:57 - Token is good: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-07-31 23:25:20 - Vote submitted for candidate 21 - Tiny Tim
+2024-07-31 23:25:20 - Vote submitted for candidate 29 - Mike Mike
+2024-07-31 23:25:20 - Vote submitted for candidate 30 - Tall Tony
+2024-07-31 23:25:20 - Vote submitted for candidate 22 - Batman Batman
+2024-07-31 23:25:20 - Vote submitted for candidate 25 - Betty Betty3
+2024-07-31 23:25:20 - Vote submitted for candidate 27 - Elton John
+2024-07-31 23:25:20 - Vote submitted for candidate 28 - Betty Boop
+2024-08-01 12:32:59 - Token is good: edf5baff8b13a6b6a5d73b45e431c222d14a65facc636c4fffac54212ea82c97
+2024-08-01 12:33:17 - Vote submitted for candidate 23 - Zorro Zorro
+2024-08-01 12:33:17 - Vote submitted for candidate 25 - Betty Betty3
+2024-08-01 12:33:17 - Vote submitted for candidate 27 - Elton John
+2024-08-01 12:33:17 - Vote submitted for candidate 99 - NoVote
+2024-08-01 12:34:43 - Token is good: f89defddd414b014a4991c9715e1a4b17ae4542b3bc5ecaa95721cbca0febecd
+2024-08-01 12:34:58 - Vote submitted for candidate 23 - Zorro Zorro
+2024-08-01 12:34:58 - Vote submitted for candidate 99 - NoVote
+2024-08-01 12:34:58 - Vote submitted for candidate 99 - NoVote
+2024-08-01 12:34:58 - Vote submitted for candidate 99 - NoVote
+2024-08-06 11:32:23 - Token is good: 8648b75915862a6484a28ae68a039fb2e7e23d75bf33e109b6c57ee9b92766d1
+2024-08-06 11:32:47 - Vote submitted for candidate 22 - Batman Batman
+2024-08-06 11:32:47 - Vote submitted for candidate 25 - Betty Betty3
+2024-08-06 11:32:47 - Vote submitted for candidate 27 - Elton John
+2024-08-06 11:32:47 - Vote submitted for candidate 28 - Betty Boop
+2024-08-09 21:51:40 - Token is good: 8845dddb1c9340331166116a1004d354e58d71427062c3406c5d5fd9bf2c0024
+2024-08-09 21:51:57 - Vote submitted for candidate 18 - ken ken
+2024-08-09 21:52:06 - Token is good: 9445706702c82d9a96215cead71b1e579463155fddf7a8ff54ac8532ae631f9b
+2024-08-09 21:52:29 - Vote submitted for candidate 9 - Gale Gale
+2024-08-09 21:52:29 - Vote submitted for candidate 11 - Ed Ed
+2024-08-09 21:52:29 - Vote submitted for candidate 13 - Frank Frank
+2024-08-09 21:52:29 - Vote submitted for candidate 15 - Hal Hal
+2024-08-09 21:52:38 - Token is good: 868dc679d73cc56b0bcef1701f71491a9e77666c03b2e81c9de89bffa3287a2e
+2024-08-09 21:52:45 - Vote submitted for candidate 20 - Dom Dom
+2024-08-09 21:53:47 - Token is good: 3fbf8e2f0c9d5b7560187ce5e8745d7efdc46c7fa207310e36d9524f8748ad72
+2024-08-09 21:54:01 - Vote submitted for candidate 9 - Gale Gale
+2024-08-09 21:54:01 - Vote submitted for candidate 11 - Ed Ed
+2024-08-09 21:54:01 - Vote submitted for candidate 13 - Frank Frank
+2024-08-09 21:54:01 - Vote submitted for candidate 15 - Hal Hal
+2024-08-09 21:54:20 - Token is good: 2354f16a400ec2375f25dd4b93d67be5853041663e724ea7604c04865d936e39
+2024-08-09 21:54:25 - Vote submitted for candidate 18 - ken ken
+2024-08-09 21:54:35 - Token is good: e600350cb5851f16dd0a1ef27db1b4397e8712646d02414bdc2c2a2a90764c05
+2024-08-09 21:54:42 - Vote submitted for candidate 20 - Dom Dom
+2024-08-09 21:54:55 - Token is good: 2df2a9aaa09865a71b217d2bf22c1365033425e0e5e00635621c108c1e6eb6f6
+2024-08-09 21:55:10 - Vote submitted for candidate 10 - Gene Gene
+2024-08-09 21:55:10 - Vote submitted for candidate 12 - Ellie Ellie
+2024-08-09 21:55:10 - Vote submitted for candidate 14 - Fran Fran
+2024-08-09 21:55:10 - Vote submitted for candidate 16 - Helen Helen
+2024-08-09 21:57:05 - Token is bad: Token has already been used - Token: 8648b75915862a6484a28ae68a039fb2e7e23d75bf33e109b6c57ee9b92766d1
+2024-08-09 21:57:13 - Token is good: 7e914061f56a217e0c74821e8ed9c2df90574d3fc39d11d7ebe3d834f5036e68
+2024-08-09 21:57:32 - Vote submitted for candidate 22 - Batman Batman
+2024-08-09 21:57:32 - Vote submitted for candidate 25 - Betty Betty3
+2024-08-09 21:57:32 - Vote submitted for candidate 99 - NoVote
+2024-08-09 21:57:32 - Vote submitted for candidate 99 - NoVote
+2024-08-09 21:57:40 - Token is good: 27255e60984fc9d0fa18e8a2a9b9741e85b0b87d90051cc2b50ea676d4bcd64f
+2024-08-09 21:57:55 - Vote submitted for candidate 24 - Skipper Skipper
+2024-08-09 21:57:55 - Vote submitted for candidate 26 - Diaisy Duke
+2024-08-09 21:57:55 - Vote submitted for candidate 99 - NoVote
+2024-08-09 21:57:55 - Vote submitted for candidate 99 - NoVote
+2024-08-09 22:00:04 - Token is good: 7463571f64db0525df8404d71ccf6879d78b885ceebfc0ce0bb4a43d4cd4e62c
+2024-08-09 22:02:04 - Vote submitted for candidate 22 - Batman Batman
+2024-08-09 22:02:04 - Vote submitted for candidate 25 - Betty Betty3
+2024-08-09 22:02:04 - Vote submitted for candidate 27 - Elton John
+2024-08-09 22:02:04 - Vote submitted for candidate 28 - Betty Boop
+2024-08-09 22:02:12 - Token is bad: Token has already been used - Token: 8648b75915862a6484a28ae68a039fb2e7e23d75bf33e109b6c57ee9b92766d1
+2024-08-11 13:27:10 - Token is good: 7c6bd403a89c767590d00041bcdc0db825c62e3164fa65e29ce9e386297b4930
+2024-08-11 13:28:32 - Vote submitted for candidate 23 - Zorro Zorro
+2024-08-11 13:28:32 - Vote submitted for candidate 25 - Betty Betty3
+2024-08-11 13:28:32 - Vote submitted for candidate 99 - NoVote
+2024-08-11 13:28:32 - Vote submitted for candidate 28 - Betty Boop
+2024-08-11 13:32:02 - Token is good: 85d3898aefcdb520a2d87a45c1233b8f538ec0436e93a99a98875bd7e51b96f4
+2024-08-11 19:48:04 - Token is good: d7240b89ac538f3ac713c01fb7adcebaa5177e49c186a8edc7cd3f526dc478e7
+2024-08-11 19:49:44 - Token is bad: Token has already been used - Token: d8654649a8bb54abdba91d4c0dd631e8fc2e71abba0946fa6033bba51ed9fc37
+2024-08-11 19:51:01 - Token is good: 25258427edc6965ff745fee79fb9de12b6c64230ee3005eaf858d4e969a84dab
+2024-08-11 19:51:36 - Token is good: 25258427edc6965ff745fee79fb9de12b6c64230ee3005eaf858d4e969a84dab
+2024-08-14 10:53:36 - Token is good: d9f452bd25d9e7797329e9bb63e13e3a7414fc204f81cfe464e570e7c7bcc241
+2024-08-14 10:54:44 - Token is good: d9f452bd25d9e7797329e9bb63e13e3a7414fc204f81cfe464e570e7c7bcc241
+2024-08-14 10:58:22 - Token is good: 4bb2837b015baa1600a7176994cd3a4fe078a709c1b679f7c947730914c15a77
+2024-08-14 10:58:48 - Vote submitted for candidate 29 - Mike Mike
+2024-08-14 10:58:48 - Vote submitted for candidate 22 - Batman Batman
+2024-08-14 10:58:48 - Vote submitted for candidate 26 - Diaisy Duke
+2024-08-14 10:58:48 - Vote submitted for candidate 27 - Elton John
+2024-08-14 10:58:48 - Vote submitted for candidate 99 - NoVote
