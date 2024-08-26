@@ -44,6 +44,8 @@ The application uses Python Logging and the demo application currently logs to t
           <br><p>Administrators must authenticate.   The security isn’t as good as it could be in the demo in order to keep things simple.
           There are 2 types of Administrators, Super Administrators and Election Administrators.</p>
 
+          <img src="{{ url_for('static', filename='html/users.jpg') }}" alt="Candidate Entry"><br>
+
           <p>Super administrators can create  and delete other super administrators plus create and delete Election administrators.
           The creation and deletion  of administrators is the only purpose of the Super Administrator.
           There can only be 2 Super Administrators and a Super Administrator can’t delete themselves.</p>
@@ -71,6 +73,89 @@ Election Administrators set up the election.  The first item is to set up the da
       </div>
     </div>
   </div>
+ <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          <strong>Class and/or Group</strong>
+      </button>
+    </h2>
+    <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
+      <div class="accordion-body">
+      <img src="{{ url_for('static', filename='html/classgrp.jpg') }}" alt="Start Date"><br>
+            <br>The class is a group.  Notice the diagram table name is classgrp.
+            <br>In a high school setting its Freshman through Senior.
+            <br>The election admin creates all class/groups.  The above is the data structure.
+            <br>There must be a election date set or entry of election data will not occur.
+            <br>The name of the group is unique and so is the sortkey.
+            <br>There is a sortkey so the groups can be sorted in a specific order.
+            <br>Deleting a class/grp will remove all candidates associated with the class/grp keeping referential integrity.
+            <br>This is an election Admin record.
+      </div>
+    </div>
+  </div>
+     <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+          <strong>Office</strong>
+      </button>
+    </h2>
+    <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
+      <div class="accordion-body">
+      <img src="{{ url_for('static', filename='html/office.jpg') }}" alt="Start Date"><br>
+            <br>Office is a title candidates compete for via a cast vote.
+            <br>Combining an office (title) and a class/group (the people who vote are associated with a candidate is the makeup of the ballot.
+            <br>The election admin creates all office's.  The above is the data structure.
+            <br>Office's have a vote for one or vote for many.
+            <br>There must be a election date set or entry of election data will not occur.
+            <br>The name of the group is unique and so is the sortkey.
+            <br>There is a sortkey so the groups can be sorted in a specific order.
+            <br>Deleting an office will remove all candidates associated with the office keeping referential integrity.
+            <br>This is an election Admin record.
+      </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+          <strong>Candidates</strong>
+      </button>
+    </h2>
+    <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
+      <div class="accordion-body">
+      <img src="{{ url_for('static', filename='html/candidates.jpg') }}" alt="Candidates"><br>
+            <br>Candidates are associated with both a class/grp and an office.
+            <br>Removing a candidate does not cause further deletes.  Editing or deleting candidates after the start of election is not allowed.
+            <br>The election admin creates all candidates.  The above is the data structure.
+            <br>There must be an election date set or entry of election data will not occur.
+            <br>This is an election Admin record.
+          <br><br>
+           <img src="{{ url_for('static', filename='html/office_group_candidate.jpg') }}" alt="Candidate Office Group"><br>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+          <strong>Candidate Entry</strong>
+      </button>
+    </h2>
+    <div id="collapseSeven" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
+      <div class="accordion-body">
+      <img src="{{ url_for('static', filename='html/candidate_entry.jpg') }}" alt="Candidate Entry"><br>
+            <br>There are 2 dropdowns.  The first is the class/group and the second is the office.
+            <br>Removing a candidate does not cause further deletes.  Editing or deleting candidates after the start of election is not allowed.
+            <br>The election admin creates all candidates.  The below diagram is the data structure.
+            <br>There must be an election date set or entry of election data will not occur.
+            <br>This is an election Admin record.
+          <br><br>
+           <img src="{{ url_for('static', filename='html/office_group_candidate.jpg') }}" alt="Candidate Office Group"><br>
+      </div>
+    </div>
+  </div>
+
+</div>
 </div>
 
+</div>
 {% endblock %}
