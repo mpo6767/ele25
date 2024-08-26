@@ -38,7 +38,12 @@ Candidate Page
             </div>
             <div class="row g-3 ">
                  <div class="col-2 ">
-                     {{ form.choices_office()}}
+                     <select class="form-select form-select-sm mb-3" aria-label="Large select example" name="choices_office">
+                              <option selected>Please select</option>
+                              {% for p in form.choices_office.choices %}
+                                  <option value="{{ p[0] }}">{{ p[1] }}</option>
+                              {% endfor %}
+                     </select>
                 </div>
 
             </div>
