@@ -20,17 +20,34 @@ def classgrp_query():
         return_list.append(tuple((c.id_classgrp, c.name)))
     return return_list
 
+def office_query():
+    return_list = []
+    office_data = db.session.query(Office).order_by(Office.sortkey)
+    for o in office_data:
+        return_list.append(tuple((o.id_office, o.office_title)))
+    return return_list
+
+
+def is_user_authenticated():
+    return current_user.is_authenticated
+
 
 @ballot.route('/office', methods=['POST', 'GET'])
 def office():
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:
         flash('Please set the Election Dates before adding an office', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot add, delete or edit an office after the voting start time or Election Dates are '
               'empty', category='danger')
         return redirect(url_for('mains.homepage'))
+
     office_form = OfficeForm()
+
     if office_form.validate_on_submit():
         office_title = request.form['office_title']
         sortkey = request.form['sortkey']
@@ -69,14 +86,21 @@ def office():
 
 @ballot.route('/deleteoffice/<int:xid>', methods=['POST', 'GET'])
 def deleteoffice(xid):
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:
         flash('Please set the Election Dates before deleting an office', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot delete an office after the voting start time or Election Dates are empty ', category='danger')
         return redirect(url_for('mains.homepage'))
+
     office_to_delete = Office.query.get(xid)
     form = CandidateForm()
+
     if request.method == 'POST':
 
         try:
@@ -101,12 +125,18 @@ def deleteoffice(xid):
 
 @ballot.route('/updateoffice/<int:xid>', methods=['GET', 'POST'])
 def updateoffice(xid):
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:
         flash('Please set the Election Dates before updating an office', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot edit an office after the voting start time or Election Dates are empty ', category='danger')
         return redirect(url_for('mains.homepage'))
+
     office_form = OfficeForm()
     office_to_update = Office.query.get_or_404(xid)
     print(office_to_update.office_title)
@@ -139,14 +169,21 @@ def updateoffice(xid):
 
 @ballot.route('/classgrp', methods=['POST', 'GET'])
 def classgrp():
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:
         flash('Please set the Election Dates before adding a class or group', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot add or delete a class or a group after the voting start time or Election Dates are empty ',
               category='danger')
         return redirect(url_for('mains.homepage'))
+
     classgrp_form = ClassgrpForm()
+
     if classgrp_form.validate_on_submit():
         classgrp_name = request.form['name']
         sortkey = request.form['sortkey']
@@ -169,9 +206,14 @@ def classgrp():
 
 @ballot.route('/deleteclass/<int:xid>')
 def deleteclass(xid):
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:
         flash('Please set the Election Dates before deleting a class or group', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot delete an class or group after the voting start time or Election Dates are empty ',
               category='danger')
@@ -192,13 +234,19 @@ def deleteclass(xid):
 
 @ballot.route('/updateclass/<int:xid>', methods=['GET', 'POST'])
 def updateclass(xid):
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:  # Check if the dates are set
         flash('Please set the Election Dates before updating a class or group', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot edit a class or group after the voting start time or Election Dates are empty ',
               category='danger')
         return redirect(url_for('mains.homepage'))
+
     classgrp_form = ClassgrpForm()
     classgrp_to_update = Classgrp.query.get_or_404(xid)
     print(classgrp_to_update.name)
@@ -226,6 +274,10 @@ def updateclass(xid):
 
 @ballot.route("/candidate_report", methods=['GET', 'POST'])
 def candidate_report():
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     form = Candidate_reportForm()
     list_of_offices = db.session.query(Office).all()
     if request.method == 'POST':
@@ -253,13 +305,19 @@ def candidate_report():
 
 @ballot.route('/candidate', methods=['GET', 'POST'])
 def candidate():
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     if check_dates() is False:
         flash('Please set the Election Dates before adding a candidate', category='danger')
         return redirect(url_for('mains.homepage'))
+
     if after_start_date():
         flash('You cannot add or delete a candidate after the voting start time or Election Dates are empty ',
               category='danger')
         return redirect(url_for('mains.homepage'))
+
     form = CandidateForm()
     if request.method == 'POST':
         firstname = request.form['firstname']
@@ -270,6 +328,13 @@ def candidate():
         # Check if a valid option is selected
         if choices_classgrp == "Please select":
             flash('Please select a valid option for class', category='danger')
+            form.choices_classgrp.choices = classgrp_query()
+            form.choices_office.choices = office_query()
+            return render_template('candidate.html', form=form)
+
+        if choices_office == "Please select":
+            flash('Please select a valid option for office', category='danger')
+            form.choices_office.choices = office_query()
             form.choices_classgrp.choices = classgrp_query()
             return render_template('candidate.html', form=form)
 
@@ -288,6 +353,7 @@ def candidate():
             return redirect('/candidate')
     else:
         form.choices_classgrp.choices = classgrp_query()
+        form.choices_office.choices = office_query()
         return render_template('candidate.html', form=form)
 
 
@@ -301,6 +367,10 @@ def candidate_search():
 
 @ballot.route('/deletecandidate/<int:xid>')
 def deletecandidate(xid):
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     candidate_to_delete = Candidate.query.get_or_404(xid)
 
     try:
@@ -316,7 +386,12 @@ def deletecandidate(xid):
 
 @ballot.route('/dates', methods=['GET', 'POST'])
 def dates():
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     form = DatesForm()
+
     if request.method == 'POST':
         if form.validate_on_submit():
 
@@ -360,6 +435,10 @@ def dates():
 
 @ballot.route('/deletedates/')
 def deletedates():
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
     # Get the first set of datee in the table because we are only storing one set of dates
     date_to_delete = Dates.query.first()
     start_date: datetime = datetime.fromtimestamp(date_to_delete.start_date_time)
