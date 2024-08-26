@@ -7,12 +7,14 @@ Ballot
     <div class="container">
         <h1> Ballot ....</h1>
         <br>
+
         <form method="post" style="color:white" autocomplete="off">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
+
              <div class="row g-3 ">
                 <div class="col-2 ">
-                    <p class="text-warning">{{ office }}
+                    <p class="text-warning">{{ grp }} - {{ office }}
                     <br>
                         Vote for 1</p>
                 </div>
