@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any
 
 import xlsxwriter
-from flask import Blueprint, request, render_template, redirect, session, current_app, url_for
+from flask import Blueprint, request, render_template, redirect, session, current_app, url_for, flash
 from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
 from election1.vote.form import VoteForOne, VoteForMany, ReviewVotes, VoteResults
@@ -57,15 +57,34 @@ def group_search():
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
 def cast(grp_list, token):
-    if not date_between():
-        home = current_app.config['HOME']
-        return render_template('bad_date.html', home=home)
+    # if not date_between():
+    #     home = current_app.config['HOME']
+    #     return render_template('bad_date.html', home=home)
 
     # Check if there is no session then check the validity of the token
     global next_office
     if not session:
         print('no session')
+
+        if not are_all_classgrps_valid(grp_list):
+            log_vote_event(f"Invalid class group: {grp_list}")
+            home = current_app.config['HOME']
+            error = 'Invalid class group ' + grp_list
+            return render_template('bad_token.html', error=error, home=home)
+
         token_list_record = get_tokenlist_record(token)
+        print(token_list_record)
+
+        # Assuming token_list_record is a dictionary
+        if 'grp_list' in token_list_record and token_list_record['grp_list'] == grp_list:
+            log_vote_event(f"grp_list matches the value in token_list_record: {grp_list} - Token: {token}")
+        else:
+            error = (f"grp_list does not match the value in token_list_record: {grp_list} - Token: {token}")
+            log_vote_event(error)
+            home = current_app.config['HOME']
+            return render_template('bad_token.html', error=error, home=home)
+
+
         if 'error' in token_list_record:
             log_vote_event(f"Token is bad: {token_list_record['error']} - Token: {token}")
             home = current_app.config['HOME']
@@ -83,6 +102,7 @@ def cast(grp_list, token):
         '''
         session['token_list_record'] = token_list_record
         session['cnt'] = 0
+        print('grp_list ' + grp_list)
         session['length'] = len(grp_list.split('$'))
         session['group'] = grp_list.split('$')[session.get('cnt')]
         grp = grp_list.split('$')[session.get('cnt')]
@@ -96,32 +116,42 @@ def cast(grp_list, token):
         # office_dict = session.get('office_dict', None)
 
         next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
+        if next_office is None:
+            if session['cnt'] + 1 < session['length']:
+                session['cnt'] += 1
+                session['group'] = grp_list.split('$')[session.get('cnt')]
+                next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
+
+            else:
+
+                vote_form = ReviewVotes()
+                return render_template('cast3.html', form=vote_form, grp=grp,
+                                       office_dict=session.get('office_dict'))
+
         session['office'] = next_office[0]
         if next_office[2] == 1:  # vote for one
-            print('vote for one')
+
             votes_form = VoteForOne()
             candidate_choices = office_grp_query(grp, next_office[0])
             VoteForOne.candidate.choices = candidate_choices
             return render_template('cast1.html', form=votes_form, office=next_office[0],
-                                   candidates=candidate_choices, grp=[session.get('group')])
+                                   candidates=candidate_choices, grp=grp)
 
         if next_office[2] > 1:  # vote for one or
             votes_form = VoteForMany()
             candidate_choices = office_grp_query(grp, next_office[0])
             return render_template('cast2.html', form=votes_form, office=next_office[0],
-                                   candidates=candidate_choices, grp=[session.get('group')], max_votes=next_office[2])
+                                   candidates=candidate_choices, grp=grp, max_votes=next_office[2])
 
     # if form_voteForeOne.validate_on_submit() and form_voteForeOne.submit.data:
     if request.method == 'POST' or session.get('review', False):
         session['review'] = False
         form_name = request.form.get('form_name')
         if form_name == 'ReviewVotes':
-            print('ReviewVotes')
             return 'ReviewVotes'
 
         group = session.get('group')
         office = session.get('office')
-
         if group in (session.get('office_dict')):
             for office_entry in session.get('office_dict')[group]:
                 # Find the matching office
@@ -136,7 +166,6 @@ def cast(grp_list, token):
                         office_entry[4].append(candidate_values[1])
                     elif form_name == 'VoteForMany':
                         selected_candidate_ids = request.form.getlist('candidates')
-                        print(selected_candidate_ids)
                         for candidate_id in selected_candidate_ids:
                             candidate_values = str(candidate_id).split('$')
                             office_entry[3].append([candidate_values[0], candidate_values[1]])
@@ -146,15 +175,13 @@ def cast(grp_list, token):
                         break
             # Update the session with the modified office_dict
             # session['office_dict'] = office_dict
-            next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
-
+            next_office = get_next_office_for_group(session.get('office_dict'), group)
             if next_office is None:
                 if session['cnt'] + 1 < session['length']:
                     session['cnt'] += 1
                     session['group'] = grp_list.split('$')[session.get('cnt')]
                     next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
                 else:
-                    print(session.get('office_dict'))
                     vote_form = ReviewVotes()
                     return render_template('cast3.html', form=vote_form, group=session.get('group'),
                                            office_dict=session.get('office_dict'))
@@ -164,6 +191,7 @@ def cast(grp_list, token):
                 votes_form = VoteForOne()
                 grp = session.get('group', None)
                 candidate_choices = office_grp_query(grp, next_office[0])
+                # session['office'] = next_office[0]
                 return render_template('cast1.html', form=votes_form, office=next_office[0],
                                        candidates=candidate_choices, grp=grp)
 
@@ -247,12 +275,8 @@ def post_ballot():
         token = session.get('token_list_record', {}).get('token', '')
         # Process the submitted ballot data
         # (Add your logic here to handle the ballot submission)
-        print("start")
-        print(office_dict)
         for group in office_dict:
-            print(office_dict[group])
             for office in office_dict[group]:
-                print(office[3])
                 for item in office[3]:
                     if item[0] != 99:
                         new_vote = Votes(id_candidate=item[0], votes_token=token)
@@ -287,7 +311,7 @@ the excel file is created in the instance folder and is a url to the cast route 
 def setup_tokens():
     Tokenlist.query.delete()
 
-    p = Path(r"instance/voterTokens.xlsx")
+    p = Path(r"instance/voterTokens2.xlsx")
     p.unlink(missing_ok=True)
 
     workbook = xlsxwriter.Workbook(r'instance\voterTokens.xlsx')
@@ -298,8 +322,19 @@ def setup_tokens():
 
     while row < 101:
         token = get_token()
+        eclass = row % 4
+        if eclass == 1:
+            grp_list = 'Freshmen'
+        if eclass == 2:
+            grp_list = 'Sophomore$All'
+        if eclass == 3:
+            grp_list = 'Junior'
+        if eclass == 0:
+            grp_list = 'Senior'
+
         try:
-            new_tokenlist = Tokenlist(token=token,
+            new_tokenlist = Tokenlist(grp_list=grp_list,
+                                      token=token,
                                       vote_submitted_date_time=None)
             db.session.add(new_tokenlist)
             db.session.commit()
@@ -311,11 +346,11 @@ def setup_tokens():
 
         print(row)
 
-        eclass = row % 4
+
         if eclass == 1:
             worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Freshmen/' + token)
         elif eclass == 2:
-            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Sophomore/' + token)
+            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Sophomore$All/' + token)
         elif eclass == 3:
             worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Junior/' + token)
         elif eclass == 0:
@@ -324,17 +359,21 @@ def setup_tokens():
         row += 1
 
     workbook.close()
-
-    print("did it")
+    return redirect('/homepage')
 
 
 @vote.route('/vote_results', methods=['GET'])
 def vote_results():
+
+    if not date_after():
+        flash('get results after voting end time ONLY ',
+              category='danger')
+        return redirect(url_for('mains.homepage'))
+    
     form = VoteResults()
     form.choices_classgrp.choices = classgrp_query()
     summary_results = get_summary_results()
     candidates = [create_candidate_dataclass(item) for item in summary_results]
-    print(candidates)
     mark_winner(candidates)
 
     # Set the candidates in the singleton
@@ -370,14 +409,12 @@ def mark_winner(candidates: list[CandidateDataClass]) -> list[CandidateDataClass
     # Find the winner(s) for each group
     for (classgrp, office), candidates in grouped_candidates.items():
         if candidates:
-            print("1 " + str(candidates[0].vote_for))
             if candidates[0].vote_for == 1:
                 max_votes = max(candidates, key=lambda c: c.nbr_of_votes).nbr_of_votes
                 for candidate in candidates:
                     if candidate.nbr_of_votes == max_votes:
                         candidate.winner = True
             else:
-                print("2 " + str(candidates[0].vote_for))
                 # Sort candidates by number of votes in descending order
                 candidates.sort(key=lambda c: c.nbr_of_votes, reverse=True)
                 # Mark the top candidates as winners
@@ -438,6 +475,22 @@ def date_between():
         return False
 
 
+def date_after():
+    date = Dates.query.first()
+    # Convert the epoch time to a datetime object
+    start_date_time = datetime.fromtimestamp(date.start_date_time)
+    end_date_time = datetime.fromtimestamp(date.end_date_time)
+
+    # Get the current date time
+    current_date_time = datetime.now()
+
+    # Check if current date time is between start date time and end date time
+    if current_date_time > end_date_time:
+        return True
+    else:
+        return False
+
+
 def get_tokenlist_record(token):
     """
     Retrieve a Tokenlist record if the given token exists in the Tokenlist.
@@ -451,9 +504,11 @@ def get_tokenlist_record(token):
         # Token does not exist
         return {'error': 'Invalid token'}
     if token_record.vote_submitted_date_time is not None:
+        print('token has been used')
         # Token exists but vote has been submitted
         return {'error': 'Token has already been used'}
-
+    print('token is good')
+    print(token_record.to_dict())
     # Token is valid and has not been used
     return token_record.to_dict()
 
@@ -477,5 +532,20 @@ def get_next_office_for_group(office_dict, group_name):
             return office
     # If all offices have been voted for, return None
     return None
+
+
+def are_all_classgrps_valid(grp_list):
+    # Retrieve the list of valid classgrp names from the database
+    valid_classgrps = [classgrp.name for classgrp in Classgrp.query.all()]
+
+    # Split the grp_list into individual group names
+    groups = grp_list.split('$')
+
+    # Check if each group name in grp_list is in the list of valid classgrp names
+    for group in groups:
+        if group not in valid_classgrps:
+            return False
+
+    return True
 
 
