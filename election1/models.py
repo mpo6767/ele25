@@ -91,6 +91,7 @@ class Tokenlist(db.Model):
     Represents a list of tokens used for voting.
     """
     id_tokenlist = db.Column(db.Integer, primary_key=True)
+    grp_list = db.Column(db.String(45), nullable=False)
     token = db.Column(db.String(138), nullable=False)
     vote_submitted_date_time = db.Column(db.DateTime, nullable=True)
 
@@ -100,6 +101,7 @@ class Tokenlist(db.Model):
         """
         return {
             'id_tokenlist': self.id_tokenlist,
+            'grp_list': self.grp_list,
             'token': self.token,
             'vote_submitted_date_time': self.vote_submitted_date_time.isoformat() if self.vote_submitted_date_time else None
         }
