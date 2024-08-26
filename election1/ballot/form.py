@@ -16,8 +16,8 @@ def office_query():
 class CandidateForm(FlaskForm):
     firstname = StringField(label='firstname', validators=[Length(min=2, max=30), InputRequired()])
     lastname = StringField(label='lastname', validators=[Length(min=2, max=30), DataRequired()])
-    choices_classgrp = SelectField('class', choices=[], validators=[Length(min=2, max=30), DataRequired()])
-    choices_office = QuerySelectField(query_factory=office_query, label='office title', get_label='office_title')
+    choices_classgrp = SelectField('class/group', choices=[], validators=[Length(min=2, max=30), DataRequired()])
+    choices_office = SelectField('office title', choices=[], validators=[Length(min=2, max=30), DataRequired()])
     submit = SubmitField(label='submit')
 
 
