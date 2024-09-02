@@ -1,2 +1,3 @@
-/instance/election.db
 /.idea/vcs.xml
+/instance/voterTokens.xlsx
+/vote_view_log.txt
