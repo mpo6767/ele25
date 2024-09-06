@@ -11,7 +11,9 @@ class Classgrp(db.Model):
     id_classgrp = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=45), nullable=False, unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
+    allowed_offices = db.Column(db.String(length=250), nullable=True)
     candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='classgrp')
+
 
 class Office(db.Model):
     """

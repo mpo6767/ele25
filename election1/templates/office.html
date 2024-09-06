@@ -78,8 +78,8 @@
                     <td>{{ office.sortkey }}</td>
                     <td>{{ office.office_vote_for }}</td>
                     <td>{{ office.office_title }}</td>
-                    <td><a href="{{ url_for('ballot.deleteoffice',xid=office.id_office)}}">Delete</a> </td>
-                    <td><a href="{{ url_for('ballot.updateoffice',xid=office.id_office)}}">Edit</a> </td>
+                    <td><a href="{{ url_for('office.deleteoffice',xid=office.id_office)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('office.updateoffice',xid=office.id_office)}}">Edit</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

@@ -62,14 +62,20 @@ def config_blueprint(app):
     """
     Configure and register blueprints with the Flask application.
     """
+    from election1.classgrp.view import classgrp
     from election1.admins.view import admins
-    from election1.ballot.view import ballot
     from election1.mains.view import mains
     from election1.vote.view import vote
+    from election1.dates.view import dates
+    from election1.office.view import office
+    from election1.candidate.view import candidate
+    app.register_blueprint(candidate)
+    app.register_blueprint(office)
     app.register_blueprint(admins)
-    app.register_blueprint(ballot)
     app.register_blueprint(mains)
     app.register_blueprint(vote)
+    app.register_blueprint(classgrp)
+    app.register_blueprint(dates)
 
 
 def config_extention(app):

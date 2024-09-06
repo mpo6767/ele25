@@ -17,7 +17,7 @@
                     <td>{{ candidate.lastname }}</td>
                     <td> {{ classgrp.name }}</td>
                     <td> {{ office.office_title }}</td>
-                    <td><a href="{{ url_for('ballot.deletecandidate',xid=candidate.id_candidate)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('candidate.deletecandidate',xid=candidate.id_candidate)}}">Delete</a> </td>
                 </tr>
                 {% endfor %}
                </tbody>

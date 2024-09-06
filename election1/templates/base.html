@@ -31,20 +31,20 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ballot.dates') }}">Election Dates</a>
+                        <a class="nav-link" href="{{ url_for('dates.dates_view') }}">Election Dates</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ballot.classgrp') }}">Class </a>
+                        <a class="nav-link" href="{{ url_for('classgrp.classgrp_view') }}">Class </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ballot.office') }}">Office</a>
+                        <a class="nav-link" href="{{ url_for('office.office_view') }}">Office</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ballot.candidate') }}">Candidate Entry</a>
+                        <a class="nav-link" href="{{ url_for('candidate.candidate_view') }}">Candidate Entry</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('ballot.candidate_report') }}">Candidate Report</a>
+                        <a class="nav-link" href="{{ url_for('candidate.candidate_report') }}">Candidate Report</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('vote.vote_results') }}">Vote Results</a>
