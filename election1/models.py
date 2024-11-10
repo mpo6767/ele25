@@ -15,6 +15,12 @@ class Classgrp(db.Model):
     candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='classgrp')
 
 
+    @classmethod
+    def classgrp_query(cls):
+        return [(c.id_classgrp, c.name) for c in cls.query.order_by(cls.sortkey).all()]
+
+
+
 class Office(db.Model):
     """
     Represents an office for which candidates can run in the election.
@@ -23,7 +29,12 @@ class Office(db.Model):
     office_title = db.Column(db.String(length=45), nullable=False, unique=True)
     office_vote_for = db.Column(db.Integer, default=1)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
+    allow_writein = db.Column(db.Boolean, default=False)
     candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='office')
+
+    @classmethod
+    def office_query(cls):
+        return[(o.id_office, o.office_title) for o in cls.query.order_by(cls.sortkey).all()]
 
 
 class Candidate(db.Model):
@@ -37,6 +48,41 @@ class Candidate(db.Model):
     id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'), nullable=False)
     votes = db.relationship('Votes', backref='candidate')
 
+    @classmethod
+    def get_candidates_for_specific_office_by_classgrp(cls, choices_classgrp, choices_office):
+        return db.session.query(cls, Classgrp, Office).select_from(cls).join(Classgrp).join(
+            Office).filter(Classgrp.id_classgrp == choices_classgrp, Office.id_office == choices_office)
+
+    @classmethod
+    def get_candidates_for_all_offices_by_classgrp(cls, choices_classgrp):
+        return db.session.query(cls, Classgrp, Office).select_from(cls).join(Classgrp).join(
+            Office).filter(Classgrp.id_classgrp == choices_classgrp)
+
+    @classmethod
+    def candidate_search(cls, group):
+        return db.session.query(cls, Classgrp, Office).select_from(cls).join(Classgrp).join(
+            Office).order_by(Classgrp.sortkey, Office.sortkey).where(Classgrp.id_classgrp == group)
+
+    @classmethod
+    def check_and_insert_writein_candidate(cls, choices_classgrp, choices_office):
+        existing_candidate = cls.query.filter_by(
+            firstname="Write",
+            lastname="In",
+            id_classgrp=choices_classgrp,
+            id_office=choices_office
+        ).first()
+
+        if not existing_candidate:
+            new_candidate = cls(
+                firstname="Write",
+                lastname="In",
+                id_classgrp=choices_classgrp,
+                id_office=choices_office
+            )
+            db.session.add(new_candidate)
+
+
+
 class User(db.Model, UserMixin):
     """
     Represents a user in the system, including admin users.
@@ -45,8 +91,8 @@ class User(db.Model, UserMixin):
     user_firstname = db.Column(db.String(length=45), nullable=False)
     user_lastname = db.Column(db.String(length=45), nullable=False)
     user_so_name = db.Column(db.String(length=30), nullable=False, unique=True)
-    user_pass = db.Column(db.String(256))
-    user_email = db.Column(db.String(45), unique=True)
+    user_pass = db.Column(db.String(length=256))
+    user_email = db.Column(db.String(length=45), unique=True)
     user_status = db.Column(db.Integer, default=False, nullable=False)
     user_pw_change = db.Column(db.String(length=1))
     user_security = db.Column(db.String(138), default=unique_security_token)
@@ -59,6 +105,14 @@ class User(db.Model, UserMixin):
         Return the unique identifier for the user.
         """
         return self.id_user
+
+    @classmethod
+    def get_all_admins(cls):
+        return db.session.query(cls, Admin_roles).select_from(cls).join(Admin_roles).order_by()
+
+    @classmethod
+    def get_user_by_so_name(cls, so_name):
+        return cls.query.filter_by(user_so_name=so_name).first()
 
 
 class Admin_roles(db.Model):
@@ -78,14 +132,47 @@ class Dates(db.Model):
     start_date_time = db.Column(db.Integer, nullable=False)
     end_date_time = db.Column(db.Integer, nullable=False)
 
+    @classmethod
+    def after_start_date(cls):
+        date = cls.query.first()
+        if date:
+            start_date_time = datetime.fromtimestamp(date.start_date_time)
+            current_date_time = datetime.now()
+            return current_date_time > start_date_time
+        return False
+
+    @classmethod
+    def check_dates(cls):
+        date = cls.query.first()
+        return date is not None
+
 
 class Votes(db.Model):
     """
     Represents a vote cast by a user.
+    If there is a write-in candidate, the write-in candidate will be store
+    in the votes_writein_name field.
     """
     id_votes = db.Column(db.Integer, primary_key=True)
     votes_token = db.Column(db.String(138), nullable=False)
+    votes_writein_name = db.Column(db.String(45), nullable=True)
     id_candidate = db.Column(db.Integer, db.ForeignKey('candidate.id_candidate'))
+
+
+class WriteinCandidate(db.Model):
+    """
+    Represents a write-in candidate.
+    The write-in candidate nust be registered by an admin user.
+    """
+    id_writein_candidate = db.Column(db.Integer, primary_key=True)
+    writein_candidate_name = db.Column(db.String(45), nullable=False)
+    id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'))
+    id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp'))
+
+    @classmethod
+    def get_writein_candidates_sorted(cls):
+        return db.session.query(cls, Classgrp, Office).select_from(cls).join(Classgrp).join(
+            Office).order_by(Classgrp.sortkey, Office.sortkey).all()
 
 
 class Tokenlist(db.Model):

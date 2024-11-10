@@ -57,6 +57,7 @@ def group_search():
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
 def cast(grp_list, token):
+    print('cast')
     # if not date_between():
     #     home = current_app.config['HOME']
     #     return render_template('bad_date.html', home=home)
@@ -66,16 +67,17 @@ def cast(grp_list, token):
     if not session:
         print('no session')
 
+    # validate the groups are valid -
         if not are_all_classgrps_valid(grp_list):
             log_vote_event(f"Invalid class group: {grp_list}")
             home = current_app.config['HOME']
             error = 'Invalid class group ' + grp_list
             return render_template('bad_token.html', error=error, home=home)
 
-        token_list_record = get_tokenlist_record(token)
-        print(token_list_record)
+    # token list is a record  (row) of the model Tokenlist the  Tokenlist is a dictionary of column: values
 
-        # Assuming token_list_record is a dictionary
+        token_list_record = get_tokenlist_record(token)
+
         if 'grp_list' in token_list_record and token_list_record['grp_list'] == grp_list:
             log_vote_event(f"grp_list matches the value in token_list_record: {grp_list} - Token: {token}")
         else:
@@ -89,7 +91,10 @@ def cast(grp_list, token):
             log_vote_event(f"Token is bad: {token_list_record['error']} - Token: {token}")
             home = current_app.config['HOME']
             return render_template('bad_token.html', error=token_list_record['error'], home=home)
+
+        # the token seems good so log the event.   This does not mean that the voter has voted
         log_vote_event(f"Token is good: {token}")
+
         '''
         I'm using session to store 
         the token_list_record, 
@@ -97,12 +102,16 @@ def cast(grp_list, token):
         the office_dict, 
         the current office, 
         the current office_dict_length, 
-        the current cnt, 
-        and the current length
+        the cnt = current group number
+        and the  length = nbr of groups
         '''
+        print('token_list_record ' + str(token_list_record))
         session['token_list_record'] = token_list_record
+
+        # the cnt is the current group number there maybe more than 1 group
         session['cnt'] = 0
         print('grp_list ' + grp_list)
+
         session['length'] = len(grp_list.split('$'))
         session['group'] = grp_list.split('$')[session.get('cnt')]
         grp = grp_list.split('$')[session.get('cnt')]
@@ -231,6 +240,7 @@ def get_office_dict(groups):
         # office[2] is the number of votes allowed
         # [] is the list of candidates voted for
         office_dict[group] = [[office[0], office[1], office[2], [], []] for office in offices]
+        print(' ++  office_dict ' + str(office_dict))
 
     return office_dict
 
@@ -413,14 +423,14 @@ def mark_winner(candidates: list[CandidateDataClass]) -> list[CandidateDataClass
                 max_votes = max(candidates, key=lambda c: c.nbr_of_votes).nbr_of_votes
                 for candidate in candidates:
                     if candidate.nbr_of_votes == max_votes:
-                        candidate.winner = True
+                        candidate.winner_x = True
             else:
                 # Sort candidates by number of votes in descending order
                 candidates.sort(key=lambda c: c.nbr_of_votes, reverse=True)
                 # Mark the top candidates as winners
 
                 for i in range(min(candidates[0].vote_for, len(candidates))):
-                    candidates[i].winner = True
+                    candidates[i].winner_x = True
 
 
     return candidates

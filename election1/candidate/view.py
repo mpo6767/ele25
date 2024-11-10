@@ -1,8 +1,7 @@
 from datetime import datetime
 from flask import render_template, url_for, flash, redirect, request, Blueprint
-from election1.candidate.form import CandidateForm, Candidate_reportForm, classgrp_query
-from election1.office.view import office_query
-from election1.models import Classgrp, Office, Candidate
+from election1.candidate.form import CandidateForm, Candidate_reportForm,  WriteinCandidateForm
+from election1.models import Classgrp, Office, Candidate, WriteinCandidate, Dates
 from election1.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 from election1.utils import is_user_authenticated
@@ -12,12 +11,69 @@ candidate = Blueprint('candidate', __name__)
 logger = logging.getLogger(__name__)
 
 
-def classgrp_query():
-    return_list = []
-    classgrp_data = db.session.query(Classgrp).order_by(Classgrp.sortkey)
-    for c in classgrp_data:
-        return_list.append(tuple((c.id_classgrp, c.name)))
-    return return_list
+@candidate.route('/writein_candidate', methods=['GET', 'POST'])
+def writein_candidate():
+
+    if not is_user_authenticated():
+        return redirect(url_for('admins.login'))
+
+    if Dates.check_dates() is False:
+        flash('Please set the Election Dates before registering write in ', category='danger')
+        return redirect(url_for('mains.homepage'))
+
+    if Dates.after_start_date():
+        flash('You cannot register a write in after the voting start time or Election Dates are empty ',
+              category='danger')
+        return redirect(url_for('mains.homepage'))
+
+    form = WriteinCandidateForm()
+
+    if request.method == 'POST':
+        print('request.form *** ' )
+        writein_candidate_name = request.form['writein_candidate_name']
+        choices_classgrp = request.form['choices_classgrp']
+        choices_office = request.form['choices_office']
+
+        # Check if a valid option is selected
+        if choices_classgrp == "Please select":
+            print('--cc- ' + choices_classgrp)
+            flash('Please select a valid option for class', category='danger')
+            form.choices_classgrp.choices = Classgrp.classgrp_query()
+            form.choices_office.choices = Office.office_query()
+            return render_template('writein_candidate.html', form=form)
+
+        if choices_office == "Please select":
+            print
+            flash('Please select a valid option for office', category='danger')
+            form.choices_office.choices = Office.office_query()
+            form.choices_classgrp.choices = Classgrp.classgrp_query()
+            return render_template('writein_candidate.html', form=form)
+
+        print('--- ' + choices_classgrp)
+
+        new_writein_candidate = WriteinCandidate(writein_candidate_name=writein_candidate_name,
+                                                 id_classgrp=choices_classgrp,
+                                                 id_office=choices_office)
+
+        try:
+            Candidate.check_and_insert_writein_candidate(choices_classgrp, choices_office)
+            db.session.add(new_writein_candidate)
+            db.session.commit()
+            return redirect(url_for('candidate.writein_candidate'))
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            flash('problem adding write-in candidate ' + str(e), category='danger')
+            return redirect(url_for('candidate.writein_candidate'))
+    # else:
+    form.choices_classgrp.choices = Classgrp.classgrp_query()
+    form.choices_office.choices = Office.office_query()
+    candidates = WriteinCandidate.get_writein_candidates_sorted()
+    print(form.choices_classgrp.choices)
+    print(form.choices_office.choices)
+
+    return render_template('writein_candidate.html', form=form, candidates=candidates)
+
+
 
 
 @candidate.route("/candidate_report", methods=['GET', 'POST'])
@@ -35,19 +91,18 @@ def candidate_report():
         # the first if determines if the choice_office is an int 0
         # I built the candidate_report.html to add a choice of 'All Offices' which is not in the DB
         # I pass list_of_offices to the html and build the select offices manually fo this html
+        print('-- ' + choices_office)
         if int(choices_office) == 0:
-            candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-                Office).filter(Classgrp.id_classgrp == choices_classgrp)
+            candidates = Candidate.get_candidates_for_all_offices_by_classgrp(choices_classgrp)
             return render_template("candidate_report.html",
                                    form=form, candidates=candidates, list_of_offices=list_of_offices)
         else:
-            candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-                Office).filter(Classgrp.id_classgrp == choices_classgrp, Office.id_office == choices_office)
+            candidates = Candidate.get_candidates_for_specific_office_by_classgrp(choices_classgrp, choices_office)
             return render_template("candidate_report.html",
                                    form=form, candidates=candidates, list_of_offices=list_of_offices)
 
     else:
-        form.choices_classgrp.choices = classgrp_query()
+        form.choices_classgrp.choices = Classgrp.classgrp_query()
         return render_template("candidate_report.html", form=form, list_of_offices=list_of_offices)
 
 
@@ -57,11 +112,11 @@ def candidate_view():
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
 
-    if check_dates() is False:
+    if Dates.check_dates() is False:
         flash('Please set the Election Dates before adding a candidate', category='danger')
         return redirect(url_for('mains.homepage'))
 
-    if after_start_date():
+    if Dates.after_start_date():
         flash('You cannot add or delete a candidate after the voting start time or Election Dates are empty ',
               category='danger')
         return redirect(url_for('mains.homepage'))
@@ -76,14 +131,14 @@ def candidate_view():
         # Check if a valid option is selected
         if choices_classgrp == "Please select":
             flash('Please select a valid option for class', category='danger')
-            form.choices_classgrp.choices = classgrp_query()
-            form.choices_office.choices = office_query()
+            form.choices_classgrp.choices = Classgrp.classgrp_query()
+            form.choices_office.choices = Office.office_query()
             return render_template('candidate.html', form=form)
 
         if choices_office == "Please select":
             flash('Please select a valid option for office', category='danger')
-            form.choices_office.choices = office_query()
-            form.choices_classgrp.choices = classgrp_query()
+            form.choices_office.choices = Office.office_query()
+            form.choices_classgrp.choices = Classgrp.classgrp_query()
             return render_template('candidate.html', form=form)
 
         new_candidate = Candidate(firstname=firstname,
@@ -94,22 +149,21 @@ def candidate_view():
         try:
             db.session.add(new_candidate)
             db.session.commit()
-            return redirect(url_for('ballot.candidate'))
+            return redirect(url_for('candidate.candidate_view'))
         except SQLAlchemyError as e:
             db.session.rollback()
             flash('problem adding candidate ' + str(e), category='danger')
             return redirect('/candidate')
     else:
-        form.choices_classgrp.choices = classgrp_query()
-        form.choices_office.choices = office_query()
+        form.choices_classgrp.choices = Classgrp.classgrp_query()
+        form.choices_office.choices = Office.office_query()
         return render_template('candidate.html', form=form)
 
 
 @candidate.route('/candidate/search')
 def candidate_search():
     group = request.args.get('choices_classgrp', type=int)
-    candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).order_by(Classgrp.sortkey, Office.sortkey).where(Classgrp.id_classgrp == group)
+    candidates = Candidate.candidate_search(group)
     return render_template('candidate_search_results.html',  candidates=candidates)
 
 
@@ -132,25 +186,3 @@ def deletecandidate(xid):
         return redirect('/candidate')
 
 
-def after_start_date():
-    from election1.models import Dates  # Local import to avoid circular import
-    date = Dates.query.first()
-    start_date_time = datetime.fromtimestamp(date.start_date_time)
-
-    # Get the current date time
-    current_date_time = datetime.now()
-
-    # Check if current date time is less than start date time
-    if current_date_time > start_date_time:
-        return True
-    else:
-        return False
-
-
-def check_dates():
-    from election1.models import Dates  # Local import to avoid circular import
-    date = Dates.query.first()
-    if date is None:
-        return False
-    else:
-        return True

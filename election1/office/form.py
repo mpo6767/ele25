@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField
+from wtforms import StringField, SubmitField, IntegerField, BooleanField
 from wtforms.validators import Length, DataRequired, ValidationError
 from election1.models import Office
 
@@ -20,5 +20,6 @@ class OfficeForm(FlaskForm):
     office_title = StringField(label='Office Title . . .', validators=[Length(min=2, max=30), DataRequired()])
     office_vote_for = IntegerField(label='Vote For . . .', default=1)
     sortkey = IntegerField(label='Sort Key . . .', default=None, validators=[DataRequired()])
+    allow_writein = BooleanField(label='Write-In . . .')
     submit = SubmitField(label='submit')
 

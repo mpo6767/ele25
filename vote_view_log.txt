@@ -241,3 +241,31 @@
 2024-08-26 00:23:33 - Vote submitted for candidate 11 - Ed Ed
 2024-08-26 00:23:33 - Vote submitted for candidate 13 - Frank Frank
 2024-08-26 00:23:34 - Vote submitted for candidate 16 - Helen Helen
+2024-09-20 13:14:23 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:14:23 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:37:30 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:37:30 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:44:42 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:44:42 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:46:08 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:46:08 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:46:51 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 13:46:51 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 15:18:38 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 15:18:38 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 15:26:31 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 15:26:31 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 15:34:05 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 15:34:05 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 20:51:34 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-09-20 20:51:34 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-10-17 11:14:38 - grp_list matches the value in token_list_record: Senior - Token: 752fd03322893b1b0c30541fcf0e3a53140957bb0e221204e16ef25f1a444360
+2024-10-17 11:14:38 - Token is good: 752fd03322893b1b0c30541fcf0e3a53140957bb0e221204e16ef25f1a444360
+2024-10-17 11:14:55 - Vote submitted for candidate 32 - Silly Sam
+2024-10-17 11:14:55 - Vote submitted for candidate 20 - Dom Dom
+2024-10-17 11:26:05 - grp_list matches the value in token_list_record: Freshmen - Token: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-10-17 11:26:05 - Token is good: 01d5404154b4898c306be6a0c2a0edeb3ba4bebceaabc89f129d82d263834331
+2024-10-17 11:26:38 - Vote submitted for candidate 22 - Batman Batman
+2024-10-17 11:26:38 - Vote submitted for candidate 26 - Diaisy Duke
+2024-10-17 11:26:38 - Vote submitted for candidate 27 - Elton John
+2024-10-17 11:26:38 - Vote submitted for candidate 28 - Betty Boop

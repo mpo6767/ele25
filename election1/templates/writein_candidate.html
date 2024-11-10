@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}
+Candidate Page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Write In Candidate Registration ...</h1>
+        <br>
+        <form method="post" style="color:white">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                    class or group
+                </div>
+                <div class="col-2 ">
+                   office
+                </div>
+                <div class="col-2 ">
+                   first and last name
+                </div>
+            </div>
+       <br>
+            <div class="row g-3 ">
+
+			    <div class="col-2">
+                     <select id="choices_classgrp" name="choices_classgrp"><option selected >Please select</option>
+                         {% for classgrp in form.choices_classgrp.choices  %}
+                         <option value={{classgrp[0]}}>{{classgrp[1]}} </option>
+                         {% endfor %}
+                     </select>
+                </div>
+
+                <div class="col-2">
+                     <select id="choices_office" name="choices_office"><option selected >Please select</option>
+                         {% for offices in form.choices_office.choices %}
+                         <option value={{ offices[0]}}>{{ offices[1]}} </option>
+                         {% endfor %}
+                     </select>
+                </div>
+
+                <div class="col-2">
+                     <div class="col-auto">
+                         {{ form.writein_candidate_name(size=45, maxlength=45) }}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-block">
+                    {{ form.submit(type="submit",value='Add Write In', class="btn   btn-primary") }}
+                </div>
+
+            </div>
+
+
+        </form>
+    <br>
+            <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> ID</th>
+                       <th class="col-2"> Write in Candidate</th>
+                       <th class="col-2"> Class</th>
+                       <th class="col-2"> Office </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+               {% for candidate, classgrp, office in candidates %}
+                <tr>
+                    <td>{{ candidate.id_writein_candidate }}</td>
+                    <td>{{ candidate.writein_candidate_name }}</td>
+                    <td> {{ classgrp.name }}</td>
+                    <td> {{ office.office_title }}</td>
+                </tr>
+                {% endfor %}
+               </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

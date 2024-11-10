@@ -101,6 +101,7 @@ def config_extention(app):
             # if database_exists('sqlite:///instance/' + db_name):
             if database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
                 logger.info(db_name + " already exists")
+
             else:
                 logger.info(db_name + " does not exist, will create " + db_name)
                 try:
@@ -144,7 +145,6 @@ def config_extention(app):
                     logger.info("got the following Exception: " + str(exception))
                 finally:
                     logger.info("db.create_all() in __init__.py was successfull - no exceptions were raised")
-
 
 def config_manager(manager):
     """

@@ -1,9 +1,6 @@
 from flask import (render_template, url_for, flash,
                    redirect, request, Blueprint)
-
 from election1.classgrp.form import ClassgrpForm
-# from election1.ballot.form import (CandidateForm, OfficeForm,
-#                                    ClassgrpForm, Candidate_reportForm, DatesForm, classgrp_query)
 from election1.models import Classgrp
 from election1.extensions import db
 from sqlalchemy.exc import SQLAlchemyError

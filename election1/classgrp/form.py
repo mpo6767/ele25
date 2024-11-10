@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.validators import Length, DataRequired, ValidationError
 from election1.models import Classgrp, Office
-# from wtforms_alchemy.fields import QuerySelectField
 
 
 def classgrp_query():
