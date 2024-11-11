@@ -1,13 +1,8 @@
-from pathlib import Path
 from datetime import datetime
-from typing import Any
-
-import xlsxwriter
 from flask import Blueprint, request, render_template, redirect, session, current_app, url_for, flash
 from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
 from election1.vote.form import VoteForOne, VoteForMany, ReviewVotes, VoteResults
-from election1.utils import get_token
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import and_, func
 from election1.dclasses import CandidateDataClass
@@ -311,66 +306,6 @@ def post_ballot():
         home = current_app.config['HOME']
         return render_template('thank_you.html', home=home)
 
-'''
-this is code to make the token list in an excel file
-I suppose it could be in a different module but I placed it here just to save some time
-
-the excel file is created in the instance folder and is a url to the cast route with the token as a parameter
-'''
-@vote.route('/setup_tokens', methods=['POST', 'GET'])
-def setup_tokens():
-    Tokenlist.query.delete()
-
-    p = Path(r"instance/voterTokens2.xlsx")
-    p.unlink(missing_ok=True)
-
-    workbook = xlsxwriter.Workbook(r'instance\voterTokens.xlsx')
-    worksheet = workbook.add_worksheet()
-
-    row = 0
-    col = 0
-
-    while row < 101:
-        token = get_token()
-        eclass = row % 4
-        if eclass == 1:
-            grp_list = 'Freshmen'
-        if eclass == 2:
-            grp_list = 'Sophomore$All'
-        if eclass == 3:
-            grp_list = 'Junior'
-        if eclass == 0:
-            grp_list = 'Senior'
-
-        try:
-            new_tokenlist = Tokenlist(grp_list=grp_list,
-                                      token=token,
-                                      vote_submitted_date_time=None)
-            db.session.add(new_tokenlist)
-            db.session.commit()
-            print('write ' + str(row))
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print("except " + str(e))
-            return redirect("/homepage")
-
-        print(row)
-
-
-        if eclass == 1:
-            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Freshmen/' + token)
-        elif eclass == 2:
-            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Sophomore$All/' + token)
-        elif eclass == 3:
-            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Junior/' + token)
-        elif eclass == 0:
-            worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Senior/' + token)
-
-        row += 1
-
-    workbook.close()
-    return redirect('/homepage')
-
 
 @vote.route('/vote_results', methods=['GET'])
 def vote_results():
@@ -407,7 +342,6 @@ def create_candidate_dataclass(record):
         nbr_of_votes=record[6],
         winner=False  # Default value, can be updated later
     )
-
 
 def mark_winner(candidates: list[CandidateDataClass]) -> list[CandidateDataClass]:
     # Group candidates by classgrp and office
