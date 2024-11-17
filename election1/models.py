@@ -36,6 +36,17 @@ class Office(db.Model):
     def office_query(cls):
         return[(o.id_office, o.office_title) for o in cls.query.order_by(cls.sortkey).all()]
 
+    @classmethod
+    def query_offices_for_classgroup_with_details_as_list(cls, classgroup_name):
+        offices = db.session.query(
+            cls.office_title,
+            cls.sortkey,
+            cls.office_vote_for
+        ).join(Candidate).join(Classgrp).filter(
+            Classgrp.name == classgroup_name
+        ).distinct().order_by(cls.sortkey).all()
+
+        return [[office.office_title, office.sortkey, office.office_vote_for] for office in offices]
 
 class Candidate(db.Model):
     """
@@ -184,6 +195,8 @@ class Tokenlist(db.Model):
     token = db.Column(db.String(138), nullable=False)
     vote_submitted_date_time = db.Column(db.DateTime, nullable=True)
 
+
+
     def to_dict(self):
         """
         Convert the Tokenlist object into a dictionary format.
@@ -194,3 +207,20 @@ class Tokenlist(db.Model):
             'token': self.token,
             'vote_submitted_date_time': self.vote_submitted_date_time.isoformat() if self.vote_submitted_date_time else None
         }
+
+    @classmethod
+    def get_tokenlist_record(cls, token):
+        """
+        Retrieve a Tokenlist record if the given token exists in the Tokenlist.
+        :param token: The token to search for in the Tokenlist.
+        :return: The Tokenlist record as a dictionary .
+         """
+        token_record = cls.query.filter_by(token=token).first()
+
+        if token_record is None:
+            # Token does not exist
+            return {'error': 'Invalid token'}
+        if token_record.vote_submitted_date_time is not None:
+            # Token exists but vote has been submitted
+            return {'error': 'Token has already been used'}
+        return token_record.to_dict()
