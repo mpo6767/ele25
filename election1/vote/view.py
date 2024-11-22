@@ -34,14 +34,6 @@ def log_vote_event(message):
         file.write(f"{timestamp} - {message}\n")
 
 
-def classgrp_query():
-    return_list = []
-    classgrp_data = db.session.query(Classgrp).order_by(Classgrp.sortkey)
-    for c in classgrp_data:
-        return_list.append(tuple((c.id_classgrp, c.name)))
-    return return_list
-
-
 @vote.route('/group/search')
 def group_search():
     group = request.args.get('choices_classgrp', type=int)
@@ -52,9 +44,9 @@ def group_search():
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
 def cast(grp_list, token):
-    print('cast')
-    print('grp_list ' + grp_list)
-    print('token ' + token)
+    log_vote_event('+++ cast '
+                   f"grp_list: {grp_list}, token: {token}, ")
+
     # if not date_between():
     #     home = current_app.config['HOME']
     #     return render_template('bad_date.html', home=home)
@@ -62,7 +54,8 @@ def cast(grp_list, token):
     # Check if there is no session then check the validity of the token
     global next_office
     if not session:
-        print('no session')
+        log_vote_event('new session' 
+                       f' for grp_list: {grp_list}, and token: {token}, ')
 
 
     # validate the groups are valid - its a double check on the url presented
@@ -96,12 +89,12 @@ def cast(grp_list, token):
         the cnt = current group number
         and the  length = nbr of groups
         '''
-        print('token_list_record ' + str(token_list_record))
+        log_vote_event('token_list_record ' + str(token_list_record))
         session['token_list_record'] = token_list_record
         # in a school election the groups are the classes at a minimum
         # the cnt is the current group number there maybe more than 1 group
         session['cnt'] = 0 # is the setup for the first group or only group in the list
-        print('grp_list ' + grp_list)
+        log_vote_event('grp_list ' + grp_list)
 
         # nbr of groups are seperated by $ in the url
         session['length'] = len(grp_list.split('$'))
@@ -124,9 +117,9 @@ def cast(grp_list, token):
             # office[1] is the sortkey
             # office[2] is the number of votes allowed
             # [] is the list of candidates voted for
-            print('offices ' + str(offices))
+            log_vote_event('offices ' + str(offices))
             office_dict[group] = [[office[0], office[1], office[2], [], []] for office in offices]
-            print(' ++  office_dict ' + str(office_dict))
+            log_vote_event(' ++  office_dict ' + str(office_dict))
 
 
         session['office_dict'] = office_dict
@@ -165,8 +158,8 @@ def cast(grp_list, token):
                                    candidates=candidate_choices, grp=grp, max_votes=next_office[2])
 
     # if form_voteForeOne.validate_on_submit() and form_voteForeOne.submit.data:
-    print('invest')
-    print('request.method ' + request.method)
+    log_vote_event('167 ')
+    log_vote_event('check request.method ' + request.method)
     if request.method == 'POST' or session.get('review', False):
         session['review'] = False
         form_name = request.form.get('form_name')
@@ -182,7 +175,7 @@ def cast(grp_list, token):
                     if form_name == 'VoteForOne':
                         selected_candidate_id = request.form.get('candidate')
                         # Add the selected_candidate_id to the list of candidates voted for
-                        print('log this ' + str(selected_candidate_id))
+                        log_vote_event('log this non final ' + str(selected_candidate_id))
                         candidate_values = str(selected_candidate_id).split('$')
                         # office_entry[3].append(candidate_values[0])
                         office_entry[3].append([candidate_values[0], candidate_values[1]])
@@ -198,29 +191,29 @@ def cast(grp_list, token):
                         break
             # Update the session with the modified office_dict
             # session['office_dict'] = office_dict
-            print('201 ' + group)
+            log_vote_event('201 ' + group)
             next_office = get_next_office_for_group(session.get('office_dict'), group)
-            print('203 next_office ' + str(next_office))
+            log_vote_event('203 next_office ' + str(next_office))
             if next_office is None:
                 if session['cnt'] + 1 < session['length']:
                     session['cnt'] += 1
-                    print('session cnt gggg' + str(session['cnt']))
-                    print ('session length gggg' + str(session['length']))
-                    print('grp_list gggg' + str(grp_list))
+                    log_vote_event('session cnt gggg' + str(session['cnt']))
+                    log_vote_event ('session length gggg' + str(session['length']))
+                    log_vote_event('grp_list gggg' + str(grp_list))
                     # session['group'] = grp_list.split('$')[session.get('cnt')]
-                    print('211 ' + str(session.get((grp_list))))
-                    print('Session grp_list: ' + str(session.get('grp_list', 'Not set')))
-                    print('Session cnt: ' + str(session.get('cnt', 'Not set')))
+                    log_vote_event('211 ' + str(session.get((grp_list))))
+                    log_vote_event('Session grp_list: ' + str(session.get('grp_list', 'Not set')))
+                    log_vote_event('Session cnt: ' + str(session.get('cnt', 'Not set')))
                     session['group'] = session['grp_list'].split('$')[session['cnt']]
-                    print('213 ' + str(session.get('group')))
+                    log_vote_event('215 ' + str(session.get('group')))
 
                     next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
                 else:
-                    print('no more offices a')
+                    log_vote_event('no more offices a')
                     vote_form = ReviewVotes()
                     return render_template('cast3.html', form=vote_form, group=session.get('group'),
                                            office_dict=session.get('office_dict'))
-            print('next_office ' + str(next_office))
+            log_vote_event('next_office ' + str(next_office))
             if next_office is not None:
                 session['office'] = next_office[0]
                 if next_office[2] == 1:  # vote for one
@@ -240,7 +233,7 @@ def cast(grp_list, token):
                     return render_template('cast2.html', form=votes_form, office=next_office[0],
                                            candidates=candidate_choices, grp=grp, max_votes=next_office[2])
     vote_form = ReviewVotes()
-    print('no more offices b')
+    log_vote_event('no more offices b')
     return render_template('cast3.html', form=vote_form,
                            office_dict=session.get('office_dict'))
     # return 'no more offices'
@@ -257,18 +250,18 @@ def office_grp_query(grp, office):
 
 @vote.route('/edit_choice/<office_id>/<group>', methods=['POST', 'GET'])
 def edit_choice(office_id, group):
-    print("office " + office_id)
-    print("group " + group)
-    print('Session grp_list: ' + str(session.get('grp_list', 'Not set')))
+    log_vote_event("edit_choice office " + office_id)
+    log_vote_event("edit_choice group " + group)
+    log_vote_event('edit_choice Session grp_list: ' + str(session.get('grp_list', 'Not set')))
     office_dict = session.get('office_dict', {})
 
     if group in office_dict:
         for office in office_dict[group]:
             if office[1] == int(office_id):
-                print('office eeeee' + str(office))
+                log_vote_event('office edit_choice' + str(office))
                 office[3] = []  # Clear the list of candidates voted for
                 office[4] = []  # Clear the list of candidate names voted for
-                print('office ffffff' + str(office))
+                log_vote_event('office edit_choice' + str(office))
                 break
 
     # Update the session with the modified office_dict
@@ -294,9 +287,9 @@ def update_session_cnt_for_group(group_name):
     if position != -1:
         session['cnt'] = position
         session['group'] = group_name
-        print(session['cnt'])
+        log_vote_event(session['cnt'])
     else:
-        print(f"Group {group_name} not found in grp_list")
+        log_vote_event(f"Group {group_name} not found in grp_list")
 
 
 @vote.route('/post_ballot', methods=['POST'])
@@ -321,11 +314,11 @@ def post_ballot():
                 db.session.commit()
             else:
                 db.session.rollback()
-                print("log the token does not exist")
+                log_vote_event("log the token does not exist")
                 return "Error: Token record does not exist", 400
         except SQLAlchemyError as e:
             db.session.rollback()
-            print(f"Database error: {e}")
+            log_vote_event(f"Database error: {e}")
 
         # Clear the session data related to the ballot
         session.clear()
@@ -342,7 +335,7 @@ def vote_results():
         return redirect(url_for('mains.homepage'))
     
     form = VoteResults()
-    form.choices_classgrp.choices = classgrp_query()
+    form.choices_classgrp.choices = Classgrp.classgrp_query()
     summary_results = get_summary_results()
     candidates = [create_candidate_dataclass(item) for item in summary_results]
     mark_winner(candidates)
@@ -470,8 +463,8 @@ def get_next_office_for_group(office_dict, group_name):
     :return: The next office for the group or None.
     """
     # Check if the group exists in the office_dict
-    print('group_name gnofg' + group_name)
-    print('office_dict gnofg' + str(office_dict))
+    log_vote_event('group_name gnofg' + group_name)
+    log_vote_event('office_dict gnofg' + str(office_dict))
     if group_name not in office_dict:
         return None
 

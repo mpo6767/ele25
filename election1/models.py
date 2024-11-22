@@ -20,7 +20,6 @@ class Classgrp(db.Model):
         return [(c.id_classgrp, c.name) for c in cls.query.order_by(cls.sortkey).all()]
 
 
-
 class Office(db.Model):
     """
     Represents an office for which candidates can run in the election.
