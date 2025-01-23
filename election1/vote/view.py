@@ -147,9 +147,19 @@ def cast(grp_list, token):
 
             votes_form = VoteForOne()
             candidate_choices = office_grp_query(grp, next_office[0])
-            VoteForOne.candidate.choices = candidate_choices
+            print('candidate_choices ' + str(candidate_choices))
+            writein_candidate_id = has_writein_candidate(candidate_choices)
+            html_writein = 0
+            if writein_candidate_id is not None:
+                html_writein = writein_candidate_id
+                filtered_choices = remove_writein_candidate(candidate_choices, writein_candidate_id)
+                VoteForOne.candidate.choices = filtered_choices
+            else:
+                # html_writein = 0
+                VoteForOne.candidate.choices = candidate_choices
+            print ('VoteForOne.candidate.choices ' + str(VoteForOne.candidate.choices))
             return render_template('cast1.html', form=votes_form, office=next_office[0],
-                                   candidates=candidate_choices, grp=grp)
+                                   candidates=VoteForOne.candidate.choices, grp=grp, html_writein=html_writein)
 
         if next_office[2] > 1:  # vote for one or
             votes_form = VoteForMany()
@@ -220,9 +230,22 @@ def cast(grp_list, token):
                     votes_form = VoteForOne()
                     grp = session.get('group', None)
                     candidate_choices = office_grp_query(grp, next_office[0])
+
+                    print('candidate_choices ' + str(candidate_choices))
+                    writein_candidate_id = has_writein_candidate(candidate_choices)
+                    html_writein = 0
+                    if writein_candidate_id is not None:
+                        html_writein = writein_candidate_id
+                        filtered_choices = remove_writein_candidate(candidate_choices, writein_candidate_id)
+                        VoteForOne.candidate.choices = filtered_choices
+                    else:
+                        # html_writein = 0
+                        VoteForOne.candidate.choices = candidate_choices
+
                     # session['office'] = next_office[0]
+                    print('VoteForOne.candidate.choices ' + str(VoteForOne.candidate.choices))
                     return render_template('cast1.html', form=votes_form, office=next_office[0],
-                                           candidates=candidate_choices, grp=grp)
+                                           candidates=VoteForOne.candidate.choices, grp=grp, html_writein=html_writein)
 
             if next_office is not None:
                 if next_office[2] > 1:  # vote for one or more
@@ -490,5 +513,17 @@ def are_all_classgrps_valid(grp_list):
             return False
 
     return True
+
+def has_writein_candidate(candidate_choices):
+    for candidate in candidate_choices:
+        print('candidate[1] ' + candidate[1])
+        if 'writein' in candidate[1].lower():
+            print(" is true")
+            return candidate[0]
+    return None
+def remove_writein_candidate(candidate_choices, writein_candidate_id):
+    print('writein_candidate_id ' + str(writein_candidate_id))
+    return [candidate for candidate in candidate_choices if candidate[0] != writein_candidate_id]
+
 
 
