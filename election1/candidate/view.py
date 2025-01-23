@@ -36,20 +36,22 @@ def writein_candidate():
 
         # Check if a valid option is selected
         if choices_classgrp == "Please select":
-            print('--cc- ' + choices_classgrp)
             flash('Please select a valid option for class', category='danger')
             form.choices_classgrp.choices = Classgrp.classgrp_query()
             form.choices_office.choices = Office.office_query()
-            return render_template('writein_candidate.html', form=form)
+            candidates = WriteinCandidate.get_writein_candidates_sorted()
+            return render_template('writein_candidate.html', form=form , candidates=candidates)
 
         if choices_office == "Please select":
-            print
             flash('Please select a valid option for office', category='danger')
             form.choices_office.choices = Office.office_query()
             form.choices_classgrp.choices = Classgrp.classgrp_query()
-            return render_template('writein_candidate.html', form=form)
+            candidates = WriteinCandidate.get_writein_candidates_sorted()
+            return render_template('writein_candidate.html', form=form, candidates=candidates)
 
-        print('--- ' + choices_classgrp)
+        if WriteinCandidate.check_existing_writein_candidate(writein_candidate_name, choices_classgrp, choices_office) is True:
+            flash('Write-in candidate already exists for this class and office', category='danger')
+            return redirect(url_for('candidate.writein_candidate'))
 
         new_writein_candidate = WriteinCandidate(writein_candidate_name=writein_candidate_name,
                                                  id_classgrp=choices_classgrp,
@@ -58,19 +60,17 @@ def writein_candidate():
         try:
             Candidate.check_and_insert_writein_candidate(choices_classgrp, choices_office)
             db.session.add(new_writein_candidate)
+
             db.session.commit()
             return redirect(url_for('candidate.writein_candidate'))
         except SQLAlchemyError as e:
             db.session.rollback()
-            flash('problem adding write-in candidate ' + str(e), category='danger')
+            flash('problem adding write-in candidate registration' + str(e), category='danger')
             return redirect(url_for('candidate.writein_candidate'))
-    # else:
+
     form.choices_classgrp.choices = Classgrp.classgrp_query()
     form.choices_office.choices = Office.office_query()
     candidates = WriteinCandidate.get_writein_candidates_sorted()
-    print(form.choices_classgrp.choices)
-    print(form.choices_office.choices)
-
     return render_template('writein_candidate.html', form=form, candidates=candidates)
 
 
@@ -173,7 +173,11 @@ def deletecandidate(xid):
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
 
+    print('delete candidate' + str(xid))
+
     candidate_to_delete = Candidate.query.get_or_404(xid)
+
+    print('candidate_to_delete ' + str(candidate_to_delete))
 
     try:
         db.session.delete(candidate_to_delete)

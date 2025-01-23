@@ -27,11 +27,23 @@ Ballot 1
                   </label>
              <br>
             {% endfor %}
+                    <br>
 
                   <input class="form-check-input" required type="radio" name="candidate" id="{{ "99" }}" value="{{ "99$NoVote" }}">
                   <label class="form-check-label" for="{{ "99" }}">
                      No Vote {{  office }}
                   </label>
+
+            <br>
+
+            {% if html_writein != 0 %}
+                <br>
+                <input class="form-check-input" required type="radio" name="candidate" id="{{ html_writein }}" value="{{ html_writein|string + "$" + "Write In"}}">
+                  <label class="form-check-label" for="{{ html_writein }}">
+                     Write In {{  office }}
+                  </label>
+            {% endif %}
+
               </div>
             <br>
             <input type="hidden" name="grp" value={{  grp }}>
