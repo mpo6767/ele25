@@ -10,42 +10,42 @@ from wtforms.validators import InputRequired
 def classgrp_query():
     return Classgrp.query.order_by(Classgrp.sortkey)
 
+#
+# def president_query():
+#     presidents = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+#         Office).order_by(Classgrp.sortkey)
+#     return presidents
+#
+#
+# def vice_president_query():
+#     vice_presidents = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+#         Office).order_by(Classgrp.sortkey)
+#     return vice_presidents
+#
+#
+# def secretary_query():
+#     secretarys = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+#         Office).order_by(Office.sortkey).where(Classgrp.name == 'President')
+#     return secretarys
+#
+#
+# def treasurer_query():
+#     treasurers = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+#         Office).order_by(Classgrp.sortkey)
+#     return treasurers
 
-def president_query():
-    presidents = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).order_by(Classgrp.sortkey)
-    return presidents
 
-
-def vice_president_query():
-    vice_presidents = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).order_by(Classgrp.sortkey)
-    return vice_presidents
-
-
-def secretary_query():
-    secretarys = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).order_by(Office.sortkey).where(Classgrp.name == 'President')
-    return secretarys
-
-
-def treasurer_query():
-    treasurers = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).order_by(Classgrp.sortkey)
-    return treasurers
-
-
-class VotesForm(FlaskForm):
-    # def has_voted(self,token_to_check):
-    #     result = db.session.query(Tokenlist).s
-    #     tokenList = Tokenlist.query.filter_by(token=token_to_check).first()
-    #     if tokenList.
-
-    p_candidate: RadioField = RadioField(label='president', choices=[], validators=[InputRequired()])
-    vp_candidate = RadioField(label='vice_president', choices=[], validators=[InputRequired()])
-    s_candidate = RadioField(label='secretary', choices=[], validators=[InputRequired()])
-    t_candidate = RadioField(label='treasurer', choices=[], validators=[InputRequired()])
-    submit = SubmitField(label='submit')
+# class VotesForm(FlaskForm):
+#     # def has_voted(self,token_to_check):
+#     #     result = db.session.query(Tokenlist).s
+#     #     tokenList = Tokenlist.query.filter_by(token=token_to_check).first()
+#     #     if tokenList.
+#
+#     p_candidate: RadioField = RadioField(label='president', choices=[], validators=[InputRequired()])
+#     vp_candidate = RadioField(label='vice_president', choices=[], validators=[InputRequired()])
+#     s_candidate = RadioField(label='secretary', choices=[], validators=[InputRequired()])
+#     t_candidate = RadioField(label='treasurer', choices=[], validators=[InputRequired()])
+#     submit = SubmitField(label='submit')
 
 
 class VoteForOne(FlaskForm):
@@ -65,10 +65,10 @@ class VoteForMany(FlaskForm):
 class ReviewVotes(FlaskForm):
     submit = SubmitField(label='submit')
 
-
-class VoteRankChoice(FlaskForm):
-    candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
-    submit = SubmitField(label='submit')
+#
+# class VoteRankChoice(FlaskForm):
+#     candidate = RadioField(label='candidate', choices=[], validators=[InputRequired()])
+#     submit = SubmitField(label='submit')
 
 
 class  VoteResults(FlaskForm):
