@@ -76,20 +76,28 @@ class Candidate(db.Model):
     @classmethod
     def check_and_insert_writein_candidate(cls, choices_classgrp, choices_office):
         existing_candidate = cls.query.filter_by(
-            firstname="Write",
-            lastname="In",
+            firstname="Writein",
+            lastname="Candidate",
             id_classgrp=choices_classgrp,
             id_office=choices_office
         ).first()
 
         if not existing_candidate:
             new_candidate = cls(
-                firstname="Write",
-                lastname="In",
+                firstname="Writein",
+                lastname="Candidate",
                 id_classgrp=choices_classgrp,
                 id_office=choices_office
             )
             db.session.add(new_candidate)
+
+    @classmethod
+    def check_writein_candidate(cls, id_classgrp, id_office):
+        return cls.query.filter_by(
+            firstname='Writein',
+            id_classgrp=id_classgrp,
+            id_office=id_office
+        ).first() is not None
 
 
 
@@ -183,6 +191,14 @@ class WriteinCandidate(db.Model):
     def get_writein_candidates_sorted(cls):
         return db.session.query(cls, Classgrp, Office).select_from(cls).join(Classgrp).join(
             Office).order_by(Classgrp.sortkey, Office.sortkey).all()
+
+    @classmethod
+    def check_existing_writein_candidate(cls, writein_candidate_name, id_classgrp, id_office):
+        return cls.query.filter_by(
+            writein_candidate_name=writein_candidate_name,
+            id_classgrp=id_classgrp,
+            id_office=id_office
+        ).first() is not None
 
 
 class Tokenlist(db.Model):
