@@ -1,3 +1,8 @@
 /.idea/vcs.xml
 /instance/voterTokens.xlsx
 /vote_view_log.txt
+
+# Ignore all .log files
+*.log
+
+vote_view_log.txt
