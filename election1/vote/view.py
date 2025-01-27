@@ -4,7 +4,7 @@ from election1.extensions import db
 from election1.models import Classgrp, Office, Candidate, Tokenlist, Votes, Dates
 from election1.vote.form import VoteForOne, VoteForMany, ReviewVotes, VoteResults
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, null
 from election1.dclasses import CandidateDataClass
 from collections import defaultdict
 
@@ -123,6 +123,7 @@ def cast(grp_list, token):
 
 
         session['office_dict'] = office_dict
+        print('office_dict ' + str(session.get('office_dict')))
         session['office_dict_length'] = len(session.get('office_dict'))
         session['current_office'] = 0
 
@@ -176,6 +177,8 @@ def cast(grp_list, token):
         if form_name == 'ReviewVotes':
             return 'ReviewVotes'
 
+
+
         group = session.get('group')
         office = session.get('office')
         if group in (session.get('office_dict')):
@@ -189,7 +192,11 @@ def cast(grp_list, token):
                         candidate_values = str(selected_candidate_id).split('$')
                         # office_entry[3].append(candidate_values[0])
                         office_entry[3].append([candidate_values[0], candidate_values[1]])
-                        office_entry[4].append(candidate_values[1])
+                        if candidate_values[1] == "Write In":
+                            office_entry[4].append(request.form.get('writein_name'))
+                        else:
+                            office_entry[4].append(None)
+                        log_vote_event('log this final ' + str(office_entry))
                     elif form_name == 'VoteForMany':
                         selected_candidate_ids = request.form.getlist('candidates')
                         for candidate_id in selected_candidate_ids:
@@ -326,7 +333,7 @@ def post_ballot():
             for office in office_dict[group]:
                 for item in office[3]:
                     if item[0] != 99:
-                        new_vote = Votes(id_candidate=item[0], votes_token=token)
+                        new_vote = Votes(id_candidate=item[0], votes_token=token, votes_writein_name=office[4][0])
                         db.session.add(new_vote)
                         log_vote_event(f"Vote submitted for candidate {item[0]} - {item[1]}")
                         pass

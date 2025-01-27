@@ -38,10 +38,14 @@ Ballot 1
 
             {% if html_writein != 0 %}
                 <br>
-                <input class="form-check-input" required type="radio" name="candidate" id="{{ html_writein }}" value="{{ html_writein|string + "$" + "Write In"}}">
-                  <label class="form-check-label" for="{{ html_writein }}">
-                     Write In {{  office }}
+                <input class="form-check-input" required type="radio" name="candidate" id="writein" value="{{ html_writein|string  + "$" + "Write In" }}">
+                  <label class="form-check-label" for="writein">
+                     Write In {{ office }}
                   </label>
+                <div id="writeinField" style="display:none;">
+                    <label for="writeinName">Enter Write-In Name:</label>
+                    <input type="text" id="writeinName" name="writein_name" required>
+                </div>
             {% endif %}
 
               </div>
@@ -52,4 +56,31 @@ Ballot 1
             <input type="submit" value="Next -->" class="btn btn-primary">
         </form>
     </div>
+
+       <script>
+        document.getElementById('writein').addEventListener('change', function() {
+            document.getElementById('writeinField').style.display = 'block';
+        });
+
+        document.querySelectorAll('input[name="candidate"]').forEach(function(elem) {
+            elem.addEventListener('change', function() {
+                if (this.id !== 'writein') {
+                    document.getElementById('writeinField').style.display = 'none';
+                    document.getElementById('writeinName').removeAttribute('required');
+                } else {
+                    document.getElementById('writeinName').setAttribute('required', 'required');
+                }
+            });
+        });
+
+        document.getElementById('ballotForm').addEventListener('submit', function(event) {
+            if (document.getElementById('writein').checked) {
+                const writeinName = document.getElementById('writeinName').value;
+                if (!writeinName) {
+                    event.preventDefault();
+                    alert('Please enter a name for the write-in candidate.');
+                }
+            }
+        });
+    </script>
 {% endblock %}
