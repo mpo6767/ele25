@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}
+Class or Group Page
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Candidates with classgrp of ... </h1>
+        <br>
+        <form method="POST" style="color:white">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+
+                </div>
+            </div>
+             <div class="row g-3 ">
+                 <div class="col-auto">
+                    {{ classgrp_to_delete.name }} will be deleted along with the listed candidates below
+                </div>
+            </div>
+            <br><br>
+            <div class="d-grid gap-2 d-md-block">
+                {{ form.submit(type="submit",value='remove the classgrp and associated candidate', class="btn   btn-primary") }}
+                 <a href="{{ url_for('classgrp.classgrp_view') }}" class="btn btn-secondary" style="background-color: lightcoral;">Cancel</a>
+            </div>
+        </form>
+
+        <br><br>
+            <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> ID</th>
+                       <th class="col-2"> Firstname</th>
+                       <th class="col-2"> Lastname</th>
+                       <th class="col-2"> Class</th>
+                       <th class="col-2"> Office </th>
+                   </tr>
+               </thead>
+
+               <tbody>
+                {% for candidate, classgrp_name, office_title in candidates %}
+                   <tr>
+                       <td>{{ candidate.id_candidate }}</td>
+                       <td>{{ candidate.firstname }}</td>
+                       <td>{{ candidate.lastname }}</td>
+                       <td>{{ classgrp_name }}</td>
+                       <td>{{ office_title }}</td>
+                   </tr>
+               {% endfor %}
+               </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
