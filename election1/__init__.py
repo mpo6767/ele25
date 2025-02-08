@@ -1,11 +1,11 @@
 import os
+from .config import Config  # Import the Config class
 import logging.config
-from flask import Flask
+from flask import Flask, session
 from .models import User
 from werkzeug.security import generate_password_hash
 from sqlalchemy_utils import database_exists
 from sqlalchemy import exc
-from datetime import timedelta
 
 logging.config.fileConfig('logging.conf')
 
@@ -14,23 +14,11 @@ logger = logging.getLogger(__name__)
 logger.info('logging is initialized')
 
 
-# db = SQLAlchemy()
-
-# login_manager = LoginManager()
-# login_manager.init_app(election1)
-
-
-# from election1 import controller
-
-
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-    # logging configuration
-    # config_logging(app)
-
     # application configuration.
-    config_application(app)
+    app.config.from_object(Config)  # Load the configuration from config.py
 
     # configure application extension.
     config_extention(app)
@@ -38,24 +26,7 @@ def create_app():
     # configure application blueprints.
     config_blueprint(app)
 
-    logger.info('logging is initialized 2')
-
     return app
-
-
-def config_application(app):
-    # Application configuration
-    app.config["DEBUG"] = False
-    app.config["TESTING"] = False
-    app.config["SECRET_KEY"] = os.getenv('SECRET_KEY', '5thn4ruj88i9')
-    app.config["REMEMBER_COOKIE_DURATION"] = timedelta(seconds=20)
-    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
-    # WTF Form and recaptcha configuration
-    app.config["WTF_CSRF_SECRET_KEY"] = os.getenv('CSRF_SECRET_KEY', '7uhy65tgfr43edsw')
-    app.config["WTF_CSRF_ENABLED"] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///election.db'
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["HOME"] = os.getenv('HOME', 'https://google.com')
 
 
 def config_blueprint(app):
@@ -147,14 +118,15 @@ def config_extention(app):
                 finally:
                     logger.info("db.create_all() in __init__.py was successfull - no exceptions were raised")
 
+
 def config_manager(manager):
     """
     Configure with Flask-Login manager.
     """
-    from .models import User
+    # from .models import User
 
     manager.login_message = "You are not logged in to your account."
-    manager.login_view = 'admins.login'
+    # manager.login_view = 'admins.login'
     manager.login_message_category = "info"
 
     @manager.user_loader
