@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}
-Candidate Page
+Home Page
 {% endblock %}
 
 
@@ -44,7 +44,7 @@ The application uses Python Logging and the demo application currently logs to t
           <br><p>Administrators must authenticate.   The security isn’t as good as it could be in the demo in order to keep things simple.
           There are 2 types of Administrators, Super Administrators and Election Administrators.</p>
 
-          <img src="{{ url_for('static', filename='html/users.jpg') }}" alt="Candidate Entry"><br>
+          <img src="{{ url_for('static', filename='html/users.jpg') }}" alt="User Entry" style="width: 50%; height: auto;">
 
           <p>Super administrators can create  and delete other super administrators plus create and delete Election administrators.
           The creation and deletion  of administrators is the only purpose of the Super Administrator.
@@ -81,7 +81,7 @@ Election Administrators set up the election.  The first item is to set up the da
     </h2>
     <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
       <div class="accordion-body">
-      <img src="{{ url_for('static', filename='html/classgrp.jpg') }}" alt="Start Date"><br>
+      <img src="{{ url_for('static', filename='html/classgrp.jpg') }}" alt="Start Date" style="width: 50%; height: auto;"><br>
             <br>The class is a group.  Notice the diagram table name is classgrp.
             <br>In a high school setting its Freshman through Senior.
             <br>The election admin creates all class/groups.  The above is the data structure.
@@ -101,7 +101,7 @@ Election Administrators set up the election.  The first item is to set up the da
     </h2>
     <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionElection">
       <div class="accordion-body">
-      <img src="{{ url_for('static', filename='html/office.jpg') }}" alt="Start Date"><br>
+      <img src="{{ url_for('static', filename='html/office.jpg') }}" alt="Start Date" style="width: 50%; height: auto;"><br>
             <br>Office is a title candidates compete for via a cast vote.
             <br>Combining an office (title) and a class/group (the people who vote are associated with a candidate is the makeup of the ballot.
             <br>The election admin creates all office's.  The above is the data structure.

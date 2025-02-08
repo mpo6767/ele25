@@ -7,8 +7,10 @@ Login Page
     <div class="container">
         <h1> Login ....</h1>
         <br>
+        There is a {{ the_timeout }} minute timeout for the session. If you are idle for {{ the_timeout }} minutes, you will be logged out automatically.
+        <br><br>
         <form method="post" style="color:white" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            {{ form.hidden_tag() }}
 
             <div class="row g-3 ">
                 <div class="col-2 ">
@@ -33,7 +35,7 @@ Login Page
 
             <br>
             <div class="d-grid gap-2 d-md-block">
-                {{ form.submit(type="submit",value='Login', class="btn   btn-primary") }}
+                {{ form.submit(type="submit", value='Login', class="btn btn-primary") }}
             </div>
         </div>
         </form>

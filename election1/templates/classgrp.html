@@ -11,13 +11,13 @@
         <h1> Class or Groups... </h1>
         <br>
         <form method="post" style="color:white" autocomplete="off" >
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            {{ form.hidden_tag() }}
               <div class="row g-3 ">
                 <div class="col-2 ">
                      {{ form.name.label() }}
                 </div>
                  <div class="col-auto">
-                    {{ form.name() }}
+                    {{ form.name(autocomplete="off") }}
                 </div>
                  <div class="col-sm-2">
                     <span id="passwordHelpInline" class="form-text">

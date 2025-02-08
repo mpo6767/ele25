@@ -9,6 +9,7 @@ Admin User Page
         <br>
         <form method="post" style="color:white" autocomplete="off">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            {{ form.hidden_tag() }}
             <div class="row g-3 ">
                 <div class="col-2 ">
                      {{ form.user_firstname.label() }}
@@ -16,7 +17,7 @@ Admin User Page
             </div>
              <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.user_firstname()}}
+                     {{ form.user_firstname(autocomplete="off") }}
                 </div>
             </div>
             <br>
@@ -26,7 +27,7 @@ Admin User Page
 
              <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.user_lastname()}}
+                     {{ form.user_lastname(autocomplete="off") }}
                 </div>
             </div>
            <br>
@@ -37,7 +38,7 @@ Admin User Page
             </div>
             <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.user_so_name()}}
+                     {{ form.user_so_name(autocomplete="off") }}
                 </div>
 
             </div>
@@ -50,7 +51,7 @@ Admin User Page
             </div>
             <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.user_pass()}}
+                     {{ form.user_pass(autocomplete="off") }}
                 </div>
 
             </div>
@@ -63,7 +64,7 @@ Admin User Page
             </div>
             <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.id_admin_role() }}
+                     {{ form.id_admin_role(autocomplete="off") }}
                 </div>
             </div>
              <br>
@@ -74,12 +75,12 @@ Admin User Page
             </div>
             <div class="row g-3 ">
                  <div class="col-auto">
-                     {{ form.user_email() }}
+                     {{ form.user_email(autocomplete="off") }}
                 </div>
             </div>
             <br>
             <div class="d-grid gap-2 d-md-block">
-                {{ form.submit(type="submit",value='Add Admin', class="btn   btn-primary") }}
+                {{ form.submit(type="submit",value='Add Admin', class="btn btn-primary") }}
             </div>
         </form>
          <br><br>
@@ -96,17 +97,17 @@ Admin User Page
                </thead>
 
                <tbody>
-               {% for user, admin_roles in admins %}<tr>
+               {% for user, admin_roles in admins %}
+               <tr>
                     <td>{{ user.id_user }}</td>
                     <td>{{ user.user_firstname }}</td>
                     <td>{{ user.user_lastname }}</td>
-                    <td> {{ admin_roles.admin_role_name}}</td>
+                    <td>{{ admin_roles.admin_role_name }}</td>
                     {% if current_user.id_user != user.id_user %}
-                        <td><a href="{{ url_for('admins.deleteuser',xid=user.id_user)}}">Delete</a> </td>
+                    <td><a href="{{ url_for('admins.deleteuser', xid=user.id_user) }}">Delete</a></td>
                     {% else %}
-                        <td>can't delete yourself </td>
+                    <td>can't delete yourself</td>
                     {% endif %}
-
                 </tr>
                 {% endfor %}
                </tbody>

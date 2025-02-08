@@ -16,12 +16,13 @@ Candidate Page
             </div>
              <div class="row g-3 ">
                  <div class="col-auto">
-                    {{ office_to_delete.office_title }} will be deleted
+                    {{ office_to_delete.office_title }} will be deleted along with the listed candidates below
                 </div>
             </div>
             <br><br>
             <div class="d-grid gap-2 d-md-block">
                 {{ form.submit(type="submit",value='remove the office and associated candidate', class="btn   btn-primary") }}
+                 <a href="{{ url_for('office.office_view') }}" class="btn btn-secondary" style="background-color: lightcoral;">Cancel</a>
             </div>
         </form>
 

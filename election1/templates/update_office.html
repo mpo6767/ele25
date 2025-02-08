@@ -55,22 +55,6 @@
                     </span>
                 </div>
             </div>
-
-            <br>
-          <div class="row g-3">
-            <div class="col-2">
-                     {{ form.allow_writein.label() }}
-                </div>
-            <div class="col-auto">
-                    <input id="allow_writein" name="allow_writein" type="checkbox" value="y" {% if office_to_update.allow_writein %}checked{% endif %}>
-                </div>
-            <div class="col-sm-2">
-                <span id="HelpInline" class="form-text">
-                   Check if write-in votes are allowed.
-                </span>
-            </div>
-        </div>
-
             <br><br>
             <div class="d-grid gap-2 d-md-block">
                 {{ form.submit(type="submit",value='Update Office', class="btn   btn-primary") }}
