@@ -5,4 +5,7 @@
 # Ignore all .log files
 *.log
 
+# Ignore all .iml files
+*.iml
+
 vote_view_log.txt
