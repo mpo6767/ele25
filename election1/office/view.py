@@ -1,22 +1,30 @@
-from flask import (render_template, url_for, flash,redirect, request, Blueprint)
+from flask import (render_template, url_for, flash, redirect, request, Blueprint, current_app)
 from election1.office.form import (OfficeForm)
 from election1.models import Classgrp, Office, Candidate, Dates
 from election1.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 import logging
+from election1.utils import is_user_authenticated, session_check
 from flask_login import current_user
-from datetime import datetime
-from election1.utils import is_user_authenticated
 
 office = Blueprint('office', __name__)
 logger = logging.getLogger(__name__)
 
 
+@office.before_request
+def check_session_timeout():
+    if not session_check():
+        home = current_app.config['HOME']
+        error = 'idle timeout '
+        return render_template('session_timeout.html', error=error, home=home)
+
+
 @office.route('/office', methods=['POST', 'GET'])
 def office_view():
+    logger.info('user ' + str(current_user.user_so_name) + " has entered office page")
 
-    if not is_user_authenticated():
-        return redirect(url_for('admins.login'))
+    # if not is_user_authenticated():
+    #     return redirect(url_for('admins.login'))
 
     if Dates.check_dates() is False:
         flash('Please set the Election Dates before adding an office', category='danger')
@@ -34,12 +42,9 @@ def office_view():
         sortkey = request.form['sortkey']
         office_vote_for = request.form['office_vote_for']
 
-        if 'allow_writein' in request.form:
-            allow_writein = True
-        else:
-            allow_writein = False
 
-        new_office = Office(office_title=office_title, sortkey=sortkey, office_vote_for=office_vote_for, allow_writein=allow_writein)
+
+        new_office = Office(office_title=office_title, sortkey=sortkey, office_vote_for=office_vote_for)
 
         try:
             db.session.add(new_office)
@@ -49,6 +54,7 @@ def office_view():
             office_form.office_title.data = ''
             office_form.sortkey.data = None
             offices = Office.query.order_by(Office.sortkey)
+            flash('successfully inserted record', category='success')
             return render_template('office.html', form=office_form, offices=offices)
         except Exception as e:
             db.session.rollback()
@@ -75,7 +81,7 @@ def office_view():
 def deleteoffice(xid):
 
     if not is_user_authenticated():
-        return redirect(url_for('admins.login'))
+        return redirect(url_for('mains.login'))
 
     if Dates.check_dates() is False:
         flash('Please set the Election Dates before deleting an office', category='danger')
@@ -89,7 +95,6 @@ def deleteoffice(xid):
     form = OfficeForm()
 
     if request.method == 'POST':
-
         try:
             db.session.delete(office_to_delete)
             db.session.commit()
@@ -103,9 +108,7 @@ def deleteoffice(xid):
             flash('There was a problem deleting record' + str(e))
             return redirect('/office')
     else:
-
-        candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-            Office).order_by(Classgrp.sortkey, Office.sortkey).where(Candidate.id_office == xid)
+        candidates = Candidate.get_candidates_by_office(xid)
         return render_template('office_candidate_delete.html', form=form, candidates=candidates,
                                office_to_delete=office_to_delete)
 
@@ -127,21 +130,11 @@ def updateoffice(xid):
     office_form = OfficeForm()
     office_to_update = Office.query.get_or_404(xid)
 
-    print(office_to_update)
-    print(office_to_update.office_title)
-    print(office_to_update.sortkey)
-    print(office_to_update.office_vote_for)
-
-    print(office_to_update.allow_writein)
-
     if request.method == "POST":
         office_to_update.office_title = request.form['office_title']
         office_to_update.sortkey = request.form['sortkey']
         office_to_update.office_vote_for = request.form['office_vote_for']
-        if 'allow_writein' in request.form:
-            office_to_update.allow_writein = True
-        else:
-            office_to_update.allow_writein = False
+
         try:
             db.session.commit()
             logger.info(
@@ -152,7 +145,7 @@ def updateoffice(xid):
             # office_form.office_title.data = ''
             # office_form.sortkey.data = 0
             # office_form.office_vote_for.data = 1
-            offices = Office.query.order_by(Office.sortkey)
+            # offices = Office.query.order_by(Office.sortkey)
             return redirect('/office')
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -164,12 +157,3 @@ def updateoffice(xid):
     else:
         return render_template('update_office.html', form=office_form,
                                office_to_update=office_to_update,)
-
-
-# def check_dates():
-#     from election1.models import Dates  # Local import to avoid circular import
-#     date = Dates.query.first()
-#     if date is None:
-#         return False
-#     else:
-#         return True

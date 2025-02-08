@@ -1,18 +1,27 @@
-from datetime import datetime
-from flask import render_template, url_for, flash, redirect, request, Blueprint
+from flask import render_template, url_for, flash, redirect, request, Blueprint, current_app
+from flask_login import current_user
+
 from election1.candidate.form import CandidateForm, Candidate_reportForm,  WriteinCandidateForm
 from election1.models import Classgrp, Office, Candidate, WriteinCandidate, Dates
 from election1.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
-from election1.utils import is_user_authenticated
+from election1.utils import is_user_authenticated, session_check
 import logging
 
 candidate = Blueprint('candidate', __name__)
 logger = logging.getLogger(__name__)
 
+@candidate.before_request
+def check_session_timeout():
+    if not session_check():
+        home = current_app.config['HOME']
+        error = 'idle timeout '
+        return render_template('session_timeout.html', error=error, home=home)
+
 
 @candidate.route('/writein_candidate', methods=['GET', 'POST'])
 def writein_candidate():
+    logger.info('user ' + str(current_user.user_so_name) + " has entered write in candidate page")
 
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
@@ -108,6 +117,7 @@ def candidate_report():
 
 @candidate.route('/candidate', methods=['GET', 'POST'])
 def candidate_view():
+    logger.info('user ' + str(current_user.user_so_name) + " has entered candidate page")
 
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
@@ -141,6 +151,10 @@ def candidate_view():
             form.choices_classgrp.choices = Classgrp.classgrp_query()
             return render_template('candidate.html', form=form)
 
+        if Candidate.check_existing_candidate(firstname, lastname, choices_classgrp) is True:
+            flash('Candidate already exists for this class', category='danger')
+            return render_template('candidate.html', form=form)
+
         new_candidate = Candidate(firstname=firstname,
                                   lastname=lastname,
                                   id_classgrp=choices_classgrp,
@@ -149,6 +163,8 @@ def candidate_view():
         try:
             db.session.add(new_candidate)
             db.session.commit()
+            logger.info('user ' + str(current_user.user_so_name) + " has created " + firstname + ' ' + lastname)
+            flash('successfully  adding candidate ', category='danger')
             return redirect(url_for('candidate.candidate_view'))
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -173,16 +189,13 @@ def deletecandidate(xid):
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
 
-    print('delete candidate' + str(xid))
-
     candidate_to_delete = Candidate.query.get_or_404(xid)
-
-    print('candidate_to_delete ' + str(candidate_to_delete))
 
     try:
         db.session.delete(candidate_to_delete)
         db.session.commit()
-        flash('successfully deleted record')
+        flash('successfully deleted record', category='danger')
+        logger.info('user ' + str(current_user.user_so_name) + " has deleted " + candidate_to_delete.firstname + ' ' + candidate_to_delete.lastname)
         return redirect('/candidate')
     except SQLAlchemyError as e:
         db.session.rollback()

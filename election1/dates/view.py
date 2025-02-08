@@ -1,5 +1,5 @@
 from flask import (render_template, url_for, flash,
-                   redirect, request, Blueprint)
+                   redirect, request, Blueprint, current_app)
 from election1.dates.form import ( DatesForm)
 from election1.models import  Dates
 from election1.extensions import db
@@ -8,10 +8,17 @@ import logging
 from flask_login import current_user
 from datetime import datetime
 
-from election1.utils import is_user_authenticated
+from election1.utils import is_user_authenticated, session_check
 
 dates = Blueprint('dates', __name__)
 logger = logging.getLogger(__name__)
+
+@dates.before_request
+def check_session_timeout():
+    if not session_check():
+        home = current_app.config['HOME']
+        error = 'idle timeout '
+        return render_template('session_timeout.html', error=error, home=home)
 
 @dates.route('/dates', methods=['GET', 'POST'])
 def dates_view():
@@ -19,10 +26,13 @@ def dates_view():
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
 
+    logger.info('user ' + str(current_user.user_so_name) + " has entered dates page")
+
     form = DatesForm()
 
     if request.method == 'POST':
         if form.validate_on_submit():
+            print("form validated")
 
             datetime_str = request.form.get('start_date_time').replace("T", " ")
             datetime_etr = request.form.get('end_date_time').replace("T", " ")
@@ -37,16 +47,15 @@ def dates_view():
             db.session.add(new_dates)
             db.session.commit()
 
-            # # Log the start and end dates
-            # logger.info(f'user ' + str(current_user.user_so_name) + " has added the following dates:"
-            #             "Start date: {datetime_object_start}, End date: {datetime_object_end}")
-
-            # Log the start and end dates
             logger.info('user ' + str(current_user.user_so_name) + " has added the following dates:")
-
             logger.info(f'Start date: {datetime_object_start}, End date: {datetime_object_end}')
 
             return redirect(url_for('mains.homepage'))
+        else:
+            print("form did not validate")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    flash(f"Error in {getattr(form, field).label.text}: {error}", 'danger')
 
     edate_dict = {}
     edates = Dates.query.all()

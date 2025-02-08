@@ -11,7 +11,7 @@ class Classgrp(db.Model):
     id_classgrp = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(length=45), nullable=False, unique=True)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    allowed_offices = db.Column(db.String(length=250), nullable=True)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='classgrp')
 
 
@@ -26,9 +26,9 @@ class Office(db.Model):
     """
     id_office = db.Column(db.Integer, primary_key=True)
     office_title = db.Column(db.String(length=45), nullable=False, unique=True)
-    office_vote_for = db.Column(db.Integer, default=1)
+    office_vote_for = db.Column(db.Integer, default=1, nullable=False)
     sortkey = db.Column(db.Integer, nullable=False, unique=True)
-    allow_writein = db.Column(db.Boolean, default=False)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     candidates = db.relationship('Candidate', cascade="all, delete-orphan", backref='office')
 
     @classmethod
@@ -54,6 +54,7 @@ class Candidate(db.Model):
     id_candidate = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(length=45), nullable=False)
     lastname = db.Column(db.String(length=45), nullable=False)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp'), nullable=False)
     id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'), nullable=False)
     votes = db.relationship('Votes', backref='candidate')
@@ -99,7 +100,22 @@ class Candidate(db.Model):
             id_office=id_office
         ).first() is not None
 
+    @classmethod
+    def get_candidates_by_classgrp(cls, classgrp_id):
+        return db.session.query(
+            cls,
+            Classgrp.name.label('classgrp_name'),
+            Office.office_title.label('office_title')
+        ).join(Classgrp).join(Office).filter(cls.id_classgrp == classgrp_id).order_by(Classgrp.sortkey, Office.sortkey).all()
 
+
+    @classmethod
+    def check_existing_candidate(cls, firstname, lastname, id_classgrp):
+        return cls.query.filter_by(
+            firstname=firstname,
+            lastname=lastname,
+            id_classgrp=id_classgrp
+        ).first() is not None
 
 class User(db.Model, UserMixin):
     """
@@ -116,6 +132,7 @@ class User(db.Model, UserMixin):
     user_security = db.Column(db.String(138), default=unique_security_token)
     user_created = db.Column(db.DateTime, default=datetime.now)
     user_sec_send = db.Column(db.DateTime, default=datetime.now)
+    user_creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     id_admin_role = db.Column(db.Integer, db.ForeignKey('admin_roles.id_admin_role'))
 
     def get_id(self):
@@ -139,6 +156,7 @@ class Admin_roles(db.Model):
     """
     id_admin_role = db.Column(db.Integer, primary_key=True)
     admin_role_name = db.Column(db.String(length=45), nullable=False, unique=True)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     user = db.relationship('User', backref='admin_roles')
 
 
@@ -149,6 +167,7 @@ class Dates(db.Model):
     iddates = db.Column(db.Integer, primary_key=True)
     start_date_time = db.Column(db.Integer, nullable=False)
     end_date_time = db.Column(db.Integer, nullable=False)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
     @classmethod
     def after_start_date(cls):
@@ -174,6 +193,7 @@ class Votes(db.Model):
     id_votes = db.Column(db.Integer, primary_key=True)
     votes_token = db.Column(db.String(138), nullable=False)
     votes_writein_name = db.Column(db.String(45), nullable=True)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     id_candidate = db.Column(db.Integer, db.ForeignKey('candidate.id_candidate'))
 
 
@@ -184,6 +204,7 @@ class WriteinCandidate(db.Model):
     """
     id_writein_candidate = db.Column(db.Integer, primary_key=True)
     writein_candidate_name = db.Column(db.String(45), nullable=False)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
     id_office = db.Column(db.Integer, db.ForeignKey('office.id_office'))
     id_classgrp = db.Column(db.Integer, db.ForeignKey('classgrp.id_classgrp'))
 
@@ -209,6 +230,7 @@ class Tokenlist(db.Model):
     grp_list = db.Column(db.String(45), nullable=False)
     token = db.Column(db.String(138), nullable=False)
     vote_submitted_date_time = db.Column(db.DateTime, nullable=True)
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
 
 
