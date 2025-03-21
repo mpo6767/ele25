@@ -55,12 +55,11 @@ def login():
             session['csrf_token'] = new_csrf_token
             print(f'New CSRF token: {new_csrf_token}')
 
+            current_date_time = datetime.now()
+            session['last_activity'] = current_date_time.strftime("%Y-%m-%d %H:%M:%S")
             return redirect(url_for('mains.homepage'))
         else:
             flash('Invalid username or password.', category='error')
-
-    current_date_time = datetime.now()
-    session['last_activity'] = current_date_time.strftime("%Y-%m-%d %H:%M:%S")
 
     the_timeout = current_app.config['MYTIMEOUT']
     the_timeout_minutes = int(the_timeout.total_seconds() / 60)

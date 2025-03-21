@@ -7,7 +7,7 @@ Login Page
     <div class="container">
         <h1> Login ....</h1>
         <br>
-        There is a {{ the_timeout }} minute timeout for the session. If you are idle for {{ the_timeout }} minutes, you will be logged out automatically.
+        There is a {{ the_timeout }} minute timeout for the session. If you are idle (no page submits) for {{ the_timeout }} minutes, you will be logged out automatically.
         <br><br>
         <form method="post" style="color:white" autocomplete="off">
             {{ form.hidden_tag() }}
