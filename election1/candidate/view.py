@@ -11,16 +11,17 @@ import logging
 candidate = Blueprint('candidate', __name__)
 logger = logging.getLogger(__name__)
 
-@candidate.before_request
-def check_session_timeout():
-    if not session_check():
-        home = current_app.config['HOME']
-        error = 'idle timeout '
-        return render_template('session_timeout.html', error=error, home=home)
-
+# @candidate.before_request
+# the candidate.before_request decorator is not used here because of the htmx that searches for the
+# candidates.  if there is a timeout, the htmx will not allow a redirect to the timeout_redirect
+# so session check is explicitly occurring in the other functions and does not use the before_request decorator
 
 @candidate.route('/writein_candidate', methods=['GET', 'POST'])
 def writein_candidate():
+    if not session_check():
+        logger.info('user ' + str(current_user.user_so_name) + 'session_check writein_candidate failed')
+        return redirect(url_for('candidate.timeout_redirect'))
+
     logger.info('user ' + str(current_user.user_so_name) + " has entered write in candidate page")
 
     if not is_user_authenticated():
@@ -38,7 +39,6 @@ def writein_candidate():
     form = WriteinCandidateForm()
 
     if request.method == 'POST':
-        print('request.form *** ' )
         writein_candidate_name = request.form['writein_candidate_name']
         choices_classgrp = request.form['choices_classgrp']
         choices_office = request.form['choices_office']
@@ -87,6 +87,9 @@ def writein_candidate():
 
 @candidate.route("/candidate_report", methods=['GET', 'POST'])
 def candidate_report():
+    if not session_check():
+        logger.info('user ' + str(current_user.user_so_name) + 'session_check candidate_report failed')
+        return redirect(url_for('candidate.timeout_redirect'))
 
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
@@ -100,7 +103,7 @@ def candidate_report():
         # the first if determines if the choice_office is an int 0
         # I built the candidate_report.html to add a choice of 'All Offices' which is not in the DB
         # I pass list_of_offices to the html and build the select offices manually fo this html
-        print('-- ' + choices_office)
+
         if int(choices_office) == 0:
             candidates = Candidate.get_candidates_for_all_offices_by_classgrp(choices_classgrp)
             return render_template("candidate_report.html",
@@ -117,6 +120,10 @@ def candidate_report():
 
 @candidate.route('/candidate', methods=['GET', 'POST'])
 def candidate_view():
+    if not session_check():
+        logger.info('user ' + str(current_user.user_so_name) + 'session_check candidate failed')
+        return redirect(url_for('candidate.timeout_redirect'))
+
     logger.info('user ' + str(current_user.user_so_name) + " has entered candidate page")
 
     if not is_user_authenticated():
@@ -178,6 +185,7 @@ def candidate_view():
 
 @candidate.route('/candidate/search')
 def candidate_search():
+
     group = request.args.get('choices_classgrp', type=int)
     candidates = Candidate.candidate_search(group)
     return render_template('candidate_search_results.html',  candidates=candidates)
@@ -185,6 +193,10 @@ def candidate_search():
 
 @candidate.route('/deletecandidate/<int:xid>')
 def deletecandidate(xid):
+
+    if not session_check():
+        logger.info('user ' + str(current_user.user_so_name) + 'session_check deletecandidate failed')
+        return redirect(url_for('candidate.timeout_redirect'))
 
     if not is_user_authenticated():
         return redirect(url_for('admins.login'))
@@ -201,5 +213,11 @@ def deletecandidate(xid):
         db.session.rollback()
         flash('There was a problem deleting record ' + str(e))
         return redirect('/candidate')
+
+@candidate.route('/timeout_redirect')
+def timeout_redirect():
+    home = current_app.config['HOME']
+    error = 'Your session has timed out due to inactivity. Please log in again.'
+    return render_template('session_timeout.html', error=error, home=home)
 
 
