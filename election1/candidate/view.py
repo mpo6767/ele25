@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 # @candidate.before_request
 # the candidate.before_request decorator is not used here because of the htmx that searches for the
 # candidates.  if there is a timeout, the htmx will not allow a redirect to the timeout_redirect
-# so session check is explicitly occurring in the other functions and does not use the before_request decorator
+# so session check is explicitly occurring in the other functions and does not use the before_request decorator.
 
 @candidate.route('/writein_candidate', methods=['GET', 'POST'])
 def writein_candidate():
