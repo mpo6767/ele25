@@ -117,6 +117,12 @@ class Candidate(db.Model):
             id_classgrp=id_classgrp
         ).first() is not None
 
+    @classmethod
+    def get_candidates_by_office(cls, office_id):
+        return db.session.query(cls).filter_by(id_office=office_id).all()
+
+
+
 class User(db.Model, UserMixin):
     """
     Represents a user in the system, including admin users.
