@@ -28,7 +28,7 @@ def user_admin():
     if request.method == 'POST' and form.validate():
         user_firstname = request.form['user_firstname']
         user_lastname = request.form['user_lastname']
-        user_so_name = request.form['user_so_name']
+        user_so_name = request.form['user_so_name'].lower()  # Convert to lowercase
         user_pass = request.form['user_pass']
         id_admin_role = request.form['id_admin_role']
         user_email = request.form['user_email']

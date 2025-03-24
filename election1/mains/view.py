@@ -42,7 +42,7 @@ def login():
         return redirect(url_for('mains.homepage'))
 
     if form.validate_on_submit():
-        login_so_name = request.form.get("login_so_name")
+        login_so_name = request.form.get("login_so_name").lower()
         login_pass = request.form.get("login_pass")
         user = User.get_user_by_so_name(login_so_name)
 
