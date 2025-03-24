@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 @candidate.route('/writein_candidate', methods=['GET', 'POST'])
 def writein_candidate():
     if not session_check():
-        logger.info('user ' + str(current_user.user_so_name) + 'session_check writein_candidate failed')
+        logger.info(' session_check writein_candidate failed')
         return redirect(url_for('candidate.timeout_redirect'))
 
     logger.info('user ' + str(current_user.user_so_name) + " has entered write in candidate page")
@@ -88,7 +88,7 @@ def writein_candidate():
 @candidate.route("/candidate_report", methods=['GET', 'POST'])
 def candidate_report():
     if not session_check():
-        logger.info('user ' + str(current_user.user_so_name) + 'session_check candidate_report failed')
+        logger.info(' session_check candidate_report failed')
         return redirect(url_for('candidate.timeout_redirect'))
 
     if not is_user_authenticated():
@@ -121,7 +121,7 @@ def candidate_report():
 @candidate.route('/candidate', methods=['GET', 'POST'])
 def candidate_view():
     if not session_check():
-        logger.info('user ' + str(current_user.user_so_name) + 'session_check candidate failed')
+        logger.info(' session_check candidate failed')
         return redirect(url_for('candidate.timeout_redirect'))
 
     logger.info('user ' + str(current_user.user_so_name) + " has entered candidate page")
@@ -195,7 +195,7 @@ def candidate_search():
 def deletecandidate(xid):
 
     if not session_check():
-        logger.info('user ' + str(current_user.user_so_name) + 'session_check deletecandidate failed')
+        logger.info('session_check deletecandidate failed')
         return redirect(url_for('candidate.timeout_redirect'))
 
     if not is_user_authenticated():
