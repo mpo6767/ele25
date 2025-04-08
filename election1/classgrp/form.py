@@ -1,15 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, IntegerField
 from wtforms.validators import Length, DataRequired, ValidationError
-from election1.models import Classgrp, Office
-
-
-def classgrp_query():
-    return Classgrp.query.order_by(Classgrp.sortkey)
-
-
-def office_query():
-    return Office.query.order_by(Office.sortkey)
+from election1.models import Classgrp
 
 
 class ClassgrpForm(FlaskForm):
