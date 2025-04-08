@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}
+ Token Builder
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1> Token Simple....</h1>
+        <br>
+        <form method="post" style="color:white">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+       <br>
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                   Primary Group
+                </div>
+            </div>
+            <div class="row g-3 ">
+                 <div class="col-2">
+                     <select class="form-select form-select-sm mb-3" aria-label="Large select example" name="primary_grp">
+                        <option selected>Please select</option>
+                        {% for p in form.primary_grp.choices %}
+                            <option value="{{ p[1] }}">{{ p[1] }}</option>
+                        {% endfor %}
+                    </select>
+                 </div>
+            </div>
+
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                   Secondary Group
+                </div>
+            </div>
+            <div class="row g-3 ">
+                 <div class="col-2">
+                     <select class="form-select form-select-sm mb-3" aria-label="Large select example" name="secondary_grp">
+                        <option selected>Please select</option>
+
+                        {% for p in form.primary_grp.choices %}
+                            <option value="{{ p[1] }}">{{ p[1] }}</option>
+                        {% endfor %}
+                    </select>
+                 </div>
+            </div>
+
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                   Third  Group
+                </div>
+            </div>
+
+            <div class="row g-3 ">
+                     <div class="col-2">
+                         <select class="form-select form-select-sm mb-3" aria-label="Large select example" name="tertiary_grp">
+                            <option selected>Please select</option>
+
+                            {% for p in form.primary_grp.choices %}
+                                <option value="{{ p[1] }}">{{ p[1] }}</option>
+                            {% endfor %}
+                        </select>
+                     </div>
+                </div>
+
+            <div class="row g-3 ">
+                <div class="col-2 ">
+                   Forth  Group
+                </div>
+            </div>
+
+            <div class="row g-3 ">
+                     <div class="col-2">
+                         <select class="form-select form-select-sm mb-3" aria-label="Large select example" name="quarternary_grp">
+                            <option selected>Please select</option>
+
+                            {% for p in form.primary_grp.choices %}
+                                <option value="{{ p[1] }}">{{ p[1] }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+            </div>
+
+                 <br>
+                <br>
+                <div class="col-2">
+                     {{ form.submit(type="submit",value=' Submit Token Build', class="btn   btn-primary") }}
+                </div>
+        </form>
+
+    <br><br>
+        <div class="container">
+            <table class="table-dark">
+               <thead>
+                   <tr>
+                       <th class="col-2"> ID </th>
+                       <th class="col-2"> GRP 1</th>
+                       <th class="col-2"> GRP 2</th>
+                       <th class="col-2"> GRP 3 </th>
+                       <th class="col-2"> GRP 4 </th>
+                   </tr>
+               </thead>
+
+                <tbody>
+                {% for tokenlistselector in tokenlistselectors %}
+                 <tr>
+                      <td> {{ tokenlistselector.id_tokenListSelector }}</td>
+                      <td> {{ tokenlistselector.primary_grp }}</td>
+                      <td> {{ tokenlistselector.secondary_grp }}</td>
+                      <td> {{ tokenlistselector.tertiary_grp }}</td>
+                      <td> {{ tokenlistselector.quarternary_grp }}</td>
+                      <td> <a href="{{ url_for('misc.delete_tokenlistselector',xid=tokenlistselector.id_tokenListSelector)}}">Delete</a> </td>
+                 </tr>
+                 {% endfor %}
+
+            </table>
+    </div>
+</div>
+
+
+{% endblock %}
+</body>
+
