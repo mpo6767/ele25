@@ -37,7 +37,7 @@ Review Ballot
                             </td>
                             <td class="col-sm-2">
                                 {% for candidate in office[3] %}
-                                    <div>{{ candidate | replace('[', '') | replace(']', '') | replace("'", '') }}</div>
+                                    <div>{{ candidate[1] }}</div>
                                 {% endfor %}
                             </td>
                         </tr>
