@@ -1,12 +1,14 @@
+from flask import url_for, flash
 from pathlib import Path
-
 import xlsxwriter
-from flask import Blueprint, redirect
+from flask import Blueprint, redirect, request, render_template
+from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
-from election1.models import Tokenlist, Classgrp
+from election1.models import Tokenlist, Classgrp, Tokenlistselectors
 from election1.utils import get_token
-
+from election1.misc.form import BuildTokensForm
 from election1.extensions import db
+
 
 
 misc = Blueprint('misc', __name__)
@@ -17,22 +19,130 @@ the excel file is created in the instance folder and is a url to the cast route 
 '''
 @misc.route('/setup_tokens', methods=['POST', 'GET'])
 def setup_tokens():
+    # print("setup_tokens")
+    # Tokenlist.query.delete()
+    # db.session.commit()
+
+    form = BuildTokensForm()
+
+
+    # if request.method == 'POST' and form.validate():
+    if request.method == 'GET':
+        print("setup_tokens")
+        Tokenlist.query.delete()
+        db.session.commit()
+
+        inspector = inspect(db.engine)
+
+        if not inspector.has_table('tokenlistselectors'):
+            Tokenlistselectors.__table__.create(db.engine)
+        # else:
+        #     Tokenlistselectors.query.delete()
+        #     db.session.commit()
+
+        form.primary_grp.choices = Classgrp.classgrp_query()
+        tokenlistselectors = Tokenlistselectors.query.all()
+
+        return render_template("token_builder.html", form=form, tokenlistselectors=tokenlistselectors)
+    else:
+        print("setup_tokens post")
+        if request.form.get('primary_grp') == 'Please select':
+            flash('Primary group must be selected', category='danger')
+            return redirect(url_for('misc.setup_tokens'))
+        else:
+            primary_grp = request.form.get('primary_grp')
+
+        if request.form.get('secondary_grp') == 'Please select':
+            secondary_grp = None
+        else:
+            secondary_grp = request.form.get('secondary_grp')
+
+        if request.form.get('tertiary_grp') == 'Please select':
+            tertiary_grp = None
+        else:
+            tertiary_grp = request.form.get('tertiary_grp')
+
+        if request.form.get('quarternary_grp') == 'Please select':
+            quarternary_grp = None
+        else:
+            quarternary_grp = request.form.get('quarternary_grp')
+
+
+        if primary_grp != 'Please select':
+            print("primary_grp")
+            new_selector = Tokenlistselectors(
+                primary_grp=primary_grp,
+                secondary_grp=secondary_grp,
+                tertiary_grp=tertiary_grp,
+                quarternary_grp=quarternary_grp
+            )
+            try:
+                db.session.add(new_selector)
+                db.session.commit()
+                flash('Tokenlistselector item added successfully', category='success')
+            except SQLAlchemyError as e:
+                db.session.rollback()
+                flash(f'Error adding Tokenlistselector item: {str(e)}', category='danger')
+        else:
+            flash('Primary group must be selected', category='danger')
+
+        return redirect(url_for('misc.setup_tokens'))
+
+
+@misc.route('/delete_tokenlistselector/<int:xid>', methods=['GET', 'POST'])
+def delete_tokenlistselector(xid):
+    tokenlistselector = Tokenlistselectors.query.get_or_404(xid)
+
+    try:
+        db.session.delete(tokenlistselector)
+        db.session.commit()
+        flash('Tokenlistselector item deleted successfully', category='success')
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f'Error deleting Tokenlistselector item: {str(e)}', category='danger')
+
+    return redirect(url_for('misc.setup_tokens'))
+
+@misc.route('/build_tokens', methods=['GET', 'POST'])
+def build_tokens():
+    print("build_tokens")
+
     Tokenlist.query.delete()
     db.session.commit()
 
-    classgrp_list = Classgrp.classgrp_query()
-    if not classgrp_list:
-        print('No classgrp_list')
-        return redirect('/homepage')
-    else:
-        print('classgrp_list')
-        print(classgrp_list)
+    # if there is a file voterTokens
+    p = Path(r"instance/voterTokens.xlsx")
+    p.unlink(missing_ok=True)
 
-    classgrp_count = len(classgrp_list)
-    print('classgrp_count')
-    print(classgrp_count)
+    workbook = xlsxwriter.Workbook(r'instance\voterTokens.xlsx')
+    worksheet = workbook.add_worksheet()
 
-    # return redirect('/homepage')
+    # Get the selected groups from the database
+
+    tokenlistselectors = Tokenlistselectors.get_all_tokenlistselectors_as_dict()
+
+    selector_list = []
+
+
+    for selector in tokenlistselectors:
+        selector_values = [
+            selector['primary_grp'],
+            selector['secondary_grp'],
+            selector['tertiary_grp'],
+            selector['quarternary_grp']
+        ]
+        # Filter out None values and join the remaining values with $
+        selector_string = '$'.join(filter(None, selector_values))
+        selector_list.append(selector_string)
+        print("selector string " + selector_string)
+
+    print(tokenlistselectors)
+
+    selector_count = len(tokenlistselectors)
+    print(selector_count)
+
+
+    # Create a new Excel file
 
     p = Path(r"instance/voterTokens2.xlsx")
     p.unlink(missing_ok=True)
@@ -48,25 +158,15 @@ def setup_tokens():
 
     while row < 101:
         token = get_token()
-        eclass = row % classgrp_count
+        eclass = row % selector_count
         print('eclass')
         print(eclass)
+        print('tokenlistselector:', selector_list[eclass])
 
-        class_tuple = classgrp_list[eclass]
-        grp_list = class_tuple[1]
-        print('grp_list')
-        print(grp_list)
-        # if eclass == 1:
-        #     grp_list = 'Freshmen'
-        # if eclass == 2:
-        #     grp_list = 'Sophomore$All'
-        # if eclass == 3:
-        #     grp_list = 'Junior'
-        # if eclass == 0:
-        #     grp_list = 'Senior'
+        row +=1
 
         try:
-            new_tokenlist = Tokenlist(grp_list=grp_list,
+            new_tokenlist = Tokenlist(grp_list=selector_list[eclass],
                                       token=token,
                                       vote_submitted_date_time=None)
             db.session.add(new_tokenlist)
@@ -77,19 +177,7 @@ def setup_tokens():
             print("except " + str(e))
             return redirect("/homepage")
 
-        print(row)
-        worksheet.write(row, col, 'http://127.0.0.1:5000/cast/' + grp_list.lstrip() + '/' + token)
-        #
-        # if eclass == 1:
-        #     worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Freshmen/' + token)
-        # elif eclass == 2:
-        #     worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Sophomore$All/' + token)
-        # elif eclass == 3:
-        #     worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Junior/' + token)
-        # elif eclass == 0:
-        #     worksheet.write(row, col, 'http://127.0.0.1:5000/cast/Senior/' + token)
-
-        row += 1
-
+        worksheet.write(row, col, 'http://127.0.0.1:5000/cast/' + selector_list[eclass] + '/' + token)
     workbook.close()
     return redirect('/homepage')
+
