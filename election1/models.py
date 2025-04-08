@@ -267,3 +267,30 @@ class Tokenlist(db.Model):
             # Token exists but vote has been submitted
             return {'error': 'Token has already been used'}
         return token_record.to_dict()
+
+class Tokenlistselectors(db.Model):
+
+    id_tokenListSelector = db.Column(db.Integer, primary_key=True)
+    primary_grp = db.Column(db.String(45), nullable=False)
+    secondary_grp = db.Column(db.String(45))
+    tertiary_grp = db.Column(db.String(45))
+    quarternary_grp = db.Column(db.String(45))
+    creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
+
+    @classmethod
+    def get_all_tokenlistselectors(cls):
+        return cls.query.all()
+
+    def to_dict(self):
+        return {
+            'id_tokenListSelector': self.id_tokenListSelector,
+            'primary_grp': self.primary_grp,
+            'secondary_grp': self.secondary_grp,
+            'tertiary_grp': self.tertiary_grp,
+            'quarternary_grp': self.quarternary_grp,
+            'creation_datetime': self.creation_datetime.isoformat()
+        }
+    @classmethod
+    def get_all_tokenlistselectors_as_dict(cls):
+        return [selector.to_dict() for selector in cls.query.all()]
+
