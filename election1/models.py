@@ -234,7 +234,7 @@ class Tokenlist(db.Model):
     """
     id_tokenlist = db.Column(db.Integer, primary_key=True)
     grp_list = db.Column(db.String(45), nullable=False)
-    token = db.Column(db.String(138), nullable=False)
+    token = db.Column(db.String(138), nullable=False,unique=True)
     vote_submitted_date_time = db.Column(db.DateTime, nullable=True)
     creation_datetime = db.Column(db.DateTime, default=datetime.now, nullable=False)
 
