@@ -34,12 +34,12 @@ def log_vote_event(message):
         file.write(f"{timestamp} - {message}\n")
 
 
-@vote.route('/group/search')
-def group_search():
-    group = request.args.get('choices_classgrp', type=int)
-    candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-        Office).order_by(Classgrp.sortkey, Office.sortkey).where(Classgrp.id_classgrp == group)
-    return render_template('vote_results.html',  candidates=candidates)
+# @vote.route('/group/search')
+# def group_search():
+#     group = request.args.get('choices_classgrp', type=int)
+#     candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
+#         Office).order_by(Classgrp.sortkey, Office.sortkey).where(Classgrp.id_classgrp == group)
+#     return render_template('vote_results.html',  candidates=candidates)
 
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
@@ -52,34 +52,45 @@ def cast(grp_list, token):
     #     return render_template('bad_date.html', home=home)
 
     # Check if there is no session then check the validity of the token
+    # when a voter comes to the cast page it votes in a single session
     global next_office
     if not session:
         log_vote_event('new session' 
                        f' for grp_list: {grp_list}, and token: {token}, ')
 
+    # validate the groups are valid - the groups along with the token are in the url
 
-    # validate the groups are valid - its a double check on the url presented
         if not are_all_classgrps_valid(grp_list):
             log_vote_event(f"Invalid class group: {grp_list}")
             home = current_app.config['HOME']
             error = 'Invalid class group ' + grp_list
             return render_template('bad_token.html', error=error, home=home)
 
-    # token list is a record  (row) of the model Tokenlist the  Tokenlist is a dictionary of column: values
+    # token list is a record  (row) of the model Tokenlist
+    # the token list has a field called vote_submitted_date_time if populated indicates the token was used
+    # This why we read the token list record.
 
-        token_list_record =Tokenlist. get_tokenlist_record(token)
-        if token_list_record.get('grp_list') == grp_list:
+        token_list_record = Tokenlist.get_tokenlist_record(token)
+
+    # to make sure everything is ok and the URL has not been tampered with the grp_list is checked
+    # the record in the database
+        home = current_app.config['HOME']
+        if token_list_record.get('grp_list') != grp_list:
+            return render_template('bad_token.html', error="group error in URL ", home=home)
+        else:
             log_vote_event(f"grp_list matches the value in token_list_record: {grp_list} - Token: {token}")
 
+    # if the token is not in the database or the token has been used the classmethod returns a dictionary with the key
+    # 'error' with a value of the error.
         if 'error' in token_list_record:
             log_vote_event(f"Token is bad: {token_list_record['error']} - Token: {token}")
-            home = current_app.config['HOME']
             return render_template('bad_token.html', error=token_list_record['error'], home=home)
 
-        # the token seems good so log the event.   This does not mean that the voter has voted
+    # the token seems good so log the event.   This does not mean that the voter has voted
         log_vote_event(f"Token is good: {token}")
+        log_vote_event('token_list_record ' + str(token_list_record))
 
-        '''
+        """
         I'm using session to store 
         the token_list_record, 
         the current group, 
@@ -88,29 +99,45 @@ def cast(grp_list, token):
         the current office_dict_length, 
         the cnt = current group number
         and the  length = nbr of groups
-        '''
-        log_vote_event('token_list_record ' + str(token_list_record))
+        """
+
         session['token_list_record'] = token_list_record
+        print('token_list_record ' + str(session.get('token_list_record')))
+
         # in a school election the groups are the classes at a minimum
-        # the cnt is the current group number there maybe more than 1 group
-        session['cnt'] = 0 # is the setup for the first group or only group in the list
+        # the cnt is the current group number there maybe more than 1
+        # this is setups up for the first group or only group in the list
+        session['cnt'] = 0
+        print('session cnt ' + str(session.get('cnt')))
+
+        # the grp_list is the list of groups for the voter its in the url in this case
         log_vote_event('grp_list ' + grp_list)
+        session['grp_list'] = grp_list
+        print('grp_list ' + grp_list)
 
         # nbr of groups are seperated by $ in the url
         session['length'] = len(grp_list.split('$'))
-        # since there could be more than 1 group for the voter the group in
+        print('length ' + str(session['length']))
+
+        # since there could be more than 1 group for the voter the group
         # in session is the current group used to get the offices
         # the group_list is iterated through to get the next group
+
+        # using the session['cnt'] to get the current group
+        # the session['group'
         session['group'] = grp_list.split('$')[session.get('cnt')]
-        session['grp_list'] = grp_list
+        print('session group ' + str(session.get('group')))
+
+        # grp is the current group
         grp = grp_list.split('$')[session.get('cnt')]
+        print('grp  from list using cnt as offset' + str(grp))
 
         # get the office_dict from the database for the group
         # office_dict = get_office_dict(grp_list.split('$'))
         office_dict = {}
 
         for group in (grp_list.split('$')):
-            offices =Office. query_offices_for_classgroup_with_details_as_list(group)
+            offices = Office.query_offices_for_classgroup_with_details_as_list(group)
             # Add the group and its associated offices to the dictionary
             # office_dict[group] =
             # office{0] is the name of the office
@@ -136,9 +163,7 @@ def cast(grp_list, token):
                 session['cnt'] += 1
                 session['group'] = grp_list.split('$')[session.get('cnt')]
                 next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
-
             else:
-
                 vote_form = ReviewVotes()
                 return render_template('cast3.html', form=vote_form, grp=grp,
                                        office_dict=session.get('office_dict'))
@@ -148,7 +173,7 @@ def cast(grp_list, token):
 
             votes_form = VoteForOne()
             candidate_choices = office_grp_query(grp, next_office[0])
-            print('candidate_choices ' + str(candidate_choices))
+            print('candidate_choices a ' + str(candidate_choices))
             writein_candidate_id = has_writein_candidate(candidate_choices)
             html_writein = 0
             if writein_candidate_id is not None:
@@ -228,6 +253,7 @@ def cast(grp_list, token):
                 else:
                     log_vote_event('no more offices a')
                     vote_form = ReviewVotes()
+                    print('office_dict ' + str(session.get('office_dict')))
                     return render_template('cast3.html', form=vote_form, group=session.get('group'),
                                            office_dict=session.get('office_dict'))
             log_vote_event('next_office ' + str(next_office))
@@ -238,7 +264,7 @@ def cast(grp_list, token):
                     grp = session.get('group', None)
                     candidate_choices = office_grp_query(grp, next_office[0])
 
-                    print('candidate_choices ' + str(candidate_choices))
+                    print('candidate_choices p ' + str(candidate_choices))
                     writein_candidate_id = has_writein_candidate(candidate_choices)
                     html_writein = 0
                     if writein_candidate_id is not None:
@@ -250,7 +276,7 @@ def cast(grp_list, token):
                         VoteForOne.candidate.choices = candidate_choices
 
                     # session['office'] = next_office[0]
-                    print('VoteForOne.candidate.choices ' + str(VoteForOne.candidate.choices))
+                    print('VoteForOne.candidate.choices x ' + str(VoteForOne.candidate.choices))
                     return render_template('cast1.html', form=votes_form, office=next_office[0],
                                            candidates=VoteForOne.candidate.choices, grp=grp, html_writein=html_writein)
 
@@ -264,6 +290,7 @@ def cast(grp_list, token):
                                            candidates=candidate_choices, grp=grp, max_votes=next_office[2])
     vote_form = ReviewVotes()
     log_vote_event('no more offices b')
+    print('office_dict ' + str(session.get('office_dict')))
     return render_template('cast3.html', form=vote_form,
                            office_dict=session.get('office_dict'))
     # return 'no more offices'
@@ -522,12 +549,17 @@ def are_all_classgrps_valid(grp_list):
     return True
 
 def has_writein_candidate(candidate_choices):
+    """
+    There is a need to check if there is a writein candidate
+    for the display of the writein field
+    """
     for candidate in candidate_choices:
-        print('candidate[1] ' + candidate[1])
+        print('candidate choices checking for writein ' + candidate[1])
         if 'writein' in candidate[1].lower():
             print(" is true")
             return candidate[0]
     return None
+
 def remove_writein_candidate(candidate_choices, writein_candidate_id):
     print('writein_candidate_id ' + str(writein_candidate_id))
     return [candidate for candidate in candidate_choices if candidate[0] != writein_candidate_id]
