@@ -45,9 +45,9 @@ Candidate Page
             <table class="table-dark">
                <thead>
                    <tr>
-                       <th class="col-2"> ID</th>
-                       <th class="col-2"> Firstname</th>
-                       <th class="col-2"> Lastname</th>
+
+                       <th class="col-2"> First name</th>
+                       <th class="col-2"> Last name</th>
                        <th class="col-2"> Class</th>
                        <th class="col-2"> Office </th>
                    </tr>
@@ -56,7 +56,7 @@ Candidate Page
                <tbody>
                {% for candidate, classgrp, office in candidates %}
                 <tr>
-                    <td>{{ candidate.id_candidate }}</td>
+
                     <td>{{ candidate.firstname }}</td>
                     <td>{{ candidate.lastname }}</td>
                     <td> {{ classgrp.name }}</td>
