@@ -5,7 +5,7 @@
 
 {% block content %}
     <div class="container">
-        <h1> Token Simple....</h1>
+        <h1> Token Build for Demo....</h1>
         <br>
         <form method="post" style="color:white">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -64,7 +64,7 @@
 
             <div class="row g-3 ">
                 <div class="col-2 ">
-                   Forth  Group
+                   Fourth  Group
                 </div>
             </div>
 
@@ -83,7 +83,7 @@
                  <br>
                 <br>
                 <div class="col-2">
-                     {{ form.submit(type="submit",value=' Submit Token Build', class="btn   btn-primary") }}
+                     {{ form.submit(type="submit",value=' Submit Token Build ', class="btn   btn-primary") }}
                 </div>
         </form>
 
@@ -108,7 +108,8 @@
                       <td> {{ tokenlistselector.secondary_grp }}</td>
                       <td> {{ tokenlistselector.tertiary_grp }}</td>
                       <td> {{ tokenlistselector.quarternary_grp }}</td>
-                      <td> <a href="{{ url_for('misc.delete_tokenlistselector',xid=tokenlistselector.id_tokenListSelector)}}">Delete</a> </td>
+                      <td> <a href="{{ url_for('misc.delete_tokenlistselector',xid=tokenlistselector.id_tokenListSelector)}}">Delete</a> &nbsp;&nbsp;&nbsp; </td>
+                      <td> <a href="{{ url_for('misc.single_token',xid=tokenlistselector.id_tokenListSelector)}}">create QR</a> </td>
                  </tr>
                  {% endfor %}
 

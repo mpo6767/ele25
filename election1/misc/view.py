@@ -1,13 +1,15 @@
-from flask import url_for, flash
+from flask import url_for, flash, Blueprint, redirect, request, render_template, send_file
 from pathlib import Path
 import xlsxwriter
-from flask import Blueprint, redirect, request, render_template
+# from flask import Blueprint, redirect, request, render_template
 from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from election1.models import Tokenlist, Classgrp, Tokenlistselectors
 from election1.utils import get_token
 from election1.misc.form import BuildTokensForm
 from election1.extensions import db
+import qrcode
+from io import BytesIO
 
 
 
@@ -29,8 +31,8 @@ def setup_tokens():
     # if request.method == 'POST' and form.validate():
     if request.method == 'GET':
         print("setup_tokens")
-        Tokenlist.query.delete()
-        db.session.commit()
+        # Tokenlist.query.delete()
+        # db.session.commit()
 
         inspector = inspect(db.engine)
 
@@ -121,6 +123,9 @@ def build_tokens():
 
     tokenlistselectors = Tokenlistselectors.get_all_tokenlistselectors_as_dict()
 
+    # selector_list is the list of the selected groups meant if there is more than 1
+    # this list is used to create the excel file and is used asa roundrobin to select the group
+
     selector_list = []
 
 
@@ -180,4 +185,53 @@ def build_tokens():
         worksheet.write(row, col, 'http://127.0.0.1:5000/cast/' + selector_list[eclass] + '/' + token)
     workbook.close()
     return redirect('/homepage')
+
+@misc.route('/single_token/<int:xid>', methods=['GET', 'POST'])
+def single_token(xid):
+    print("single_tokens")
+
+    token = get_token()
+
+
+    qrtoken = Tokenlistselectors.get_tokenlistselector_by_id_as_dict(xid)
+
+    selector_values = [
+        qrtoken['primary_grp'],
+        qrtoken['secondary_grp'],
+        qrtoken['tertiary_grp'],
+        qrtoken['quarternary_grp']
+    ]
+
+
+
+    # Filter out None values and join the remaining values with $
+    selector_string = '$'.join(filter(None, selector_values))
+    print("selector string " + selector_string)
+
+    try:
+        new_tokenlist = Tokenlist(grp_list=selector_string,
+                                  token=token,
+                                  vote_submitted_date_time=None)
+        db.session.add(new_tokenlist)
+        db.session.commit()
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print("except " + str(e))
+        return redirect("/homepage")
+
+    qr_data = 'http://192.168.1.126:5000/cast/' + selector_string + '/' + token
+
+    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color='black', back_color='white')
+
+    img_io = BytesIO()
+    img.save(img_io, 'PNG')
+    img_io.seek(0)
+    print(qr_data)
+    return send_file(img_io, mimetype='image/png')
+
+
+
 

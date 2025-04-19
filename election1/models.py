@@ -294,3 +294,21 @@ class Tokenlistselectors(db.Model):
     def get_all_tokenlistselectors_as_dict(cls):
         return [selector.to_dict() for selector in cls.query.all()]
 
+    @classmethod
+    def get_tokenlistselector_by_id_as_dict(cls, xid):
+        """
+        Retrieve a single Tokenlistselector by its ID and return it as a dictionary.
+        :param xid: The ID of the Tokenlistselector to retrieve.
+        :return: A dictionary representation of the Tokenlistselector if found, otherwise None.
+        """
+        tokenlistselector = cls.query.get(xid)
+        if tokenlistselector:
+            return {
+                'id_tokenListSelector': tokenlistselector.id_tokenListSelector,
+                'primary_grp': tokenlistselector.primary_grp,
+                'secondary_grp': tokenlistselector.secondary_grp,
+                'tertiary_grp': tokenlistselector.tertiary_grp,
+                'quarternary_grp': tokenlistselector.quarternary_grp
+            }
+        return None
+
