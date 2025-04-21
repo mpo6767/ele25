@@ -1,4 +1,4 @@
-from flask import url_for, flash, Blueprint, redirect, request, render_template, send_file
+from flask import url_for, flash, Blueprint, redirect, request, render_template, send_file, current_app
 from pathlib import Path
 import xlsxwriter
 # from flask import Blueprint, redirect, request, render_template
@@ -182,7 +182,7 @@ def build_tokens():
             print("except " + str(e))
             return redirect("/homepage")
 
-        worksheet.write(row, col, 'http://127.0.0.1:5000/cast/' + selector_list[eclass] + '/' + token)
+        worksheet.write(row, col, current_app.config['URL_SITE'] + selector_list[eclass] + '/' + token)
     workbook.close()
     return redirect('/homepage')
 
@@ -219,7 +219,7 @@ def single_token(xid):
         print("except " + str(e))
         return redirect("/homepage")
 
-    qr_data = 'http://192.168.1.126:5000/cast/' + selector_string + '/' + token
+    qr_data = current_app.config['URL_SITE'] + selector_string + '/' + token
 
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
     qr.add_data(qr_data)

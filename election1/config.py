@@ -20,5 +20,5 @@ class Config:
     # the following home value is used in the demo to redirect to a specific page
     HOME = os.getenv('HOME', 'https://google.com')
     MYTIMEOUT = timedelta(minutes=15)
-    URL_SITE = os.getenv('URL_SITE', 'http://localhost:5000')
+    URL_SITE = os.getenv('URL_SITE', 'http://localhost:5000/cast/')
 
