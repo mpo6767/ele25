@@ -1,82 +1,82 @@
 {% extends 'base.html' %}
 {% block title %}
- Class Group Page
+  Class Group Page
 {% endblock %}
 
 
 
 <body>
 {% block content %}
-    <div class="container">
-        <h1> Class or Groups... </h1>
-        <br>
-        <form method="post" style="color:white" autocomplete="off" >
-            {{ form.hidden_tag() }}
-              <div class="row g-3 ">
-                <div class="col-2 ">
-                     {{ form.name.label() }}
-                </div>
-                 <div class="col-auto">
-                    {{ form.name(autocomplete="off") }}
-                </div>
-                 <div class="col-sm-2">
+  <div class="container">
+    <h1> Class or Groups... </h1>
+    <br>
+    <form method="post" style="color:white" autocomplete="off">
+      {{ form.hidden_tag() }}
+      <div class="row g-3 ">
+        <div class="col-2 ">
+          {{ form.name.label() }}
+        </div>
+        <div class="col-auto">
+          {{ form.name(autocomplete="off") }}
+        </div>
+        <div class="col-sm-2">
                     <span id="passwordHelpInline" class="form-text">
                        Enter the class or group name.
                     </span>
-                </div>
-            </div>
-            <br>
-            <div class="row g-3">
-                <div class="col-2">
-                     {{ form.sortkey.label() }}
-                </div>
-                 <div class="col-auto">
-                    {{ form.sortkey() }}
-                </div>
-                 <div class="col-sm-2">
+        </div>
+      </div>
+      <br>
+      <div class="row g-3">
+        <div class="col-2">
+          {{ form.sortkey.label() }}
+        </div>
+        <div class="col-auto">
+          {{ form.sortkey() }}
+        </div>
+        <div class="col-sm-2">
                     <span id="passwordHelpInline" class="form-text">
                        For sort order in dropdowns USE INTEGER
                     </span>
-                </div>
-            </div>
-
-            <br><br>
-            <div class="d-grid gap-2 d-md-block">
-                {{ form.submit(type="submit",value='Add Class', class="btn   btn-primary") }}
-            </div>
-
-        </form>
-        <br><br>
-        <div class="container">
-            <table class="table-dark">
-               <thead>
-                   <tr>
-                       <th class="col-2"> Sort Key</th>
-                       <th class="col-2"> Class or Group</th>
-
-                       <th class="col-2"> Delete </th>
-                       <th class="col-2"> Edit </th>
-                   </tr>
-               </thead>
-
-               <tbody>
-               {% for classgrp in classgrps %}
-                <tr>
-                    <td>{{ classgrp.sortkey }}</td>
-                     <td>{{ classgrp.name }}</td>
-
-                    <td><a href="{{ url_for('classgrp.deleteclass',xid=classgrp.id_classgrp)}}">Delete</a> </td>
-                    <td><a href="{{ url_for('classgrp.updateclass',xid=classgrp.id_classgrp)}}">Edit</a> </td>
-                </tr>
-                {% endfor %}
-               </tbody>
-            </table>
-
-
         </div>
+      </div>
+
+      <br><br>
+      <div class="d-grid gap-2 d-md-block">
+        {{ form.submit(type="submit",value='Add Class or Group', class="btn   btn-primary") }}
+      </div>
+
+    </form>
+    <br><br>
+    <div class="container">
+      <table class="table-dark">
+        <thead>
+        <tr>
+          <th class="col-2"> Sort Key</th>
+          <th class="col-2"> Class or Group</th>
+          <th class="col-2"> Delete</th>
+          <th class="col-2"> Edit</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        {% for classgrp in classgrps %}
+          <tr>
+            <td>{{ classgrp.sortkey }}</td>
+            <td>{{ classgrp.name }}</td>
+
+            <td><a href="{{ url_for('classgrp.deleteclass',xid=classgrp.id_classgrp) }}">Delete</a></td>
+            <td><a href="{{ url_for('classgrp.updateclass',xid=classgrp.id_classgrp) }}">Edit</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
 
 
     </div>
+
+
+  </div>
 
 
 {% endblock %}
