@@ -18,7 +18,16 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///election.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # the following home value is used in the demo to redirect to a specific page
-    HOME = os.getenv('HOME', 'https://google.com')
+
     MYTIMEOUT = timedelta(minutes=15)
-    URL_SITE = os.getenv('URL_SITE', 'http://localhost:5000/cast/')
+
+    URL_HOST = os.getenv('URL_HOST', 'http://127.0.0.1')
+    URL_PORT = os.getenv('URL_PORT', '5000')
+
+    # building the home url from the host and port
+    HOME = "http://" + URL_HOST + ":" + URL_PORT +"/"
+    print('HOME:', HOME)
+
+
+
 
