@@ -9,12 +9,12 @@ class CandidateDataClass:
     classgrp_name: str
     office_title: str
     vote_for: int
-    write_in_allowed: bool
     nbr_of_votes: int
+    write_in_allowed: bool = False
     winner: bool = False  # Add winner property with default value False
 
     def __init__(self, id_candidate: int, firstname: str, lastname: str, classgrp_name: str, office_title: str,
-                 vote_for: int, write_in_allowed: bool, nbr_of_votes: int, winner: bool = False):
+                 vote_for: int,  nbr_of_votes: int, write_in_allowed: bool= False, winner: bool = False):
         self.id_candidate = id_candidate
         self.firstname = firstname
         self.lastname = lastname
@@ -90,10 +90,10 @@ class CandidateDataClass:
         self._winner = value
 
     @property
-    def write_in_allowed(self):
-        return self.write_in_allowed
+    def write_in_allowed(self) -> object:
+        return self._write_in_allowed
 
     @write_in_allowed.setter
     def write_in_allowed(self, value):
-        self.write_in_allowed = value
+        self._write_in_allowed = value
 
