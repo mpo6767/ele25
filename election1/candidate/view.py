@@ -32,7 +32,7 @@ def writein_candidate():
         return redirect(url_for('mains.homepage'))
 
     if Dates.after_start_date():
-        flash('You cannot register a write in after the voting start time or Election Dates are empty ',
+        flash('You cannot add a candidate or register a write in after the voting start time ',
               category='danger')
         return redirect(url_for('mains.homepage'))
 
