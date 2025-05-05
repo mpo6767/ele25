@@ -15,31 +15,29 @@ class CandidateDataClassSingleton:
     _instance = None
     _candidates = []
 
+    # def __new__(cls):
+    #     if cls._instance is None:
+    #         cls._instance = super(CandidateDataClassSingleton, cls).__new__(cls)
+    #     return cls._instance
+
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(CandidateDataClassSingleton, cls).__new__(cls)
+            cls._instance = object.__new__(cls)  # Use `object.__new__` to avoid recursion
         return cls._instance
 
     def set_candidates(self, candidates: list[CandidateDataClass]):
         self._candidates = candidates
+        print('CandidateDataClassSingleton set_candidates')
 
     def get_candidates(self) -> list[CandidateDataClass]:
+        print('CandidateDataClassSingleton get_candidates')
         return self._candidates
-
 
 def log_vote_event(message):
     log_file = 'vote_view_log.txt'
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     with open(log_file, 'a') as file:
         file.write(f"{timestamp} - {message}\n")
-
-
-# @vote.route('/group/search')
-# def group_search():
-#     group = request.args.get('choices_classgrp', type=int)
-#     candidates = db.session.query(Candidate, Classgrp, Office).select_from(Candidate).join(Classgrp).join(
-#         Office).order_by(Classgrp.sortkey, Office.sortkey).where(Classgrp.id_classgrp == group)
-#     return render_template('vote_results.html',  candidates=candidates)
 
 
 @vote.route('/cast/<grp_list>/<token>', methods=['POST', 'GET'])
@@ -66,22 +64,31 @@ def cast(grp_list, token):
             error = 'Invalid class group ' + grp_list
             return render_template('bad_token.html', error=error, home=home)
 
-    # token list is a record  (row) of the model Tokenlist
-    # the token list has a field called vote_submitted_date_time if populated indicates the token was used
-    # This why we read the token list record.
+        """
+        token list is a record  (row) of the model Tokenlist
+        the token list has a field called vote_submitted_date_time if populated indicates the token was used
+        This why we read the token list record.
+        """
 
         token_list_record = Tokenlist.get_tokenlist_record(token)
 
-    # to make sure everything is ok and the URL has not been tampered with the grp_list is checked
-    # the record in the database
-        home = current_app.config['HOME']
+        """
+        to make sure everything is ok and the URL has not been tampered with the grp_list is checked
+        that it matches the record in the database
+        """
+
+        home = current_app.config['HOME']  # setup the link when there is a problem
+
         if token_list_record.get('grp_list') != grp_list:
             return render_template('bad_token.html', error="group error in URL ", home=home)
         else:
             log_vote_event(f"grp_list matches the value in token_list_record: {grp_list} - Token: {token}")
 
-    # if the token is not in the database or the token has been used the classmethod returns a dictionary with the key
-    # 'error' with a value of the error.
+        """ 
+        if the token is not in the database or the token has been used the classmethod returns a dictionary with the key
+        'error' with a value of the error.
+        """
+
         if 'error' in token_list_record:
             log_vote_event(f"Token is bad: {token_list_record['error']} - Token: {token}")
             return render_template('bad_token.html', error=token_list_record['error'], home=home)
@@ -380,21 +387,25 @@ def post_ballot():
         # Clear the session data related to the ballot
         session.clear()
         home = current_app.config['HOME']
-        return render_template('thank_you.html', home=home)
+    return render_template('thank_you.html', home=home)
 
 
 @vote.route('/vote_results', methods=['GET'])
 def vote_results():
 
-    if not date_after():
-        flash('get results after voting end time ONLY ',
-              category='danger')
-        return redirect(url_for('mains.homepage'))
-    
+    # if not date_after():
+    #     flash('get results after voting end time ONLY ',
+    #           category='danger')
+    #     return redirect(url_for('mains.homepage'))
+
     form = VoteResults()
     form.choices_classgrp.choices = Classgrp.classgrp_query()
-    summary_results = get_summary_results()
+    print('form.choices_classgrp.choices ' + str(form.choices_classgrp.choices))
+    summary_results = Candidate.get_summary_results()
+    print('summary_results ' + str(summary_results))
+
     candidates = [create_candidate_dataclass(item) for item in summary_results]
+    print('candidates ' + str(candidates))
     mark_winner(candidates)
 
     # Set the candidates in the singleton
@@ -408,6 +419,8 @@ def vote_results():
 
 
 def create_candidate_dataclass(record):
+    print('create_candidate_dataclass record ' + str(record))
+    print('IN CCD')
     return CandidateDataClass(
         id_candidate=record[5],
         firstname=record[3],
@@ -415,7 +428,9 @@ def create_candidate_dataclass(record):
         classgrp_name=record[0],
         office_title=record[1],
         vote_for=record[2],
+
         nbr_of_votes=record[6],
+        write_in_allowed=False,
         winner=False  # Default value, can be updated later
     )
 
@@ -433,35 +448,35 @@ def mark_winner(candidates: list[CandidateDataClass]) -> list[CandidateDataClass
                 max_votes = max(candidates, key=lambda c: c.nbr_of_votes).nbr_of_votes
                 for candidate in candidates:
                     if candidate.nbr_of_votes == max_votes:
-                        candidate.winner_x = True
+                        candidate.winner = True
             else:
                 # Sort candidates by number of votes in descending order
                 candidates.sort(key=lambda c: c.nbr_of_votes, reverse=True)
                 # Mark the top candidates as winners
 
                 for i in range(min(candidates[0].vote_for, len(candidates))):
-                    candidates[i].winner_x = True
+                    candidates[i].winner = True
 
 
     return candidates
 
-def get_summary_results():
-    results = db.session.query(
-        Classgrp.name.label('group_name'),  # record[0]
-        Office.office_title.label('office_title'),  # record[1]
-        Office.office_vote_for.label('vote_for'),  # record[2]
-        Candidate.firstname.label('candidate_firstname'),  # record[3]
-        Candidate.lastname.label('candidate_lastname'),  # record[4]
-        Candidate.id_candidate.label('candidate_id'),  # record[5]
-        func.count(Votes.id_candidate).label('vote_total')  #
-    ).join(Candidate, Votes.id_candidate == Candidate.id_candidate)\
-     .join(Office, Candidate.id_office == Office.id_office)\
-     .join(Classgrp, Candidate.id_classgrp == Classgrp.id_classgrp)\
-     .group_by(Classgrp.name, Office.office_title, Candidate.firstname, Candidate.lastname)\
-     .order_by(Classgrp.sortkey, Office.sortkey, func.count(Votes.id_candidate).desc())\
-     .all()
-
-    return results
+# def get_summary_results():
+#     results = db.session.query(
+#         Classgrp.name.label('group_name'),  # record[0]
+#         Office.office_title.label('office_title'),  # record[1]
+#         Office.office_vote_for.label('vote_for'),  # record[2]
+#         Candidate.firstname.label('candidate_firstname'),  # record[3]
+#         Candidate.lastname.label('candidate_lastname'),  # record[4]
+#         Candidate.id_candidate.label('candidate_id'),  # record[5]
+#         func.count(Votes.id_candidate).label('vote_total')  #
+#     ).join(Candidate, Votes.id_candidate == Candidate.id_candidate)\
+#      .join(Office, Candidate.id_office == Office.id_office)\
+#      .join(Classgrp, Candidate.id_classgrp == Classgrp.id_classgrp)\
+#      .group_by(Classgrp.name, Office.office_title, Candidate.firstname, Candidate.lastname)\
+#      .order_by(Classgrp.sortkey, Office.sortkey, func.count(Votes.id_candidate).desc())\
+#      .all()
+#
+#     return results
 
 
 @vote.route('/vote_results/search', methods=['GET'])
