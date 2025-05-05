@@ -11,7 +11,12 @@
         {% for candidate in results %}
         <tr class="{% if candidate.winner %}table-success{% endif %}">
             <td>{{ candidate.classgrp_name }}</td>
-            <td>{{ candidate.office_title }}{% if candidate.winner %} (Winner){% endif %}</td>
+            <td>
+                {{ candidate.office_title }}
+                {% if candidate.winner %}
+                    <span class="text-danger">(Winner)</span>
+                {% endif %}
+            </td>
             <td>{{ candidate.firstname }} {{ candidate.lastname }}</td>
             <td class="text-end">{{ candidate.nbr_of_votes }}</td>
         </tr>
