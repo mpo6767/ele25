@@ -1,7 +1,8 @@
-from flask import url_for, flash, Blueprint, redirect, request, render_template, send_file, current_app
+import base64
+
+from flask import url_for, flash, Blueprint, redirect, request, render_template, current_app, session, send_file
 from pathlib import Path
 import xlsxwriter
-# from flask import Blueprint, redirect, request, render_template
 from sqlalchemy import inspect
 from sqlalchemy.exc import SQLAlchemyError
 from election1.models import Tokenlist, Classgrp, Tokenlistselectors
@@ -182,11 +183,19 @@ def build_tokens():
             print("except " + str(e))
             return redirect("/homepage")
 
-        worksheet.write(row, col, current_app.config['URL_SITE'] + selector_list[eclass] + '/' + token)
+        worksheet.write(row, col, current_app.config['URL_HOST'] + ":" + current_app.config['URL_PORT'] + "/cast/" + selector_list[eclass] + '/' + token)
     workbook.close()
     return redirect('/homepage')
 
-@misc.route('/single_token/<int:xid>', methods=['GET', 'POST'])
+@misc.route('/genQR', methods=['GET', 'POST'])
+def genQR():
+    form = BuildTokensForm()
+    tokenlistselectors = Tokenlistselectors.query.all()
+
+    return render_template("genQR.html",form=form, tokenlistselectors=tokenlistselectors)
+
+
+@misc.route('/single_token/<int:xid>', methods=['GET','POST'])
 def single_token(xid):
     print("single_tokens")
 
@@ -219,9 +228,15 @@ def single_token(xid):
         print("except " + str(e))
         return redirect("/homepage")
 
-    qr_data = current_app.config['URL_SITE'] + selector_string + '/' + token
+    qr_data = "http://" + current_app.config['URL_HOST'] + ":" + current_app.config['URL_PORT'] + "/cast/" + selector_string + '/' + token
+    qr_data_URL = "http://" + qr_data
 
-    qr = qrcode.QRCode(version=1, box_size=10, border=5)
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=5,
+        border=4
+    )
     qr.add_data(qr_data)
     qr.make(fit=True)
     img = qr.make_image(fill_color='black', back_color='white')
@@ -229,9 +244,15 @@ def single_token(xid):
     img_io = BytesIO()
     img.save(img_io, 'PNG')
     img_io.seek(0)
-    print(qr_data)
-    return send_file(img_io, mimetype='image/png')
 
+    # Clear the session
+    session.clear()
+
+    # Return the QR code and URL as HTML
+    qr_code_img = f'<img src="data:image/png;base64,{base64.b64encode(img_io.getvalue()).decode()}" alt="QR Code">'
+    qr_code_url = f'<br><br><p><a href="{qr_data}" target="_blank">{qr_data}</a></p>'
+    return qr_code_img + qr_code_url
+    # return send_file(img_io, mimetype='image/png', as_attachment=False, download_name='qrcode.png')
 
 
 
