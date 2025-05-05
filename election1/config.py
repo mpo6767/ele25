@@ -21,7 +21,7 @@ class Config:
 
     MYTIMEOUT = timedelta(minutes=15)
 
-    URL_HOST = os.getenv('URL_HOST', 'http://127.0.0.1')
+    URL_HOST = os.getenv('URL_HOST', '127.0.0.1')
     URL_PORT = os.getenv('URL_PORT', '5000')
 
     # building the home url from the host and port
