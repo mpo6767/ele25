@@ -1,7 +1,7 @@
 from flask import (render_template, url_for, flash,
                    redirect, request, Blueprint, current_app)
 from election1.classgrp.form import ClassgrpForm
-from election1.models import Classgrp, Office, Candidate, Dates
+from election1.models import Classgrp, Candidate, Dates
 from election1.extensions import db
 from sqlalchemy.exc import SQLAlchemyError
 import logging
@@ -15,23 +15,21 @@ logger = logging.getLogger(__name__)
 
 @classgrp.before_request
 def check_session_timeout():
+    if not current_user.is_authenticated:
+        return redirect(url_for('admins.login'))
     if not session_check():
         home = current_app.config['HOME']
         error = 'idle timeout '
         return render_template('session_timeout.html', error=error, home=home)
-
-
-def is_user_authenticated():
-    return current_user.is_authenticated
-
+    return None  # Explicitly return None when no redirection or rendering is needed
 
 @classgrp.route('/classgrp', methods=['POST', 'GET'])
 def classgrp_view():
     logger.info('user ' + str(current_user.user_so_name) + " has entered classgrp page")
 
-    if not is_user_authenticated():
-        print('user not authenticated')
-        return redirect(url_for('admins.login'))
+    # if not is_user_authenticated():
+    #     print('user not authenticated')
+    #     return redirect(url_for('admins.login'))
 
     if check_dates() is False:
         flash('Please set the Election Dates before adding a class or group', category='danger')
@@ -69,8 +67,8 @@ def classgrp_view():
 
 @classgrp.route('/deleteclass/<int:xid>', methods=['GET', 'POST'])
 def deleteclass(xid):
-    if not is_user_authenticated():
-        return redirect(url_for('mains.login'))
+    # if not is_user_authenticated():
+    #     return redirect(url_for('mains.login'))
 
     if Dates.check_dates() is False:
         flash('Please set the Election Dates before deleting a classgrp', category='danger')
@@ -104,8 +102,8 @@ def deleteclass(xid):
 @classgrp.route('/updateclass/<int:xid>', methods=['GET', 'POST'])
 def updateclass(xid):
 
-    if not is_user_authenticated():
-        return redirect(url_for('admins.login'))
+    # if not is_user_authenticated():
+    #     return redirect(url_for('admins.login'))
 
     if check_dates() is False:  # Check if the dates are set
         flash('Please set the Election Dates before updating a class or group', category='danger')
