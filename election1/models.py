@@ -2,6 +2,7 @@ from election1.extensions import db
 from flask_login import UserMixin
 from datetime import datetime
 from election1.utils import unique_security_token
+from sqlalchemy import func
 
 
 class Classgrp(db.Model):
@@ -121,7 +122,25 @@ class Candidate(db.Model):
     def get_candidates_by_office(cls, office_id):
         return db.session.query(cls).filter_by(id_office=office_id).all()
 
-
+    @classmethod
+    def get_summary_results(cls):
+        """
+        Retrieve summarized voting results grouped by class group and office.
+        """
+        return db.session.query(
+            Classgrp.name.label('group_name'),  # record[0]
+            Office.office_title.label('office_title'),  # record[1]
+            Office.office_vote_for.label('vote_for'),  # record[2]
+            cls.firstname.label('candidate_firstname'),  # record[3]
+            cls.lastname.label('candidate_lastname'),  # record[4]
+            cls.id_candidate.label('candidate_id'),  # record[5]
+            func.count(Votes.id_candidate).label('vote_total')  # record[6]
+        ).join(Votes, Votes.id_candidate == cls.id_candidate) \
+            .join(Office, cls.id_office == Office.id_office) \
+            .join(Classgrp, cls.id_classgrp == Classgrp.id_classgrp) \
+            .group_by(Classgrp.name, Office.office_title, cls.firstname, cls.lastname) \
+            .order_by(Classgrp.sortkey, Office.sortkey, func.count(Votes.id_candidate).desc()) \
+            .all()
 
 class User(db.Model, UserMixin):
     """
