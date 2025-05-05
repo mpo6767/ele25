@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}
+  Gen voter links
+{% endblock %}
+
+{% block content %}
+  <body>
+  <div class="container">
+    <br>
+    <p class=".fs 4, text-info">Gen QR if IP is not localhost and device is NOT phone<br>
+    Gen URL only if device is phone</p>
+
+    <form method="post" style="color:white">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
+  </div>
+  <br>
+
+  <div class="container">
+
+    <table class="table-light, table-sm">
+      <caption>ballot group(s) up to 3 groups</caption>
+      <thead>
+      <tr>
+        <th class="col-Auto"> First Group</th>
+        <th class="col-auto"> Second Group</th>
+        <th class="col-auto"> Third Group</th>
+      </tr>
+      </thead>
+
+
+      <tbody>
+      {% for tokenlistselector in tokenlistselectors %}
+        <tr>
+          <td class="col-Auto"> {{ tokenlistselector.primary_grp }}</td>
+          <td class="col-Auto"> {{ tokenlistselector.secondary_grp }}</td>
+          <td class="col-Auto"> {{ tokenlistselector.tertiary_grp }}</td>
+
+          <td>
+            <a
+              class="btn btn-link"
+              hx-get="/single_token/{{ tokenlistselector.id_tokenListSelector }}"
+              hx-target="#qrcode"
+              hx-trigger="click"
+            >
+              Click to generate QR
+            </a>
+          </td>
+
+        </tr>
+      {% endfor %}
+
+    </table>
+    <br><br>
+
+    <div class="container" id="qrcode">
+
+    </div>
+
+  </div>
+
+
+  </div>
+
+  </body>
+
+{% endblock %}
+    
+    
