@@ -96,27 +96,7 @@ def mark_winner(candidates: list[CandidateDataClass]) -> list[CandidateDataClass
 
                 for i in range(min(candidates[0].vote_for, len(candidates))):
                     candidates[i].winner = True
-
-
     return candidates
-
-# def get_summary_results():
-#     results = db.session.query(
-#         Classgrp.name.label('group_name'),  # record[0]
-#         Office.office_title.label('office_title'),  # record[1]
-#         Office.office_vote_for.label('vote_for'),  # record[2]
-#         Candidate.firstname.label('candidate_firstname'),  # record[3]
-#         Candidate.lastname.label('candidate_lastname'),  # record[4]
-#         Candidate.id_candidate.label('candidate_id'),  # record[5]
-#         func.count(Votes.id_candidate).label('vote_total')  #
-#     ).join(Candidate, Votes.id_candidate == Candidate.id_candidate)\
-#      .join(Office, Candidate.id_office == Office.id_office)\
-#      .join(Classgrp, Candidate.id_classgrp == Classgrp.id_classgrp)\
-#      .group_by(Classgrp.name, Office.office_title, Candidate.firstname, Candidate.lastname)\
-#      .order_by(Classgrp.sortkey, Office.sortkey, func.count(Votes.id_candidate).desc())\
-#      .all()
-#
-#     return results
 
 
 @results.route('/vote_results/search', methods=['GET'])
