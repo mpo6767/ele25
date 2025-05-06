@@ -41,6 +41,7 @@ def config_blueprint(app):
     from election1.office.view import office
     from election1.candidate.view import candidate
     from election1.misc.view import misc
+    from election1.results.view import results
     app.register_blueprint(candidate)
     app.register_blueprint(office)
     app.register_blueprint(admins)
@@ -49,6 +50,7 @@ def config_blueprint(app):
     app.register_blueprint(classgrp)
     app.register_blueprint(dates)
     app.register_blueprint(misc)
+    app.register_blueprint(results)
 
 def config_extention(app):
     """
