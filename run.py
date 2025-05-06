@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, current_app
 from flask_wtf.csrf import CSRFError
 from election1 import create_app
 
@@ -14,4 +14,6 @@ def handle_csrf_error(e):
 if __name__ == '__main__':
     os.environ['FLASK_ENV'] = 'development'
     os.environ['FLASK_DEBUG'] = '1'
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    host = os.getenv('URL_HOST', '127.0.0.1')  # Default to '127.0.0.1'
+    port = os.getenv('URL_PORT', '5000')
+    app.run(host=host, port=int(port), debug=True)
