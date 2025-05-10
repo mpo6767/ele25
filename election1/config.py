@@ -26,7 +26,6 @@ class Config:
 
     # building the home url from the host and port
     HOME = "http://" + URL_HOST + ":" + URL_PORT +"/"
-    print('HOME:', HOME)
 
 
 
