@@ -73,6 +73,7 @@ def cast(grp_list, token):
         log_vote_event(f"Token is good: {token}")
         log_vote_event('token_list_record ' + str(token_list_record))
 
+
         """
         I'm using session to store 
         the token_list_record, 
@@ -80,7 +81,7 @@ def cast(grp_list, token):
         the office_dict, 
         the current office, 
         the current office_dict_length, 
-        the cnt = current group number
+        the grp_pointer = current group number
         and the  length = nbr of groups
         """
 
@@ -88,10 +89,10 @@ def cast(grp_list, token):
         print('token_list_record ' + str(session.get('token_list_record')))
 
         # in a school election the groups are the classes at a minimum
-        # the cnt is the current group number there maybe more than 1
+        # the grp_pointer is the current group number there maybe more than 1
         # this is setups up for the first group or only group in the list
-        session['cnt'] = 0
-        print('session cnt ' + str(session.get('cnt')))
+        session['grp_pointer'] = 0
+        print('session grp_pointer ' + str(session.get('grp_pointer')))
 
         # the grp_list is the list of groups for the voter its in the url in this case
         log_vote_event('grp_list ' + grp_list)
@@ -99,21 +100,21 @@ def cast(grp_list, token):
         print('grp_list ' + grp_list)
 
         # nbr of groups are seperated by $ in the url
-        session['length'] = len(grp_list.split('$'))
-        print('length ' + str(session['length']))
+        session['grp_list_length'] = len(grp_list.split('$'))
+        print('grp_list_length ' + str(session['grp_list_length']))
 
         # since there could be more than 1 group for the voter the group
         # in session is the current group used to get the offices
         # the group_list is iterated through to get the next group
 
-        # using the session['cnt'] to get the current group
+        # using the session['grp_pointer'] to get the current group
         # the session['group'
-        session['group'] = grp_list.split('$')[session.get('cnt')]
+        session['group'] = grp_list.split('$')[session.get('grp_pointer')]
         print('session group ' + str(session.get('group')))
 
         # grp is the current group
-        grp = grp_list.split('$')[session.get('cnt')]
-        print('grp  from list using cnt as offset' + str(grp))
+        grp = grp_list.split('$')[session.get('grp_pointer')]
+        print('grp  from list using grp_pointer as offset' + str(grp))
 
         # get the office_dict from the database for the group
         # office_dict = get_office_dict(grp_list.split('$'))
@@ -142,9 +143,9 @@ def cast(grp_list, token):
 
         next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
         if next_office is None:
-            if session['cnt'] + 1 < session['length']:
-                session['cnt'] += 1
-                session['group'] = grp_list.split('$')[session.get('cnt')]
+            if session['grp_pointer'] + 1 < session['grp_list_length']:
+                session['grp_pointer'] += 1
+                session['group'] = grp_list.split('$')[session.get('grp_pointer')]
                 next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
             else:
                 vote_form = ReviewVotes()
@@ -220,16 +221,16 @@ def cast(grp_list, token):
             next_office = get_next_office_for_group(session.get('office_dict'), group)
             log_vote_event('203 next_office ' + str(next_office))
             if next_office is None:
-                if session['cnt'] + 1 < session['length']:
-                    session['cnt'] += 1
-                    log_vote_event('session cnt gggg' + str(session['cnt']))
-                    log_vote_event ('session length gggg' + str(session['length']))
+                if session['grp_pointer'] + 1 < session['grp_list_length']:
+                    session['grp_pointer'] += 1
+                    log_vote_event('session grp_pointer gggg' + str(session['grp_pointer']))
+                    log_vote_event ('session grp_list_length gggg' + str(session['grp_list_length']))
                     log_vote_event('grp_list gggg' + str(grp_list))
-                    # session['group'] = grp_list.split('$')[session.get('cnt')]
+                    # session['group'] = grp_list.split('$')[session.get('grp_pointer')]
                     log_vote_event('211 ' + str(session.get((grp_list))))
                     log_vote_event('Session grp_list: ' + str(session.get('grp_list', 'Not set')))
-                    log_vote_event('Session cnt: ' + str(session.get('cnt', 'Not set')))
-                    session['group'] = session['grp_list'].split('$')[session['cnt']]
+                    log_vote_event('Session grp_pointer: ' + str(session.get('grp_pointer', 'Not set')))
+                    session['group'] = session['grp_list'].split('$')[session['grp_pointer']]
                     log_vote_event('215 ' + str(session.get('group')))
 
                     next_office = get_next_office_for_group(session.get('office_dict'), session.get('group'))
@@ -308,7 +309,7 @@ def edit_choice(office_id, group):
     session['office_dict'] = office_dict
     session['review'] = True
     # Redirect to the cast route with the current group and token
-    update_session_cnt_for_group(group)
+    update_session_grp_pointer_for_group(group)
     token = session.get('token_list_record', {}).get('token', '')
     return redirect(url_for('vote.cast', grp_list=group, token=token))
 
@@ -321,13 +322,13 @@ def find_group_position(grp_list, group_name):
         return -1  # Group not found
 
 
-def update_session_cnt_for_group(group_name):
+def update_session_grp_pointer_for_group(group_name):
     grp_list = session.get('grp_list', '')
     position = find_group_position(grp_list, group_name)
     if position != -1:
-        session['cnt'] = position
+        session['grp_pointer'] = position
         session['group'] = group_name
-        log_vote_event(session['cnt'])
+        log_vote_event(session['grp_pointer'])
     else:
         log_vote_event(f"Group {group_name} not found in grp_list")
 
